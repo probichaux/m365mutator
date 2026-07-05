@@ -1,0 +1,48 @@
+{
+  "name": "m365mutator",
+  "version": "0.1.0",
+  "description": "M365Mutator — logs into a Microsoft 365 tenant via Microsoft Graph and mutates users, mail, calendar items, and OneDrive/SharePoint documents.",
+  "license": "MIT",
+  "author": "Paul Robichaux",
+  "main": "./build/main.js",
+  "type": "module",
+  "keywords": [
+    "microsoft-graph",
+    "microsoft-365",
+    "entra-id",
+    "sharepoint",
+    "onedrive"
+  ],
+  "scripts": {
+    "prestart": "lsof -ti :${PORT:-3700} | xargs kill 2>/dev/null || true",
+    "start": "node build/main.js",
+    "build": "tsc && vite build --config src/admin/client/vite.config.ts",
+    "build:watch": "tsc --watch",
+    "dev": "./dev.sh",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.13.0",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.5.0",
+    "express": "5.1.0",
+    "helmet": "^8.1.0",
+    "multer": "^2.1.1"
+  },
+  "devDependencies": {
+    "@fluentui/react-components": "^9.73.7",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.0",
+    "@types/multer": "^2.1.0",
+    "@types/node": "22.13.10",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "typescript": "5.8.2",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18"
+  }
+}

@@ -1,0 +1,43 @@
+# Ignore macOS system files
+.DS_Store
+
+# Ignore node modules and build artifacts
+node_modules/
+build/
+export/
+
+# Ignore environment files
+.env
+
+# Ignore Claude Desktop configuration files
+./claude-desktop-config.json
+
+# Ignore logs
+*.log
+build/*.log
+
+# Ignore temporary files
+*.tmp
+tmp/
+temp/
+
+# Ignore IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Ignore coverage reports
+coverage/
+.nyc_output/
+*.lcov
+.coverage
+htmlcov/
+coverage.xml
+coverage.json
+.jest/
+junit.xml
+
+# Ignore MCPB files
+*.mcpb

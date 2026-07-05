@@ -16,5 +16,9 @@
   "permissions": {
     "heading": "Required Graph permissions",
     "body": "Each tab lists the application permission it needs. Grant only what you plan to use, and have a tenant admin consent to it in the Entra ID app registration."
+  },
+  "repository": {
+    "heading": "Documentation & issues",
+    "body": "Additional documentation and issue tracking for M365Mutator are available in the GitHub repository:"
   }
 }

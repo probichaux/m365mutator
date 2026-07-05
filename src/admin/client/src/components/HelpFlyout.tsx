@@ -7,6 +7,8 @@ interface HelpFlyoutProps {
   onClose: () => void;
 }
 
+const REPO_URL = 'https://github.com/probichaux/m365mutator';
+
 export default function HelpFlyout({ open, onClose }: HelpFlyoutProps) {
   const { t } = useTranslation('help');
 
@@ -55,9 +57,19 @@ export default function HelpFlyout({ open, onClose }: HelpFlyoutProps) {
             </ol>
           </div>
 
-          <div>
+          <div style={sectionStyle}>
             <Text weight="semibold" size={400} block style={{ marginBottom: 8 }}>{t('permissions.heading')}</Text>
             <Text size={300} block style={{ color: tokens.colorNeutralForeground2 }}>{t('permissions.body')}</Text>
+          </div>
+
+          <div>
+            <Text weight="semibold" size={400} block style={{ marginBottom: 8 }}>{t('repository.heading')}</Text>
+            <Text size={300} block style={{ color: tokens.colorNeutralForeground2 }}>
+              {t('repository.body')}{' '}
+              <a href={REPO_URL} target="_blank" rel="noopener noreferrer" style={{ color: tokens.colorBrandForeground1 }}>
+                {REPO_URL}
+              </a>
+            </Text>
           </div>
 
         </div>

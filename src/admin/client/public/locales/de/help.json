@@ -16,5 +16,9 @@
   "permissions": {
     "heading": "Erforderliche Graph-Berechtigungen",
     "body": "Jede Registerkarte listet die benötigte Anwendungsberechtigung auf. Erteilen Sie nur die Berechtigungen, die Sie tatsächlich verwenden möchten, und lassen Sie diese von einem Mandantenadministrator in der Entra-ID-App-Registrierung genehmigen."
+  },
+  "repository": {
+    "heading": "Dokumentation & Probleme",
+    "body": "Zusätzliche Dokumentation und die Fehlerverfolgung für M365Mutator finden Sie im GitHub-Repository:"
   }
 }

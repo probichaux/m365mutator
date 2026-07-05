@@ -1,0 +1,13 @@
+{
+  "title": "Панель",
+  "graphCard": {
+    "title": "Microsoft Graph",
+    "configured": "Налаштовано",
+    "notConfigured": "Не налаштовано",
+    "authMode": "Режим автентифікації: {{mode}}",
+    "authModeCertificate": "сертифікат",
+    "authModeClientSecret": "секрет клієнта",
+    "openSettingsHint": "Відкрийте Налаштування, щоб додати реєстрацію застосунку Entra ID."
+  },
+  "footer": "Використовуйте вкладки вище для керування користувачами, поштою, подіями календаря та документами OneDrive/SharePoint у підключеному орендарі Microsoft 365."
+}

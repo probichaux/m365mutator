@@ -1,0 +1,40 @@
+{
+  "users": {
+    "title": "Benutzer",
+    "permission": "User.ReadWrite.All",
+    "operations": [
+      "Einen Benutzer anhand von ID oder UPN suchen",
+      "Profilfelder eines Benutzers aktualisieren",
+      "Ein Konto aktivieren/deaktivieren",
+      "Lizenzen und Rollen zuweisen oder entfernen"
+    ]
+  },
+  "mail": {
+    "title": "E-Mail",
+    "permission": "Mail.ReadWrite, Mail.Send",
+    "operations": [
+      "Eine neue E-Mail-Nachricht als Postfach senden",
+      "Auf eine vorhandene Nachricht antworten",
+      "Nachrichten verschieben oder löschen"
+    ]
+  },
+  "calendar": {
+    "title": "Kalender",
+    "permission": "Calendars.ReadWrite",
+    "operations": [
+      "Einen Kalendertermin mit Teilnehmern erstellen",
+      "Einen vorhandenen Termin aktualisieren",
+      "Einen Termin absagen/löschen"
+    ]
+  },
+  "files": {
+    "title": "Dateien",
+    "permission": "Files.ReadWrite.All, Sites.ReadWrite.All",
+    "operations": [
+      "Ein Dokument in das OneDrive eines Benutzers hochladen",
+      "Ein Dokument in eine SharePoint-Websitebibliothek hochladen",
+      "Dokumentmetadaten ändern",
+      "Ein Dokument aus OneDrive oder SharePoint entfernen"
+    ]
+  }
+}

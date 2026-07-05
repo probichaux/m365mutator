@@ -1,5 +1,6 @@
 import { Button, Text, tokens } from '@fluentui/react-components';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface HelpFlyoutProps {
   open: boolean;
@@ -7,6 +8,8 @@ interface HelpFlyoutProps {
 }
 
 export default function HelpFlyout({ open, onClose }: HelpFlyoutProps) {
+  const { t } = useTranslation('help');
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -17,6 +20,7 @@ export default function HelpFlyout({ open, onClose }: HelpFlyoutProps) {
   if (!open) return null;
 
   const sectionStyle = { marginBottom: 24, paddingBottom: 24, borderBottom: `1px solid ${tokens.colorNeutralStroke2}` };
+  const steps = t('gettingStarted.steps', { returnObjects: true }) as string[];
 
   return (
     <div
@@ -32,39 +36,28 @@ export default function HelpFlyout({ open, onClose }: HelpFlyoutProps) {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '20px 24px', borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
         }}>
-          <Text weight="semibold" size={500}>Help</Text>
-          <Button appearance="subtle" onClick={onClose} style={{ fontSize: 20, minWidth: 32 }}>&times;</Button>
+          <Text weight="semibold" size={500}>{t('title')}</Text>
+          <Button appearance="subtle" onClick={onClose} aria-label={t('common:close')} style={{ fontSize: 20, minWidth: 32 }}>&times;</Button>
         </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
 
           <div style={sectionStyle}>
-            <Text weight="semibold" size={400} block style={{ marginBottom: 8 }}>About M365Mutator</Text>
-            <Text size={300} block>
-              M365Mutator connects to a Microsoft 365 tenant via Microsoft Graph and lets an operator
-              update users, send/reply to mail, manage calendar items, and manage OneDrive/SharePoint
-              documents.
-            </Text>
+            <Text weight="semibold" size={400} block style={{ marginBottom: 8 }}>{t('about.heading')}</Text>
+            <Text size={300} block>{t('about.body')}</Text>
           </div>
 
           <div style={sectionStyle}>
-            <Text weight="semibold" size={400} block style={{ marginBottom: 8 }}>Getting started</Text>
+            <Text weight="semibold" size={400} block style={{ marginBottom: 8 }}>{t('gettingStarted.heading')}</Text>
             <ol style={{ margin: 0, paddingLeft: 20, color: tokens.colorNeutralForeground2 }}>
-              <li style={{ marginBottom: 4 }}>
-                Open Settings and enter the Entra ID app registration&rsquo;s tenant ID, client ID, and
-                a client secret or certificate.
-              </li>
-              <li style={{ marginBottom: 4 }}>Use Verify Graph Connection to confirm the credentials work.</li>
-              <li style={{ marginBottom: 4 }}>Use Targets to choose which users, mailboxes, or sites to act on.</li>
-              <li>Use the Users, Mail, Calendar, and Files tabs to run mutations against those targets.</li>
+              {steps.map((step, i) => (
+                <li key={i} style={{ marginBottom: i < steps.length - 1 ? 4 : 0 }}>{step}</li>
+              ))}
             </ol>
           </div>
 
           <div>
-            <Text weight="semibold" size={400} block style={{ marginBottom: 8 }}>Required Graph permissions</Text>
-            <Text size={300} block style={{ color: tokens.colorNeutralForeground2 }}>
-              Each tab lists the application permission it needs. Grant only what you plan to use, and
-              have a tenant admin consent to it in the Entra ID app registration.
-            </Text>
+            <Text weight="semibold" size={400} block style={{ marginBottom: 8 }}>{t('permissions.heading')}</Text>
+            <Text size={300} block style={{ color: tokens.colorNeutralForeground2 }}>{t('permissions.body')}</Text>
           </div>
 
         </div>

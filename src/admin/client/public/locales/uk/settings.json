@@ -1,0 +1,31 @@
+{
+  "title": "Налаштування",
+  "graph": {
+    "sectionTitle": "Microsoft Graph",
+    "description": "Облікові дані для реєстрації застосунку Entra ID, що використовується для звернень до Microsoft Graph. Надайте дозволи застосунку, потрібні для ваших операцій (наприклад, User.ReadWrite.All, Mail.ReadWrite, Calendars.ReadWrite, Files.ReadWrite.All, Sites.ReadWrite.All), і отримайте згоду адміністратора орендаря.",
+    "tenantId": "Ідентифікатор орендаря",
+    "tenantIdFormat": "Формат: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "authMethod": "Метод автентифікації",
+    "authMethodSecret": "Секрет клієнта",
+    "authMethodCert": "Сертифікат",
+    "clientId": "Ідентифікатор клієнта",
+    "clientSecret": "Секрет клієнта",
+    "certificate": "Сертифікат (PEM)",
+    "certificateNotUploaded": "Сертифікат не завантажено",
+    "uploadPem": "Завантажити PEM",
+    "certificatePassword": "Пароль сертифіката",
+    "certificatePasswordHint": "Необов'язково — потрібно лише для зашифрованих файлів PEM",
+    "verifyConnection": "Перевірити з'єднання з Graph",
+    "verifying": "Перевірка..."
+  },
+  "saveConfiguration": "Зберегти конфігурацію",
+  "savingConfiguration": "Збереження...",
+  "toast": {
+    "graphConnectionSuccess": "З'єднання з Graph успішне ({{latencyMs}} мс)",
+    "graphConnectionFailed": "Помилка з'єднання з Graph: {{error}}",
+    "configurationSaved": "Конфігурацію збережено",
+    "saveFailed": "Не вдалося зберегти",
+    "certificateUploaded": "Сертифікат завантажено",
+    "uploadFailed": "Не вдалося завантажити"
+  }
+}

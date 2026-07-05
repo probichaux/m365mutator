@@ -1,0 +1,20 @@
+{
+  "title": "Help",
+  "about": {
+    "heading": "About M365Mutator",
+    "body": "M365Mutator connects to a Microsoft 365 tenant via Microsoft Graph and lets an operator update users, send/reply to mail, manage calendar items, and manage OneDrive/SharePoint documents."
+  },
+  "gettingStarted": {
+    "heading": "Getting started",
+    "steps": [
+      "Open Settings and enter the Entra ID app registration's tenant ID, client ID, and a client secret or certificate.",
+      "Use Verify Graph Connection to confirm the credentials work.",
+      "Use Targets to choose which users, mailboxes, or sites to act on.",
+      "Use the Users, Mail, Calendar, and Files tabs to run mutations against those targets."
+    ]
+  },
+  "permissions": {
+    "heading": "Required Graph permissions",
+    "body": "Each tab lists the application permission it needs. Grant only what you plan to use, and have a tenant admin consent to it in the Entra ID app registration."
+  }
+}

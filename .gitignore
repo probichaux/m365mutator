@@ -41,3 +41,6 @@ junit.xml
 
 # Ignore MCPB files
 *.mcpb
+
+# Ignore local Claude Code session/runtime state
+.claude/

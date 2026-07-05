@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { Button } from '@fluentui/react-components';
+import LanguageSwitcher from './LanguageSwitcher';
 import type { PageId } from '../App';
 
 interface LayoutProps {
@@ -9,16 +11,11 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-const TABS: { id: PageId; label: string }[] = [
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'targets', label: 'Targets' },
-  { id: 'users', label: 'Users' },
-  { id: 'mail', label: 'Mail' },
-  { id: 'calendar', label: 'Calendar' },
-  { id: 'files', label: 'Files' },
-];
+const TABS: PageId[] = ['dashboard', 'targets', 'users', 'mail', 'calendar', 'files'];
 
 export default function Layout({ page, onNavigate, onOpenSettings, onOpenHelp, children }: LayoutProps) {
+  const { t } = useTranslation('nav');
+
   return (
     <div style={{ minHeight: '100vh', background: '#f1f1f1' }}>
       <header
@@ -40,7 +37,7 @@ export default function Layout({ page, onNavigate, onOpenSettings, onOpenHelp, c
             appearance="subtle"
             onClick={onOpenSettings}
             style={{ color: '#fff' }}
-            title="Settings"
+            title={t('settings')}
             icon={
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="3" />
@@ -52,7 +49,7 @@ export default function Layout({ page, onNavigate, onOpenSettings, onOpenHelp, c
             appearance="subtle"
             onClick={onOpenHelp}
             style={{ color: '#fff' }}
-            title="Help"
+            title={t('help')}
             icon={
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10" />
@@ -66,35 +63,43 @@ export default function Layout({ page, onNavigate, onOpenSettings, onOpenHelp, c
 
       <nav
         style={{
-          display: 'flex',
-          justifyContent: 'center',
+          display: 'grid',
+          gridTemplateColumns: '1fr auto 1fr',
+          alignItems: 'center',
           gap: 4,
           background: '#241d78',
           padding: '0 24px 8px',
         }}
       >
-        {TABS.map((tab) => {
-          const active = page === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => onNavigate(tab.id)}
-              style={{
-                appearance: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: 13,
-                fontWeight: active ? 600 : 500,
-                color: '#fff',
-                background: active ? 'rgba(255,255,255,0.22)' : 'transparent',
-                padding: '6px 16px',
-                borderRadius: 6,
-              }}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
+        <div />
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
+          {TABS.map((tabId) => {
+            const active = page === tabId;
+            return (
+              <button
+                key={tabId}
+                onClick={() => onNavigate(tabId)}
+                style={{
+                  appearance: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: 13,
+                  fontWeight: active ? 600 : 500,
+                  color: '#fff',
+                  background: active ? 'rgba(255,255,255,0.22)' : 'transparent',
+                  padding: '6px 16px',
+                  borderRadius: 6,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {t(tabId)}
+              </button>
+            );
+          })}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <LanguageSwitcher />
+        </div>
       </nav>
 
       <main

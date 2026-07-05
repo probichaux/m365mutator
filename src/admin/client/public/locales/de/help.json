@@ -1,0 +1,20 @@
+{
+  "title": "Hilfe",
+  "about": {
+    "heading": "Über M365Mutator",
+    "body": "M365Mutator stellt über Microsoft Graph eine Verbindung zu einem Microsoft-365-Mandanten her und ermöglicht es einem Bediener, Benutzer zu aktualisieren, E-Mails zu senden/beantworten sowie Kalendereinträge und OneDrive-/SharePoint-Dokumente zu verwalten."
+  },
+  "gettingStarted": {
+    "heading": "Erste Schritte",
+    "steps": [
+      "Öffnen Sie die Einstellungen und geben Sie die Mandanten-ID, die Client-ID sowie ein Client-Secret oder Zertifikat der Entra-ID-App-Registrierung ein.",
+      "Verwenden Sie „Graph-Verbindung überprüfen“, um zu bestätigen, dass die Anmeldeinformationen funktionieren.",
+      "Verwenden Sie „Ziele“, um auszuwählen, mit welchen Benutzern, Postfächern oder Websites gearbeitet werden soll.",
+      "Verwenden Sie die Registerkarten Benutzer, E-Mail, Kalender und Dateien, um Vorgänge für diese Ziele auszuführen."
+    ]
+  },
+  "permissions": {
+    "heading": "Erforderliche Graph-Berechtigungen",
+    "body": "Jede Registerkarte listet die benötigte Anwendungsberechtigung auf. Erteilen Sie nur die Berechtigungen, die Sie tatsächlich verwenden möchten, und lassen Sie diese von einem Mandantenadministrator in der Entra-ID-App-Registrierung genehmigen."
+  }
+}

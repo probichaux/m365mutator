@@ -1,0 +1,40 @@
+{
+  "users": {
+    "title": "Users",
+    "permission": "User.ReadWrite.All",
+    "operations": [
+      "Look up a user by ID or UPN",
+      "Update user profile fields",
+      "Enable / disable an account",
+      "Assign or remove licenses and roles"
+    ]
+  },
+  "mail": {
+    "title": "Mail",
+    "permission": "Mail.ReadWrite, Mail.Send",
+    "operations": [
+      "Send a new mail message as a mailbox",
+      "Reply to an existing message",
+      "Move or delete messages"
+    ]
+  },
+  "calendar": {
+    "title": "Calendar",
+    "permission": "Calendars.ReadWrite",
+    "operations": [
+      "Create a calendar event with attendees",
+      "Update an existing event",
+      "Cancel / delete an event"
+    ]
+  },
+  "files": {
+    "title": "Files",
+    "permission": "Files.ReadWrite.All, Sites.ReadWrite.All",
+    "operations": [
+      "Upload a document to a user's OneDrive",
+      "Upload a document to a SharePoint site library",
+      "Modify document metadata",
+      "Remove a document from OneDrive or SharePoint"
+    ]
+  }
+}

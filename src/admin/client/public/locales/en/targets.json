@@ -1,0 +1,10 @@
+{
+  "title": "Targets",
+  "description": "Manage the users, mailboxes, and SharePoint sites that the Users, Mail, Calendar, and Files tabs act on.",
+  "plannedFunctionality": "Planned functionality",
+  "operations": [
+    "Look up a user or mailbox by UPN or object ID",
+    "Look up a SharePoint site by URL or ID",
+    "Save frequently used targets for quick reuse across tabs"
+  ]
+}

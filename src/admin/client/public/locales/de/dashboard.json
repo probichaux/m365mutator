@@ -1,0 +1,13 @@
+{
+  "title": "Übersicht",
+  "graphCard": {
+    "title": "Microsoft Graph",
+    "configured": "Konfiguriert",
+    "notConfigured": "Nicht konfiguriert",
+    "authMode": "Authentifizierungsmodus: {{mode}}",
+    "authModeCertificate": "Zertifikat",
+    "authModeClientSecret": "Client-Secret",
+    "openSettingsHint": "Öffnen Sie die Einstellungen, um eine Entra-ID-App-Registrierung hinzuzufügen."
+  },
+  "footer": "Verwenden Sie die Registerkarten oben, um Benutzer, E-Mails, Kalendereinträge und OneDrive-/SharePoint-Dokumente im verbundenen Microsoft-365-Mandanten zu verwalten."
+}

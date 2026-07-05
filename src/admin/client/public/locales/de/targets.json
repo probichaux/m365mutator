@@ -1,0 +1,10 @@
+{
+  "title": "Ziele",
+  "description": "Verwalten Sie die Benutzer, Postfächer und SharePoint-Websites, mit denen die Registerkarten Benutzer, E-Mail, Kalender und Dateien arbeiten.",
+  "plannedFunctionality": "Geplante Funktionen",
+  "operations": [
+    "Einen Benutzer oder ein Postfach anhand von UPN oder Objekt-ID suchen",
+    "Eine SharePoint-Website anhand von URL oder ID suchen",
+    "Häufig verwendete Ziele zur schnellen Wiederverwendung speichern"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "title": "Einstellungen",
+  "graph": {
+    "sectionTitle": "Microsoft Graph",
+    "description": "Anmeldeinformationen für die Entra-ID-App-Registrierung, die zum Aufrufen von Microsoft Graph verwendet wird. Erteilen Sie die für Ihre Vorgänge benötigten Anwendungsberechtigungen (z. B. User.ReadWrite.All, Mail.ReadWrite, Calendars.ReadWrite, Files.ReadWrite.All, Sites.ReadWrite.All) und lassen Sie diese von einem Mandantenadministrator genehmigen.",
+    "tenantId": "Mandanten-ID",
+    "tenantIdFormat": "Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "authMethod": "Authentifizierungsmethode",
+    "authMethodSecret": "Client-Secret",
+    "authMethodCert": "Zertifikat",
+    "clientId": "Client-ID",
+    "clientSecret": "Client-Secret",
+    "certificate": "Zertifikat (PEM)",
+    "certificateNotUploaded": "Kein Zertifikat hochgeladen",
+    "uploadPem": "PEM hochladen",
+    "certificatePassword": "Zertifikatkennwort",
+    "certificatePasswordHint": "Optional — nur für verschlüsselte PEM-Dateien erforderlich",
+    "verifyConnection": "Graph-Verbindung überprüfen",
+    "verifying": "Wird getestet..."
+  },
+  "saveConfiguration": "Konfiguration speichern",
+  "savingConfiguration": "Wird gespeichert...",
+  "toast": {
+    "graphConnectionSuccess": "Graph-Verbindung erfolgreich ({{latencyMs}} ms)",
+    "graphConnectionFailed": "Graph-Verbindung fehlgeschlagen: {{error}}",
+    "configurationSaved": "Konfiguration gespeichert",
+    "saveFailed": "Speichern fehlgeschlagen",
+    "certificateUploaded": "Zertifikat hochgeladen",
+    "uploadFailed": "Hochladen fehlgeschlagen"
+  }
+}

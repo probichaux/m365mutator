@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, Title2, tokens } from '@fluentui/react-components';
 import { api } from '../api';
 
@@ -17,6 +18,7 @@ const cardStyle = {
 };
 
 export default function DashboardPage() {
+  const { t } = useTranslation('dashboard');
   const [config, setConfig] = useState<ConfigData | null>(null);
 
   useEffect(() => {
@@ -28,24 +30,25 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <Title2 block style={{ marginBottom: 16 }}>Dashboard</Title2>
+      <Title2 block style={{ marginBottom: 16 }}>{t('title')}</Title2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
         <div style={cardStyle}>
-          <Text weight="semibold" block style={{ marginBottom: 8 }}>Microsoft Graph</Text>
+          <Text weight="semibold" block style={{ marginBottom: 8 }}>{t('graphCard.title')}</Text>
           <Text size={300} style={{ color: configured ? tokens.colorPaletteGreenForeground1 : tokens.colorPaletteRedForeground1 }}>
-            {configured ? 'Configured' : 'Not configured'}
+            {configured ? t('graphCard.configured') : t('graphCard.notConfigured')}
           </Text>
           <Text size={200} block style={{ color: tokens.colorNeutralForeground3, marginTop: 4 }}>
             {configured
-              ? `Auth mode: ${config?.graphCertificatePath ? 'certificate' : 'client secret'}`
-              : 'Open Settings to add an Entra ID app registration.'}
+              ? t('graphCard.authMode', {
+                  mode: config?.graphCertificatePath ? t('graphCard.authModeCertificate') : t('graphCard.authModeClientSecret'),
+                })
+              : t('graphCard.openSettingsHint')}
           </Text>
         </div>
       </div>
 
       <Text block style={{ marginTop: 24, color: tokens.colorNeutralForeground3 }}>
-        Use the tabs above to manage users, mail, calendar items, and OneDrive/SharePoint documents
-        in the connected Microsoft 365 tenant.
+        {t('footer')}
       </Text>
     </div>
   );

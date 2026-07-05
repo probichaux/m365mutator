@@ -1,0 +1,13 @@
+{
+  "title": "Dashboard",
+  "graphCard": {
+    "title": "Microsoft Graph",
+    "configured": "Configured",
+    "notConfigured": "Not configured",
+    "authMode": "Auth mode: {{mode}}",
+    "authModeCertificate": "certificate",
+    "authModeClientSecret": "client secret",
+    "openSettingsHint": "Open Settings to add an Entra ID app registration."
+  },
+  "footer": "Use the tabs above to manage users, mail, calendar items, and OneDrive/SharePoint documents in the connected Microsoft 365 tenant."
+}

@@ -1,0 +1,31 @@
+{
+  "title": "Settings",
+  "graph": {
+    "sectionTitle": "Microsoft Graph",
+    "description": "Credentials for the Entra ID app registration used to call Microsoft Graph. Grant it the application permissions your mutations need (e.g. User.ReadWrite.All, Mail.ReadWrite, Calendars.ReadWrite, Files.ReadWrite.All, Sites.ReadWrite.All) and have a tenant admin consent to them.",
+    "tenantId": "Tenant ID",
+    "tenantIdFormat": "Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "authMethod": "Authentication Method",
+    "authMethodSecret": "Client Secret",
+    "authMethodCert": "Certificate",
+    "clientId": "Client ID",
+    "clientSecret": "Client Secret",
+    "certificate": "Certificate (PEM)",
+    "certificateNotUploaded": "No certificate uploaded",
+    "uploadPem": "Upload PEM",
+    "certificatePassword": "Certificate Password",
+    "certificatePasswordHint": "Optional — only required for encrypted PEM files",
+    "verifyConnection": "Verify Graph Connection",
+    "verifying": "Testing..."
+  },
+  "saveConfiguration": "Save Configuration",
+  "savingConfiguration": "Saving...",
+  "toast": {
+    "graphConnectionSuccess": "Graph connection successful ({{latencyMs}}ms)",
+    "graphConnectionFailed": "Graph connection failed: {{error}}",
+    "configurationSaved": "Configuration saved",
+    "saveFailed": "Save failed",
+    "certificateUploaded": "Certificate uploaded",
+    "uploadFailed": "Upload failed"
+  }
+}

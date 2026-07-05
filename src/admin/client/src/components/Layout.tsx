@@ -1,5 +1,4 @@
 import { Button } from '@fluentui/react-components';
-import { useAuth } from '../context/AuthContext';
 import type { PageId } from '../App';
 
 interface LayoutProps {
@@ -18,8 +17,6 @@ const TABS: { id: PageId; label: string }[] = [
 ];
 
 export default function Layout({ page, onNavigate, onOpenSettings, children }: LayoutProps) {
-  const { logout } = useAuth();
-
   return (
     <div style={{ minHeight: '100vh', background: '#f1f1f1' }}>
       <header
@@ -49,9 +46,6 @@ export default function Layout({ page, onNavigate, onOpenSettings, children }: L
               </svg>
             }
           />
-          <Button appearance="subtle" onClick={logout} style={{ color: '#fff' }}>
-            Sign Out
-          </Button>
         </div>
       </header>
 

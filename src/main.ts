@@ -1,10 +1,8 @@
 import 'dotenv/config';
 import express, { Request, Response } from 'express';
-import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 import adminRouter from './admin/admin-routes.js';
-import { getSigningSecret, isAdminEnabled } from './admin/admin-auth.js';
 import { loadConfig, applyConfig } from './admin/config-store.js';
 import { graphConfig } from './helpers/graph-config.helper.js';
 import { GraphAuthManager } from './graph/graph-auth.js';
@@ -65,7 +63,6 @@ export function createApp(): express.Express {
   }));
 
   app.use(express.json());
-  app.use(cookieParser(getSigningSecret()));
 
   app.get('/health', (_req: Request, res: Response) => {
     res.json({ status: 'ok' });
@@ -94,7 +91,6 @@ async function main() {
   logger.info(`GRAPH_CLIENT_SECRET: ${graphConfig.graphClientSecret ? '[REDACTED]' : 'not set'}`);
   logger.info(`GRAPH_CERTIFICATE_PATH: ${graphConfig.graphCertificatePath || 'not set'}`);
   logger.info(`Graph auth mode: ${graphConfig.graphCertificatePath ? 'certificate' : 'client_secret'}`);
-  logger.info(`Admin UI: ${isAdminEnabled() ? 'enabled' : 'disabled (set M365MUTATOR_ADMIN_PASSWORD to enable)'}`);
 
   logger.info('Initializing Microsoft Graph API client');
   try {

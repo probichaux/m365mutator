@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState, type ComponentType } from 'react';
 import { FluentProvider } from '@fluentui/react-components';
 import { mutatorTheme } from './theme';
-import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './components/ToastProvider';
-import LoginPage from './components/LoginPage';
 import Layout from './components/Layout';
 import SettingsFlyout from './components/SettingsFlyout';
 import DashboardPage from './pages/DashboardPage';
@@ -28,13 +26,8 @@ function pageFromHash(hash: string): PageId {
 }
 
 function AppShell() {
-  const { authenticated, checkSession } = useAuth();
   const [page, setPage] = useState<PageId>(() => pageFromHash(window.location.hash));
   const [settingsOpen, setSettingsOpen] = useState(false);
-
-  useEffect(() => {
-    checkSession();
-  }, [checkSession]);
 
   useEffect(() => {
     const onHashChange = () => setPage(pageFromHash(window.location.hash));
@@ -46,8 +39,6 @@ function AppShell() {
     window.location.hash = next;
     setPage(next);
   }, []);
-
-  if (!authenticated) return <LoginPage />;
 
   const Page = PAGES[page];
 
@@ -63,9 +54,7 @@ export default function App() {
   return (
     <FluentProvider theme={mutatorTheme}>
       <ToastProvider>
-        <AuthProvider>
-          <AppShell />
-        </AuthProvider>
+        <AppShell />
       </ToastProvider>
     </FluentProvider>
   );

@@ -3,7 +3,6 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync, chmodSync } from 'node:fs';
 import multer from 'multer';
-import { loginHandler, logoutHandler, adminAuthMiddleware, isAdminEnabled } from './admin-auth.js';
 import { loadConfig, saveConfig, maskSecrets, applyConfig, getDataDir, AppConfig } from './config-store.js';
 import { testGraph } from './connectivity.js';
 import { logger } from '../logger/logger.js';
@@ -17,21 +16,15 @@ const appVersion: string = JSON.parse(readFileSync(pkgPath, 'utf-8')).version;
 
 const router = Router();
 
-// ── Public routes ────────────────────────────────────────────────────
+// This app has no login gate — anyone who can reach it can read/change Graph
+// config and drive the Graph-dependent operations. It's meant to run somewhere
+// only trusted operators can reach (localhost, an internal network, etc.).
 
-router.post('/api/login', loginHandler);
-router.post('/api/logout', logoutHandler);
-router.get('/api/version', (_req: Request, res: Response) => {
-  res.json({ version: appVersion });
-});
-
-// ── Authenticated routes ─────────────────────────────────────────────
-
-router.get('/api/config', adminAuthMiddleware, (_req: Request, res: Response) => {
+router.get('/api/config', (_req: Request, res: Response) => {
   res.json(maskSecrets(loadConfig()));
 });
 
-router.put('/api/config', adminAuthMiddleware, (req: Request, res: Response) => {
+router.put('/api/config', (req: Request, res: Response) => {
   try {
     const current = loadConfig();
     const body = req.body as Partial<AppConfig>;
@@ -65,14 +58,14 @@ router.put('/api/config', adminAuthMiddleware, (req: Request, res: Response) => 
   }
 });
 
-router.post('/api/test-graph', adminAuthMiddleware, async (req: Request, res: Response) => {
+router.post('/api/test-graph', async (req: Request, res: Response) => {
   const result = await testGraph(req.body);
   if (result.success && result._apply) result._apply();
   const { _apply, ...response } = result;
   res.json(response);
 });
 
-router.get('/api/status', adminAuthMiddleware, (_req: Request, res: Response) => {
+router.get('/api/status', (_req: Request, res: Response) => {
   res.json({
     version: appVersion,
     uptime: Math.floor((Date.now() - startedAt) / 1000),
@@ -81,7 +74,7 @@ router.get('/api/status', adminAuthMiddleware, (_req: Request, res: Response) =>
 
 // ── Certificate upload ──────────────────────────────────────────────
 
-router.post('/api/upload-certificate', adminAuthMiddleware, (req: Request, res: Response) => {
+router.post('/api/upload-certificate', (req: Request, res: Response) => {
   certUpload.single('certificate')(req, res, (err: any) => {
     if (err) {
       if (err.code === 'LIMIT_FILE_SIZE') {
@@ -128,17 +121,9 @@ router.post('/api/upload-certificate', adminAuthMiddleware, (req: Request, res: 
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const staticDir = join(__dirname, 'static');
-const staticHandler = expressStatic(staticDir);
+router.use('/admin', expressStatic(staticDir));
 
-router.use('/admin', (req: Request, res: Response, next) => {
-  if (!isAdminEnabled()) {
-    res.status(403).json({ error: 'Admin UI is disabled' });
-    return;
-  }
-  staticHandler(req, res, next);
-});
-
-// Redirect root to admin UI
+// Redirect root to the admin UI
 router.get('/', (_req: Request, res: Response) => {
   res.redirect('/admin');
 });

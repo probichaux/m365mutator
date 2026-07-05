@@ -3,9 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { graphConfig } from '../helpers/graph-config.helper.js';
 import { atomicWriteJson, safeReadJson } from '../helpers/file.helper.js';
-import { encrypt, decrypt } from '../helpers/crypto.helper.js';
 import { resetGraphClient } from '../graph/graph-client.js';
-import { logger } from '../logger/logger.js';
 
 export interface AppConfig {
   graphClientId: string;
@@ -18,17 +16,10 @@ export interface AppConfig {
   logPath: string;
 }
 
-const SECRET_FIELDS = ['graphClientSecret', 'graphCertificatePassword'] as const;
-
-type SecretField = typeof SECRET_FIELDS[number];
-type EncField = `${SecretField}_enc`;
-
-/** On-disk representation — may contain `_enc` companions for encrypted secrets. */
-type StoredConfig = AppConfig & Partial<Record<EncField, string>>;
-
 function getDataDirInternal(): string {
   // Tests inject M365MUTATOR_DATA_DIR; otherwise use /data (container) or ~/.m365mutator-data (local).
-  // Mode 0o700: the directory contains the encrypted config and must not be world-readable.
+  // Mode 0o700 + the config file's 0o600 (see atomicWriteJson) are the only protection on the
+  // stored Graph secrets — there is no admin password to derive an encryption key from.
   if (process.env.M365MUTATOR_DATA_DIR) {
     mkdirSync(process.env.M365MUTATOR_DATA_DIR, { recursive: true, mode: 0o700 });
     return process.env.M365MUTATOR_DATA_DIR;
@@ -59,7 +50,7 @@ export function loadConfig(): AppConfig {
     logPath: process.env.M365MUTATOR_LOG_PATH || './m365mutator.log',
   };
 
-  const saved = safeReadJson<Partial<StoredConfig>>(getConfigPath(), {});
+  const saved = safeReadJson<Partial<AppConfig>>(getConfigPath(), {});
   if (Object.keys(saved).length === 0) {
     return defaults;
   }
@@ -83,50 +74,11 @@ export function loadConfig(): AppConfig {
     }
   }
 
-  // Decrypt secret fields if _enc companions exist
-  const adminPassword = process.env.M365MUTATOR_ADMIN_PASSWORD;
-  if (adminPassword) {
-    for (const field of SECRET_FIELDS) {
-      const encKey = `${field}_enc` as EncField;
-      const encValue = saved[encKey];
-      if (encValue) {
-        try {
-          (merged as unknown as Record<string, unknown>)[field] = decrypt(encValue, adminPassword);
-        } catch {
-          logger.warn(`[CONFIG] Could not decrypt ${field} — admin password may have changed. Re-enter via admin UI.`);
-          // Don't overwrite — keep the env-var fallback already in merged[field]
-        }
-      }
-    }
-  }
-
   return merged;
 }
 
 export function saveConfig(config: AppConfig): void {
-  const stored: StoredConfig = { ...config };
-  const adminPassword = process.env.M365MUTATOR_ADMIN_PASSWORD;
-  if (adminPassword) {
-    for (const field of SECRET_FIELDS) {
-      const plaintext = config[field];
-      if (plaintext) {
-        const encKey = `${field}_enc` as EncField;
-        stored[encKey] = encrypt(plaintext, adminPassword);
-        (stored as unknown as Record<string, unknown>)[field] = '';
-      }
-    }
-  } else {
-    // Without admin password, strip secrets from disk — never write plaintext
-    const hasSecrets = SECRET_FIELDS.some(f => !!config[f]);
-    if (hasSecrets) {
-      logger.warn('[CONFIG] M365MUTATOR_ADMIN_PASSWORD is not set — secrets will NOT be persisted to disk. Set M365MUTATOR_ADMIN_PASSWORD to enable encrypted secret storage.');
-    }
-    for (const field of SECRET_FIELDS) {
-      (stored as unknown as Record<string, unknown>)[field] = '';
-    }
-  }
-
-  atomicWriteJson(getConfigPath(), stored);
+  atomicWriteJson(getConfigPath(), config);
 }
 
 export function maskSecrets(config: AppConfig): AppConfig {

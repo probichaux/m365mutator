@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { Text, Title2, tokens } from '@fluentui/react-components';
+import { Card, Text, Title2, tokens } from '@fluentui/react-components';
 
 interface PagePlaceholderProps {
-  pageKey: 'users' | 'mail' | 'calendar' | 'files';
+  pageKey: 'mail' | 'calendar' | 'files';
 }
 
 export default function PagePlaceholder({ pageKey }: PagePlaceholderProps) {
@@ -12,12 +12,7 @@ export default function PagePlaceholder({ pageKey }: PagePlaceholderProps) {
   return (
     <div>
       <Title2 block style={{ marginBottom: 16 }}>{t(`${pageKey}.title`)}</Title2>
-      <div style={{
-        background: tokens.colorNeutralBackground1,
-        border: `1px solid ${tokens.colorNeutralStroke2}`,
-        borderRadius: 8,
-        padding: 24,
-      }}>
+      <Card>
         <Text size={300} block style={{ marginBottom: 12 }}>
           {t('common:requiresPermission')} <Text weight="semibold" font="monospace">{t(`${pageKey}.permission`)}</Text>.
         </Text>
@@ -25,7 +20,7 @@ export default function PagePlaceholder({ pageKey }: PagePlaceholderProps) {
         <ul style={{ margin: 0, paddingLeft: 20, color: tokens.colorNeutralForeground2 }}>
           {operations.map(op => <li key={op} style={{ marginBottom: 4 }}>{op}</li>)}
         </ul>
-      </div>
+      </Card>
     </div>
   );
 }

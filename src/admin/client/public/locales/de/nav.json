@@ -1,10 +1,11 @@
 {
   "dashboard": "Übersicht",
   "targets": "Ziele",
-  "users": "Benutzer",
+  "users": "Identitäten",
   "mail": "E-Mail",
   "calendar": "Kalender",
   "files": "Dateien",
   "settings": "Einstellungen",
-  "help": "Hilfe"
+  "help": "Hilfe",
+  "tabDisabled": "Aktivieren Sie diese Kategorie auf der Seite „Ziele“, um diese Registerkarte zu verwenden"
 }

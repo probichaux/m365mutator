@@ -1,10 +1,58 @@
 {
   "title": "Targets",
-  "description": "Manage the users, mailboxes, and SharePoint sites that the Users, Mail, Calendar, and Files tabs act on.",
-  "plannedFunctionality": "Planned functionality",
-  "operations": [
-    "Look up a user or mailbox by UPN or object ID",
-    "Look up a SharePoint site by URL or ID",
-    "Save frequently used targets for quick reuse across tabs"
-  ]
+  "description": "Specify which users, mailboxes, and sites may be modified. Enable a category and list its targets, one per line.",
+  "categories": {
+    "identities": {
+      "label": "Identities",
+      "hint": "User accounts that may be modified, as UPNs"
+    },
+    "mail": {
+      "label": "Mail",
+      "hint": "Mailboxes whose messages may be modified, as UPNs"
+    },
+    "calendar": {
+      "label": "Calendar",
+      "hint": "Mailboxes whose calendars may be modified, as UPNs"
+    },
+    "onedrive": {
+      "label": "OneDrive",
+      "hint": "Users whose OneDrive files may be modified, as UPNs"
+    },
+    "sharepoint": {
+      "label": "SharePoint",
+      "hint": "Site URLs whose contents may be modified (the https:// prefix is optional)"
+    }
+  },
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "placeholderUpns": "One UPN per line, e.g. user@contoso.com",
+  "placeholderUrls": "One site URL per line, e.g. contoso.sharepoint.com/sites/marketing",
+  "load": "Load",
+  "loading": "Loading…",
+  "loadFromTenant": "Load all matching objects from the tenant",
+  "upload": "Upload",
+  "importCsv": "Import targets from a CSV file",
+  "check": "Check",
+  "checking": "Checking…",
+  "save": "Save targets",
+  "saving": "Saving…",
+  "errors": {
+    "notFound": "not found",
+    "invalidUpn": "not a valid UPN",
+    "invalidUrl": "not a valid URL"
+  },
+  "toast": {
+    "csvEmpty": "The CSV file contained no usable entries",
+    "csvReadFailed": "Could not read the CSV file",
+    "nothingToCheck": "Enter at least one target to check",
+    "checkAllOk": "All {{total}} targets resolved successfully",
+    "checkFailures": "{{failed}} of {{total}} targets failed to resolve",
+    "checkFailed": "Check failed",
+    "loadedCount": "Loaded {{count}} from the tenant",
+    "loadTruncated": "Loaded {{count}} of {{total}} from the tenant (capped)",
+    "loadEmpty": "No matching objects found in the tenant",
+    "loadFailed": "Load failed",
+    "saved": "Targets saved",
+    "saveFailed": "Saving targets failed"
+  }
 }

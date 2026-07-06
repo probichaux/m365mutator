@@ -1,10 +1,58 @@
 {
   "title": "Ziele",
-  "description": "Verwalten Sie die Benutzer, Postfächer und SharePoint-Websites, mit denen die Registerkarten Benutzer, E-Mail, Kalender und Dateien arbeiten.",
-  "plannedFunctionality": "Geplante Funktionen",
-  "operations": [
-    "Einen Benutzer oder ein Postfach anhand von UPN oder Objekt-ID suchen",
-    "Eine SharePoint-Website anhand von URL oder ID suchen",
-    "Häufig verwendete Ziele zur schnellen Wiederverwendung speichern"
-  ]
+  "description": "Legen Sie fest, welche Benutzer, Postfächer und Websites geändert werden dürfen. Aktivieren Sie eine Kategorie und listen Sie ihre Ziele auf, eines pro Zeile.",
+  "categories": {
+    "identities": {
+      "label": "Identitäten",
+      "hint": "Benutzerkonten, die geändert werden dürfen, als UPNs"
+    },
+    "mail": {
+      "label": "E-Mail",
+      "hint": "Postfächer, deren Nachrichten geändert werden dürfen, als UPNs"
+    },
+    "calendar": {
+      "label": "Kalender",
+      "hint": "Postfächer, deren Kalender geändert werden dürfen, als UPNs"
+    },
+    "onedrive": {
+      "label": "OneDrive",
+      "hint": "Benutzer, deren OneDrive-Dateien geändert werden dürfen, als UPNs"
+    },
+    "sharepoint": {
+      "label": "SharePoint",
+      "hint": "Website-URLs, deren Inhalte geändert werden dürfen (das Präfix https:// ist optional)"
+    }
+  },
+  "enabled": "Aktiviert",
+  "disabled": "Deaktiviert",
+  "placeholderUpns": "Ein UPN pro Zeile, z. B. user@contoso.com",
+  "placeholderUrls": "Eine Website-URL pro Zeile, z. B. contoso.sharepoint.com/sites/marketing",
+  "load": "Laden",
+  "loading": "Wird geladen…",
+  "loadFromTenant": "Alle passenden Objekte aus dem Mandanten laden",
+  "upload": "Hochladen",
+  "importCsv": "Ziele aus einer CSV-Datei importieren",
+  "check": "Prüfen",
+  "checking": "Wird geprüft…",
+  "save": "Ziele speichern",
+  "saving": "Wird gespeichert…",
+  "errors": {
+    "notFound": "nicht gefunden",
+    "invalidUpn": "kein gültiger UPN",
+    "invalidUrl": "keine gültige URL"
+  },
+  "toast": {
+    "csvEmpty": "Die CSV-Datei enthielt keine verwendbaren Einträge",
+    "csvReadFailed": "Die CSV-Datei konnte nicht gelesen werden",
+    "nothingToCheck": "Geben Sie mindestens ein Ziel zum Prüfen ein",
+    "checkAllOk": "Alle {{total}} Ziele wurden erfolgreich aufgelöst",
+    "checkFailures": "{{failed}} von {{total}} Zielen konnten nicht aufgelöst werden",
+    "checkFailed": "Prüfung fehlgeschlagen",
+    "loadedCount": "{{count}} aus dem Mandanten geladen",
+    "loadTruncated": "{{count}} von {{total}} aus dem Mandanten geladen (begrenzt)",
+    "loadEmpty": "Keine passenden Objekte im Mandanten gefunden",
+    "loadFailed": "Laden fehlgeschlagen",
+    "saved": "Ziele gespeichert",
+    "saveFailed": "Speichern der Ziele fehlgeschlagen"
+  }
 }

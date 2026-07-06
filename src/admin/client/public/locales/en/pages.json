@@ -1,13 +1,23 @@
 {
   "users": {
-    "title": "Users",
+    "title": "Identities",
     "permission": "User.ReadWrite.All",
     "operations": [
       "Look up a user by ID or UPN",
       "Update user profile fields",
       "Enable / disable an account",
       "Assign or remove licenses and roles"
-    ]
+    ],
+    "mutate": {
+      "title": "Randomize an attribute",
+      "description": "Picks one attribute at random (from the set {{attributes}}) and overwrites it with a random value on every enabled identity from the Targets page. Manager and Sponsors are excluded because they reference other directory objects rather than plain values.",
+      "doItNow": "Do it now",
+      "running": "Mutating…",
+      "chosenAttribute": "Randomly chose attribute",
+      "toastAllOk": "Set {{label}} on all {{count}} identities",
+      "toastFailures": "Set {{label}}: {{failed}} of {{total}} identities failed",
+      "toastFailed": "Mutation failed"
+    }
   },
   "mail": {
     "title": "Mail",

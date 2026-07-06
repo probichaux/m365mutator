@@ -1,11 +1,16 @@
 import { useTranslation } from 'react-i18next';
-import { Button } from '@fluentui/react-components';
+import {
+  Button, TabList, Tab, Tooltip, tokens,
+  type SelectTabData, type SelectTabEvent,
+} from '@fluentui/react-components';
+import { SettingsRegular, QuestionCircleRegular } from '@fluentui/react-icons';
 import LanguageSwitcher from './LanguageSwitcher';
 import type { PageId } from '../App';
 
 interface LayoutProps {
   page: PageId;
   onNavigate: (page: PageId) => void;
+  isTabEnabled: (page: PageId) => boolean;
   onOpenSettings: () => void;
   onOpenHelp: () => void;
   children: React.ReactNode;
@@ -13,11 +18,11 @@ interface LayoutProps {
 
 const TABS: PageId[] = ['dashboard', 'targets', 'users', 'mail', 'calendar', 'files'];
 
-export default function Layout({ page, onNavigate, onOpenSettings, onOpenHelp, children }: LayoutProps) {
+export default function Layout({ page, onNavigate, isTabEnabled, onOpenSettings, onOpenHelp, children }: LayoutProps) {
   const { t } = useTranslation('nav');
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f1f1f1' }}>
+    <div style={{ minHeight: '100vh', background: tokens.colorNeutralBackground3 }}>
       <header
         style={{
           display: 'flex',
@@ -33,31 +38,10 @@ export default function Layout({ page, onNavigate, onOpenSettings, onOpenHelp, c
           <span style={{ fontSize: 18, fontWeight: 600 }}>M365Mutator</span>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Button
-            appearance="subtle"
-            onClick={onOpenSettings}
-            style={{ color: '#fff' }}
-            title={t('settings')}
-            icon={
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
-              </svg>
-            }
-          />
-          <Button
-            appearance="subtle"
-            onClick={onOpenHelp}
-            style={{ color: '#fff' }}
-            title={t('help')}
-            icon={
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            }
-          />
+          <Button appearance="subtle" onClick={onOpenSettings} style={{ color: '#fff' }}
+            title={t('settings')} aria-label={t('settings')} icon={<SettingsRegular />} />
+          <Button appearance="subtle" onClick={onOpenHelp} style={{ color: '#fff' }}
+            title={t('help')} aria-label={t('help')} icon={<QuestionCircleRegular />} />
         </div>
       </header>
 
@@ -67,36 +51,32 @@ export default function Layout({ page, onNavigate, onOpenSettings, onOpenHelp, c
           gridTemplateColumns: '1fr auto 1fr',
           alignItems: 'center',
           gap: 4,
-          background: '#241d78',
-          padding: '0 24px 8px',
+          background: tokens.colorNeutralBackground1,
+          borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+          padding: '0 24px',
         }}
       >
         <div />
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
+        <TabList
+          selectedValue={page}
+          onTabSelect={(_e: SelectTabEvent, data: SelectTabData) => onNavigate(data.value as PageId)}
+        >
           {TABS.map((tabId) => {
-            const active = page === tabId;
-            return (
-              <button
-                key={tabId}
-                onClick={() => onNavigate(tabId)}
-                style={{
-                  appearance: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: 13,
-                  fontWeight: active ? 600 : 500,
-                  color: '#fff',
-                  background: active ? 'rgba(255,255,255,0.22)' : 'transparent',
-                  padding: '6px 16px',
-                  borderRadius: 6,
-                  whiteSpace: 'nowrap',
-                }}
-              >
+            const tab = (
+              <Tab key={tabId} value={tabId} disabled={!isTabEnabled(tabId)}>
                 {t(tabId)}
-              </button>
+              </Tab>
             );
+            // Explain why a tab is unavailable; Tooltip wraps the disabled Tab.
+            return isTabEnabled(tabId)
+              ? tab
+              : (
+                <Tooltip key={tabId} content={t('tabDisabled')} relationship="label">
+                  {tab}
+                </Tooltip>
+              );
           })}
-        </div>
+        </TabList>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <LanguageSwitcher />
         </div>

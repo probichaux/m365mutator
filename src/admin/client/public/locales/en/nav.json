@@ -1,10 +1,11 @@
 {
   "dashboard": "Dashboard",
   "targets": "Targets",
-  "users": "Users",
+  "users": "Identities",
   "mail": "Mail",
   "calendar": "Calendar",
   "files": "Files",
   "settings": "Settings",
-  "help": "Help"
+  "help": "Help",
+  "tabDisabled": "Enable this category on the Targets page to use this tab"
 }

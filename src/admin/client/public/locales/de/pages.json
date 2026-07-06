@@ -1,13 +1,23 @@
 {
   "users": {
-    "title": "Benutzer",
+    "title": "Identitäten",
     "permission": "User.ReadWrite.All",
     "operations": [
       "Einen Benutzer anhand von ID oder UPN suchen",
       "Profilfelder eines Benutzers aktualisieren",
       "Ein Konto aktivieren/deaktivieren",
       "Lizenzen und Rollen zuweisen oder entfernen"
-    ]
+    ],
+    "mutate": {
+      "title": "Ein Attribut zufällig ändern",
+      "description": "Wählt ein Attribut zufällig aus (aus der Menge {{attributes}}) und überschreibt es mit einem Zufallswert für jede aktivierte Identität von der Seite „Ziele“. Manager und Sponsoren sind ausgeschlossen, da sie auf andere Verzeichnisobjekte verweisen und keine einfachen Werte sind.",
+      "doItNow": "Jetzt ausführen",
+      "running": "Wird geändert…",
+      "chosenAttribute": "Zufällig gewähltes Attribut",
+      "toastAllOk": "{{label}} für alle {{count}} Identitäten festgelegt",
+      "toastFailures": "{{label}} festgelegt: {{failed}} von {{total}} Identitäten fehlgeschlagen",
+      "toastFailed": "Änderung fehlgeschlagen"
+    }
   },
   "mail": {
     "title": "E-Mail",

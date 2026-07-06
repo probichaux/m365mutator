@@ -1,7 +1,9 @@
 import {
+  OverlayDrawer, DrawerHeader, DrawerHeaderTitle, DrawerBody,
   Button, Text, Label, Input,
   RadioGroup, Radio, Spinner, tokens,
 } from '@fluentui/react-components';
+import { Dismiss24Regular } from '@fluentui/react-icons';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../api';
@@ -51,13 +53,6 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
   useEffect(() => {
     if (open) loadSettings();
   }, [open, loadSettings]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [open, onClose]);
 
   const testConnection = async () => {
     setTesting(true);
@@ -118,29 +113,28 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
     }
   };
 
-  if (!open) return null;
-
   const sectionStyle = { marginBottom: 24, paddingBottom: 24, borderBottom: `1px solid ${tokens.colorNeutralStroke2}` };
   const fieldStyle = { marginBottom: 12 };
 
   return (
-    <div
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 300, animation: 'fadeIn 0.15s ease' }}
+    <OverlayDrawer
+      position="end"
+      open={open}
+      onOpenChange={(_e, data) => { if (!data.open) onClose(); }}
+      style={{ width: 560, maxWidth: '90vw' }}
     >
-      <div style={{
-        position: 'fixed', top: 0, right: 0, bottom: 0, width: 560, maxWidth: '90vw',
-        background: tokens.colorNeutralBackground1, boxShadow: tokens.shadow64,
-        display: 'flex', flexDirection: 'column', animation: 'slideInRight 0.2s ease',
-      }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '20px 24px', borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
-        }}>
-          <Text weight="semibold" size={500}>{t('title')}</Text>
-          <Button appearance="subtle" onClick={onClose} aria-label={t('common:close')} style={{ fontSize: 20, minWidth: 32 }}>&times;</Button>
-        </div>
-        <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
+      <DrawerHeader>
+        <DrawerHeaderTitle
+          action={
+            <Button appearance="subtle" aria-label={t('common:close')}
+              icon={<Dismiss24Regular />} onClick={onClose} />
+          }
+        >
+          {t('title')}
+        </DrawerHeaderTitle>
+      </DrawerHeader>
+
+      <DrawerBody>
 
           {/* Microsoft Graph / Entra ID app registration */}
           <div style={sectionStyle}>
@@ -211,8 +205,7 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
             </Button>
           </div>
 
-        </div>
-      </div>
-    </div>
+      </DrawerBody>
+    </OverlayDrawer>
   );
 }

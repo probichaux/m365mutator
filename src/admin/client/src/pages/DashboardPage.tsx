@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, Title2, tokens } from '@fluentui/react-components';
+import { Card, Text, Title2, tokens } from '@fluentui/react-components';
 import { api } from '../api';
 
 interface ConfigData {
@@ -9,13 +9,6 @@ interface ConfigData {
   graphClientSecret: string;
   graphCertificatePath: string;
 }
-
-const cardStyle = {
-  background: tokens.colorNeutralBackground1,
-  border: `1px solid ${tokens.colorNeutralStroke2}`,
-  borderRadius: 8,
-  padding: 20,
-};
 
 export default function DashboardPage() {
   const { t } = useTranslation('dashboard');
@@ -32,7 +25,7 @@ export default function DashboardPage() {
     <div>
       <Title2 block style={{ marginBottom: 16 }}>{t('title')}</Title2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
-        <div style={cardStyle}>
+        <Card>
           <Text weight="semibold" block style={{ marginBottom: 8 }}>{t('graphCard.title')}</Text>
           <Text size={300} style={{ color: configured ? tokens.colorPaletteGreenForeground1 : tokens.colorPaletteRedForeground1 }}>
             {configured ? t('graphCard.configured') : t('graphCard.notConfigured')}
@@ -44,7 +37,7 @@ export default function DashboardPage() {
                 })
               : t('graphCard.openSettingsHint')}
           </Text>
-        </div>
+        </Card>
       </div>
 
       <Text block style={{ marginTop: 24, color: tokens.colorNeutralForeground3 }}>

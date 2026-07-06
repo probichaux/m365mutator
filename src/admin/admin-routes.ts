@@ -4,6 +4,12 @@ import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync, chmodSync } from 'node:fs';
 import multer from 'multer';
 import { loadConfig, saveConfig, maskSecrets, applyConfig, getDataDir, AppConfig } from './config-store.js';
+import { loadTargets, saveTargets, TARGET_CATEGORIES, TargetCategory, MAX_ITEMS_PER_CATEGORY } from './targets-store.js';
+import { checkTargets } from './target-check.js';
+import { loadCategory } from './target-load.js';
+import { mutateIdentities } from './identity-mutate.js';
+import { sanitizeUpstreamError } from './connectivity.js';
+import { MUTABLE_ATTRIBUTES } from '../graph/user-attributes.js';
 import { testGraph } from './connectivity.js';
 import { logger } from '../logger/logger.js';
 
@@ -63,6 +69,78 @@ router.post('/api/test-graph', async (req: Request, res: Response) => {
   if (result.success && result._apply) result._apply();
   const { _apply, ...response } = result;
   res.json(response);
+});
+
+// ── Targets ─────────────────────────────────────────────────────────
+
+router.get('/api/targets', (_req: Request, res: Response) => {
+  res.json(loadTargets());
+});
+
+router.put('/api/targets', (req: Request, res: Response) => {
+  try {
+    const saved = saveTargets(req.body);
+    res.json({ success: true, targets: saved });
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+router.post('/api/targets/check', async (req: Request, res: Response) => {
+  const { category, items } = req.body as { category?: unknown; items?: unknown };
+  if (!TARGET_CATEGORIES.includes(category as TargetCategory)) {
+    res.status(400).json({ error: 'Unknown target category' });
+    return;
+  }
+  if (!Array.isArray(items) || items.some(i => typeof i !== 'string')) {
+    res.status(400).json({ error: 'items must be an array of strings' });
+    return;
+  }
+  const cleaned = items.map(i => i.trim()).filter(i => i !== '');
+  if (cleaned.length > MAX_ITEMS_PER_CATEGORY) {
+    res.status(400).json({ error: `Too many items (max ${MAX_ITEMS_PER_CATEGORY})` });
+    return;
+  }
+  const results = await checkTargets(category as TargetCategory, cleaned);
+  res.json({ results });
+});
+
+router.post('/api/targets/load', async (req: Request, res: Response) => {
+  const { category } = req.body as { category?: unknown };
+  if (!TARGET_CATEGORIES.includes(category as TargetCategory)) {
+    res.status(400).json({ error: 'Unknown target category' });
+    return;
+  }
+  try {
+    const result = await loadCategory(category as TargetCategory);
+    res.json(result);
+  } catch (err: unknown) {
+    res.status(502).json({ error: sanitizeUpstreamError(err) });
+  }
+});
+
+// ── Identities: random attribute mutation ───────────────────────────
+
+router.get('/api/identities/attributes', (_req: Request, res: Response) => {
+  res.json({ attributes: MUTABLE_ATTRIBUTES.map(a => a.name) });
+});
+
+router.post('/api/identities/mutate', async (_req: Request, res: Response) => {
+  const identities = loadTargets().identities;
+  if (!identities.enabled) {
+    res.status(400).json({ error: 'The Identities target category is not enabled' });
+    return;
+  }
+  if (identities.items.length === 0) {
+    res.status(400).json({ error: 'No identities are selected' });
+    return;
+  }
+  try {
+    const run = await mutateIdentities(identities.items);
+    res.json(run);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.get('/api/status', (_req: Request, res: Response) => {

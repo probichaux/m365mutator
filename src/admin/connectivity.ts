@@ -17,7 +17,7 @@ export interface ConnectivityResult {
  * substrings that may have been echoed back in HTTP response bodies, and caps
  * length to keep logs and JSON responses bounded.
  */
-function sanitizeUpstreamError(raw: unknown): string {
+export function sanitizeUpstreamError(raw: unknown): string {
   let msg = raw instanceof Error ? raw.message : (typeof raw === 'string' ? raw : String(raw));
   if (!msg) return 'Unknown error';
   msg = msg.replace(/Authorization:\s*\S+/gi, 'Authorization: [REDACTED]');

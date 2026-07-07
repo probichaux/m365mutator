@@ -1,21 +1,65 @@
 # M365Mutator
 
-An admin console for logging into a Microsoft 365 tenant via Microsoft Graph
-and mutating users, mail, calendar items, and OneDrive/SharePoint documents.
+One common problem people face when working on applications, services, and scripts for Microsoft 365 is data quality or what you might call "freshness".
 
-The admin UI has no login — anyone who can reach it can view/change Graph
-config and drive Graph operations. Run it somewhere only trusted operators
-can reach (localhost, an internal network, etc.).
+If you use your own paid tenant, a) that might mean you're testing in prod, which is not great and b) you may not have a large amount or a varied set of data.
+
+If you use a Microsoft CDX tenant, the data doesn't change once the tenant's instantiated so if you want to do anything that depends on tenant activity, you can't.
+
+Thus this tool: *m365mutator*. It's a web-based console that logs into a Microsoft 365 tenant via Microsoft Graph
+and makes changes to user account objects in Entra, sends and receives mail and calendar items, and does CRUD operations on SharePoint and OneDrive files.
+
+## A bit of a warning
+
+This application requires write permissions on Graph. It's meant, for now, to be run locally. Be careful with it; don't host it on the Internet, for crying out loud.
+
+## Screenshots
+
+The admin console has one tab per workload. Each tab chooses its targets
+either as an **explicit list** you paste or load, or a **random percentage**
+of the tenant sampled at run time — then runs that workload's mutation.
+
+**Identities** — paste or load user UPNs, then randomize an Entra ID attribute
+across them:
+
+![Identities tab: an explicit list of UPNs above the attribute randomizer](public/screenshot-identities.png)
+
+**Mail** — generate mailbox activity (send / reply / forward / move to Deleted
+Items), repeatable for N passes via the stepper:
+
+![Mail tab: a mailbox list above the "Randomize mailbox activity" card with a run-count stepper](public/screenshot-mail.png)
+
+**Random run style** — instead of a list, operate on a random percentage of
+the tenant, resolved when you run:
+
+![Calendar tab in Random mode: a 25% sampling control with a live count](public/screenshot-random.png)
 
 ## Structure
 
-- `src/main.ts` — Express server entry point.
-- `src/admin/` — admin API (config storage, Graph connectivity test) and its
-  Vite/React client under `src/admin/client/`.
+- `src/main.ts` — Express server entry point; serves the admin API and the
+  built React client.
+- `src/admin/` — the admin API and its Vite/React client (under
+  `src/admin/client/`):
+  - `admin-routes.ts` — REST endpoints for config, the Graph connectivity test,
+    targets, and the per-workload mutations.
+  - `config-store.ts` — persisted app config (Graph credentials, OpenRouter
+    key/model).
+  - `targets-store.ts` — each workload's target list, enabled flag, and
+    explicit/random run style.
+  - `target-load.ts` / `target-check.ts` — load matching objects from the
+    tenant, validate targets, and resolve the effective set (the explicit list,
+    or a random sample).
+  - `identity-mutate.ts` / `mail-mutate.ts` — the mutation operations for the
+    Identities and Mail workloads.
+  - `random-text.ts` — random subject/body text via OpenRouter, with a GUID
+    fallback when no key is set.
+- `src/admin/client/` — the React admin console (Fluent UI, i18n en/de/uk):
+  one page per workload (Identities, Mail, Calendar, OneDrive, SharePoint), a
+  shared `TargetPanel`, the run-count `RunStepper`, and Settings/Help flyouts.
 - `src/graph/` — Microsoft Graph authentication (`graph-auth.ts`, client secret
-  or certificate) and per-area mutation modules (`users.ts`, `mail.ts`,
-  `calendar.ts`, `files.ts`).
-- `src/helpers/` — shared config and file-I/O helpers.
+  or certificate) and per-area helpers (`users.ts`, `mail.ts`, `calendar.ts`,
+  `files.ts`, `sites.ts`) plus pagination.
+- `src/helpers/` and `src/logger/` — shared config/file-I/O helpers and logging.
 
 ## Entra ID app registration
 
@@ -109,7 +153,7 @@ GRAPH_CLIENT_SECRET=<client secret value>   # or set GRAPH_CERTIFICATE_PATH
    npm run dev
    ```
 
-   The admin UI loads straight to the dashboard at `http://localhost:3700/admin`
+   The admin UI loads to the Identities tab at `http://localhost:3700/admin`
    in production builds; during frontend development run
    `npm --prefix src/admin/client run dev` separately for hot reload (proxies
    `/api` to port 3700).

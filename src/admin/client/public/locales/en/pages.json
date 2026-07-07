@@ -1,4 +1,13 @@
 {
+  "scaffold": {
+    "calendarTitle": "Randomize calendar activity",
+    "onedriveTitle": "Randomize OneDrive activity",
+    "sharepointTitle": "Randomize SharePoint activity",
+    "noOperation": "No mutation operation for this workload yet.",
+    "runsLabel": "Number of passes",
+    "runsSuffix": "pass(es)",
+    "doItNow": "Do it now"
+  },
   "users": {
     "title": "Identities",
     "permission": "User.ReadWrite.All",

@@ -1,4 +1,13 @@
 {
+  "scaffold": {
+    "calendarTitle": "Kalenderaktivität zufällig erzeugen",
+    "onedriveTitle": "OneDrive-Aktivität zufällig erzeugen",
+    "sharepointTitle": "SharePoint-Aktivität zufällig erzeugen",
+    "noOperation": "Für diesen Workload ist noch kein Mutationsvorgang verfügbar.",
+    "runsLabel": "Anzahl der Durchläufe",
+    "runsSuffix": "Durchlauf/Durchläufe",
+    "doItNow": "Jetzt ausführen"
+  },
   "users": {
     "title": "Identitäten",
     "permission": "User.ReadWrite.All",

@@ -1,4 +1,13 @@
 {
+  "scaffold": {
+    "calendarTitle": "Випадкова активність календаря",
+    "onedriveTitle": "Випадкова активність OneDrive",
+    "sharepointTitle": "Випадкова активність SharePoint",
+    "noOperation": "Для цього робочого навантаження ще немає операції мутації.",
+    "runsLabel": "Кількість проходів",
+    "runsSuffix": "прохід(ів)",
+    "doItNow": "Виконати зараз"
+  },
   "users": {
     "title": "Ідентичності",
     "permission": "User.ReadWrite.All",

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M365Mutator — Run style (Choice cards)</title>
+<style>
+  :root {
+    --brand:#5b5fc7; --brand-hover:#4f52b3; --purple:#241d78;
+    --ink:#242424; --ink2:#616161; --ink3:#8a8886;
+    --line:#e1dfdd; --line2:#edebe9; --bg:#f3f2f1; --card:#fff;
+    --mono:'Cascadia Code',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Segoe UI',system-ui,-apple-system,sans-serif; color:var(--ink); background:var(--bg); font-size:14px; }
+  header { display:flex; align-items:center; justify-content:space-between; background:var(--purple); color:#fff; padding:12px 24px; }
+  .brand { display:flex; align-items:center; gap:12px; }
+  .logo { width:26px; height:26px; border-radius:6px; background:linear-gradient(135deg,#5b5fc7,#8b8ff0); display:grid; place-items:center; font-weight:700; }
+  .brand span { font-size:18px; font-weight:600; }
+  .icons { display:flex; gap:8px; }
+  .icons button { width:32px; height:32px; border-radius:6px; border:none; background:transparent; color:#fff; font-size:16px; cursor:pointer; }
+  .icons button:hover { background:rgba(255,255,255,.15); }
+  nav { display:flex; justify-content:center; gap:4px; background:var(--card); border-bottom:1px solid var(--line); padding:0 24px; }
+  nav a { padding:12px 16px; font-size:13px; font-weight:500; color:var(--ink); text-decoration:none; border-bottom:2px solid transparent; }
+  nav a.active { color:var(--brand); border-bottom-color:var(--brand); font-weight:600; }
+  nav a:not(.active):hover { background:var(--line2); }
+  main { max-width:1000px; margin:0 auto; padding:24px; }
+  h1 { font-size:26px; margin:0 0 16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:20px; }
+  .panel-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .hint { color:var(--ink3); font-size:12px; }
+  .switch { display:inline-flex; align-items:center; gap:8px; font-size:13px; cursor:pointer; user-select:none; }
+  .track { width:40px; height:20px; border-radius:20px; background:var(--brand); position:relative; }
+  .track::after { content:''; position:absolute; top:2px; left:22px; width:16px; height:16px; border-radius:50%; background:#fff; }
+  /* choice cards */
+  .choices { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
+  .choice { text-align:left; border:1.5px solid var(--line); background:var(--card); border-radius:8px; padding:16px; cursor:pointer; transition:border-color .12s, background .12s; }
+  .choice:hover { border-color:#c7c7f0; }
+  .choice.active { border-color:var(--brand); background:#f7f7fd; }
+  .choice .top { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .choice .dot { width:18px; height:18px; border-radius:50%; border:2px solid var(--line); flex:none; display:grid; place-items:center; }
+  .choice.active .dot { border-color:var(--brand); }
+  .choice.active .dot::after { content:''; width:8px; height:8px; border-radius:50%; background:var(--brand); }
+  .choice .icn { font-size:18px; }
+  .choice h3 { margin:0; font-size:15px; }
+  .choice p { margin:0; color:var(--ink2); font-size:12.5px; line-height:1.5; }
+  .hidden { display:none; }
+  textarea { width:100%; min-height:180px; border:1px solid var(--line); border-radius:6px; padding:10px 12px; font-family:var(--mono); font-size:13px; color:var(--ink); resize:vertical; }
+  textarea:focus { outline:2px solid var(--brand); border-color:var(--brand); }
+  /* random stepper */
+  .random-box { border:1px solid var(--line); border-radius:8px; padding:20px; background:#faf9f8; }
+  .stepper { display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--card); }
+  .stepper button { border:none; background:var(--card); width:40px; height:44px; font-size:20px; cursor:pointer; color:var(--brand); }
+  .stepper button:hover { background:var(--line2); }
+  .stepper .val { min-width:78px; text-align:center; font-size:24px; font-weight:700; border-left:1px solid var(--line); border-right:1px solid var(--line); line-height:44px; }
+  .stepper .val small { font-size:15px; color:var(--ink2); }
+  .row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .count-line { color:var(--ink2); }
+  .count-line b { color:var(--ink); font-size:16px; }
+  .chips { display:flex; gap:8px; margin-top:14px; }
+  .chip { border:1px solid var(--line); background:var(--card); border-radius:20px; padding:5px 14px; font-size:12px; cursor:pointer; color:var(--ink2); }
+  .chip.active { border-color:var(--brand); color:var(--brand); background:#f0f0fb; font-weight:600; }
+  .pool-note { margin-top:14px; font-size:12px; color:var(--ink3); }
+  .btnrow { display:flex; gap:8px; margin-top:16px; align-items:center; }
+  .btn { border:1px solid var(--line); background:var(--card); border-radius:6px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; color:var(--ink); }
+  .btn:hover { background:var(--line2); }
+  .btn.primary { background:var(--brand); border-color:var(--brand); color:#fff; }
+  .btn.primary:hover { background:var(--brand-hover); }
+  .spacer { flex:1; }
+  .footnote { max-width:1000px; margin:16px auto 40px; padding:0 24px; color:var(--ink3); font-size:12px; }
+  .badge { display:inline-block; background:#f0f0fb; color:var(--brand); border:1px solid #d6d6f5; border-radius:4px; padding:1px 6px; font-size:11px; font-weight:600; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">M</div><span>M365Mutator</span></div>
+  <div class="icons"><button title="Settings">⚙</button><button title="Help">?</button></div>
+</header>
+<nav>
+  <a class="active">Identities</a><a>Mail</a><a>Calendar</a><a>OneDrive</a><a>SharePoint</a>
+</nav>
+
+<main>
+  <h1>Identities</h1>
+  <div class="card">
+    <div class="panel-head">
+      <div class="hint">User accounts that may be modified, as UPNs</div>
+      <label class="switch"><span class="track"></span> Enabled</label>
+    </div>
+
+    <!-- Run-style chooser: two descriptive cards -->
+    <div class="choices">
+      <button class="choice active" data-mode="explicit">
+        <div class="top"><span class="dot"></span><span class="icn">📝</span><h3>Explicit list</h3></div>
+        <p>Load or upload a list, edit it, then operate on exactly those users.</p>
+      </button>
+      <button class="choice" data-mode="random">
+        <div class="top"><span class="dot"></span><span class="icn">🎲</span><h3>Random sample</h3></div>
+        <p>Load every user from the tenant, then operate on a random percentage of them.</p>
+      </button>
+    </div>
+
+    <!-- EXPLICIT -->
+    <div class="mode explicit-mode">
+      <textarea spellcheck="false">Admin@blackdotpub.com
+b2cuser_contosowhiteorg.onmicrosoft.com#EXT#@blackdotpub.onmicrosoft.com
+backupadmin@blackdotpub.com
+bbi@blackdotpub.com
+cloudsoft01@blackdotpub.com</textarea>
+      <div class="btnrow">
+        <button class="btn">☁ Load</button>
+        <button class="btn">Upload</button>
+        <button class="btn">✓ Check</button>
+        <span class="spacer"></span>
+        <button class="btn primary" id="explicit-run">Run on 5 items</button>
+      </div>
+    </div>
+
+    <!-- RANDOM -->
+    <div class="mode random-mode hidden">
+      <div class="random-box">
+        <div class="row">
+          <div class="stepper">
+            <button id="minus">−</button>
+            <div class="val"><span id="pct">10</span><small>%</small></div>
+            <button id="plus">+</button>
+          </div>
+          <div class="count-line">→ <b><span id="count">5</span></b> of 50 users selected at random</div>
+        </div>
+        <div class="chips">
+          <span class="chip" data-v="5">5%</span>
+          <span class="chip active" data-v="10">10%</span>
+          <span class="chip" data-v="25">25%</span>
+          <span class="chip" data-v="50">50%</span>
+          <span class="chip" data-v="100">100%</span>
+        </div>
+        <div class="pool-note">The pool of 50 users is loaded from the tenant at run time; a fresh random subset is picked each run.</div>
+      </div>
+      <div class="btnrow">
+        <span class="spacer"></span>
+        <button class="btn primary" id="random-run">Run on 5 random users</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<p class="footnote"><span class="badge">Consistent</span> Both choice cards appear identically on every workload tab; only the descriptions swap in the right noun (mailboxes, calendars, OneDrive accounts, sites).</p>
+
+<script>
+  const TOTAL = 50;
+  const choices = document.querySelectorAll('.choice');
+  const explicit = document.querySelector('.explicit-mode');
+  const random = document.querySelector('.random-mode');
+  choices.forEach(c => c.addEventListener('click', () => {
+    choices.forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    const isRandom = c.dataset.mode === 'random';
+    random.classList.toggle('hidden', !isRandom);
+    explicit.classList.toggle('hidden', isRandom);
+  }));
+
+  const pct = document.getElementById('pct');
+  const count = document.getElementById('count');
+  const runBtn = document.getElementById('random-run');
+  const chips = document.querySelectorAll('.chip');
+  let value = 10;
+  function render(){
+    value = Math.min(100, Math.max(1, value));
+    pct.textContent = value;
+    const n = Math.max(1, Math.round(TOTAL * value / 100));
+    count.textContent = n;
+    runBtn.textContent = `Run on ${n} random user${n===1?'':'s'}`;
+    chips.forEach(c => c.classList.toggle('active', +c.dataset.v === value));
+  }
+  document.getElementById('plus').addEventListener('click', () => { value += 5; render(); });
+  document.getElementById('minus').addEventListener('click', () => { value -= 5; render(); });
+  chips.forEach(c => c.addEventListener('click', () => { value = +c.dataset.v; render(); }));
+
+  const ta = document.querySelector('textarea');
+  const exRun = document.getElementById('explicit-run');
+  function upExplicit(){
+    const n = ta.value.split('\n').map(s=>s.trim()).filter(Boolean).length;
+    exRun.textContent = `Run on ${n} item${n===1?'':'s'}`;
+  }
+  ta.addEventListener('input', upExplicit); upExplicit();
+</script>
+</body>
+</html>

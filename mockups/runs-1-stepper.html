@@ -1,0 +1,77 @@
+<meta charset="utf-8">
+<title>M365Mutator — Runs (Stepper in button)</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: #f3f2f1; color: #242424; }
+  header { background: #241d78; color: #fff; height: 48px; display: flex; align-items: center; padding: 0 20px; }
+  header .logo { width: 22px; height: 22px; background: #5b5fc7; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; margin-right: 10px; }
+  header b { font-size: 15px; }
+  nav { background: #fff; border-bottom: 1px solid #e1dfdd; display: flex; gap: 26px; padding: 0 22px; }
+  nav a { padding: 16px 2px; font-size: 14px; color: #444; text-decoration: none; border-bottom: 2px solid transparent; }
+  nav a.active { color: #5b5fc7; border-bottom-color: #5b5fc7; font-weight: 600; }
+  main { max-width: 760px; margin: 28px auto; padding: 0 22px; }
+  h1 { font-size: 26px; margin: 0 0 16px; }
+  .targets-note { font-size: 12px; color: #888; margin-bottom: 16px; }
+  .card { background: #fff; border: 1px solid #e1dfdd; border-radius: 8px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .card h2 { font-size: 16px; margin: 0 0 6px; }
+  .card p { font-size: 13px; color: #555; margin: 0 0 18px; line-height: 1.5; }
+  .runrow { display: flex; align-items: center; gap: 14px; }
+  .stepper { display: inline-flex; align-items: center; border: 1px solid #c8c6c4; border-radius: 6px; overflow: hidden; }
+  .stepper button { border: none; background: #faf9f8; width: 38px; height: 38px; font-size: 20px; cursor: pointer; color: #333; }
+  .stepper button:hover { background: #f0eefb; color: #5b5fc7; }
+  .stepper input { width: 54px; height: 38px; border: none; border-left: 1px solid #edebe9; border-right: 1px solid #edebe9; text-align: center; font-size: 16px; font-weight: 600; }
+  .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .go { background: #5b5fc7; color: #fff; border: none; border-radius: 6px; padding: 0 22px; height: 40px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .go:hover { background: #4b4fb0; }
+  .go .x { opacity: .8; font-weight: 400; }
+  .total { font-size: 12px; color: #666; margin-top: 14px; }
+  .total b { color: #5b5fc7; }
+  .tag { display: inline-block; font-size: 11px; background: #e8e6fb; color: #4b4fb0; border-radius: 4px; padding: 2px 7px; margin-right: 8px; vertical-align: middle; }
+  footer { max-width: 760px; margin: 18px auto 60px; padding: 0 22px; font-size: 12px; color: #888; line-height: 1.5; }
+</style>
+
+<header><span class="logo">M</span><b>M365Mutator</b></header>
+<nav>
+  <a>Identities</a><a class="active">Mail</a><a>Calendar</a><a>OneDrive</a><a>SharePoint</a>
+</nav>
+
+<main>
+  <h1>Mail</h1>
+  <div class="targets-note">▲ 5 mailboxes selected · Explicit list</div>
+
+  <div class="card">
+    <h2>Randomize mailbox activity</h2>
+    <p>For each selected mailbox, performs one random action: send a new message (30%), reply to an inbox message (35%), forward one to another selected user (30%), or move one to Deleted Items (5%).</p>
+
+    <div class="runrow">
+      <div class="stepper">
+        <button onclick="bump(-1)">−</button>
+        <input id="n" type="number" min="1" max="100" value="10" oninput="sync()">
+        <button onclick="bump(1)">+</button>
+      </div>
+      <button class="go">Do it now <span class="x">· <span id="btnN">10</span>×</span></button>
+    </div>
+
+    <div class="total">Runs <b id="passes">10</b> passes — <b id="acts">50</b> total actions across 5 mailboxes.</div>
+  </div>
+</main>
+
+<footer>
+  <span class="tag">Compact</span> A numeric stepper sits beside the action button, and the button echoes the count (“Do it now · 10×”). Smallest footprint; the same stepper drops onto every workload’s mutation card.
+</footer>
+
+<script>
+  const TOTAL = 5;
+  function clamp(v){ v = parseInt(v)||1; return Math.max(1, Math.min(100, v)); }
+  function sync(){
+    const n = clamp(document.getElementById('n').value);
+    document.getElementById('btnN').textContent = n;
+    document.getElementById('passes').textContent = n;
+    document.getElementById('acts').textContent = n * TOTAL;
+  }
+  function bump(d){
+    const el = document.getElementById('n');
+    el.value = clamp(parseInt(el.value) + d);
+    sync();
+  }
+</script>

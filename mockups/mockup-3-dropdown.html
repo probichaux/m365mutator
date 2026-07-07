@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M365Mutator — Run style (Header dropdown)</title>
+<style>
+  :root {
+    --brand:#5b5fc7; --brand-hover:#4f52b3; --purple:#241d78;
+    --ink:#242424; --ink2:#616161; --ink3:#8a8886;
+    --line:#e1dfdd; --line2:#edebe9; --bg:#f3f2f1; --card:#fff;
+    --mono:'Cascadia Code',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Segoe UI',system-ui,-apple-system,sans-serif; color:var(--ink); background:var(--bg); font-size:14px; }
+  header { display:flex; align-items:center; justify-content:space-between; background:var(--purple); color:#fff; padding:12px 24px; }
+  .brand { display:flex; align-items:center; gap:12px; }
+  .logo { width:26px; height:26px; border-radius:6px; background:linear-gradient(135deg,#5b5fc7,#8b8ff0); display:grid; place-items:center; font-weight:700; }
+  .brand span { font-size:18px; font-weight:600; }
+  .icons { display:flex; gap:8px; }
+  .icons button { width:32px; height:32px; border-radius:6px; border:none; background:transparent; color:#fff; font-size:16px; cursor:pointer; }
+  .icons button:hover { background:rgba(255,255,255,.15); }
+  nav { display:flex; justify-content:center; gap:4px; background:var(--card); border-bottom:1px solid var(--line); padding:0 24px; }
+  nav a { padding:12px 16px; font-size:13px; font-weight:500; color:var(--ink); text-decoration:none; border-bottom:2px solid transparent; }
+  nav a.active { color:var(--brand); border-bottom-color:var(--brand); font-weight:600; }
+  nav a:not(.active):hover { background:var(--line2); }
+  main { max-width:1000px; margin:0 auto; padding:24px; }
+  h1 { font-size:26px; margin:0 0 16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:20px; }
+  .panel-head { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
+  .hint { color:var(--ink3); font-size:12px; }
+  .head-controls { display:flex; align-items:center; gap:20px; }
+  .field { display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--ink2); }
+  select { font-size:13px; font-weight:600; color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:6px 28px 6px 10px; background:var(--card) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%23616161'/></svg>") no-repeat right 10px center; -webkit-appearance:none; appearance:none; cursor:pointer; }
+  .switch { display:inline-flex; align-items:center; gap:8px; font-size:13px; cursor:pointer; user-select:none; }
+  .track { width:40px; height:20px; border-radius:20px; background:var(--brand); position:relative; }
+  .track::after { content:''; position:absolute; top:2px; left:22px; width:16px; height:16px; border-radius:50%; background:#fff; }
+  .hidden { display:none; }
+  textarea { width:100%; min-height:180px; border:1px solid var(--line); border-radius:6px; padding:10px 12px; font-family:var(--mono); font-size:13px; color:var(--ink); resize:vertical; }
+  textarea:focus { outline:2px solid var(--brand); border-color:var(--brand); }
+  /* random pool (read-only list stand-in) */
+  .pool { border:1px solid var(--line); border-radius:6px; padding:0; min-height:180px; display:flex; flex-direction:column; overflow:hidden; }
+  .pool-top { display:flex; align-items:center; gap:10px; padding:12px 14px; background:#faf9f8; border-bottom:1px solid var(--line); }
+  .pool-top .pill { background:#f0f0fb; color:var(--brand); border:1px solid #d6d6f5; border-radius:20px; padding:3px 10px; font-size:12px; font-weight:600; }
+  .pct-inline { display:inline-flex; align-items:center; gap:8px; margin-left:auto; }
+  .pct-inline input[type=number]{ width:64px; font-size:14px; font-weight:600; padding:6px 8px; border:1px solid var(--line); border-radius:6px; text-align:right; }
+  .pool-body { flex:1; padding:12px 14px; color:var(--ink3); font-family:var(--mono); font-size:12.5px; line-height:1.9; }
+  .pool-body .muted { color:#bdbdbd; }
+  .sel-line { margin-top:auto; padding:12px 14px; border-top:1px dashed var(--line); background:#fff; font-size:13px; color:var(--ink2); }
+  .sel-line b { color:var(--brand); }
+  input[type=range]{ width:220px; accent-color:var(--brand); vertical-align:middle; }
+  .btnrow { display:flex; gap:8px; margin-top:14px; align-items:center; }
+  .btn { border:1px solid var(--line); background:var(--card); border-radius:6px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; color:var(--ink); }
+  .btn:hover { background:var(--line2); }
+  .btn.primary { background:var(--brand); border-color:var(--brand); color:#fff; }
+  .btn.primary:hover { background:var(--brand-hover); }
+  .btn:disabled { opacity:.45; cursor:not-allowed; }
+  .spacer { flex:1; }
+  .footnote { max-width:1000px; margin:16px auto 40px; padding:0 24px; color:var(--ink3); font-size:12px; }
+  .badge { display:inline-block; background:#f0f0fb; color:var(--brand); border:1px solid #d6d6f5; border-radius:4px; padding:1px 6px; font-size:11px; font-weight:600; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">M</div><span>M365Mutator</span></div>
+  <div class="icons"><button title="Settings">⚙</button><button title="Help">?</button></div>
+</header>
+<nav>
+  <a class="active">Identities</a><a>Mail</a><a>Calendar</a><a>OneDrive</a><a>SharePoint</a>
+</nav>
+
+<main>
+  <h1>Identities</h1>
+  <div class="card">
+    <div class="panel-head">
+      <div class="hint">User accounts that may be modified, as UPNs</div>
+      <div class="head-controls">
+        <label class="field">Run style
+          <select id="mode"><option value="explicit">Explicit list</option><option value="random">Random sample</option></select>
+        </label>
+        <label class="switch"><span class="track"></span> Enabled</label>
+      </div>
+    </div>
+
+    <!-- EXPLICIT -->
+    <div class="mode explicit-mode">
+      <textarea spellcheck="false">Admin@blackdotpub.com
+b2cuser_contosowhiteorg.onmicrosoft.com#EXT#@blackdotpub.onmicrosoft.com
+backupadmin@blackdotpub.com
+bbi@blackdotpub.com
+cloudsoft01@blackdotpub.com</textarea>
+      <div class="btnrow">
+        <button class="btn">☁ Load</button>
+        <button class="btn">Upload</button>
+        <button class="btn">✓ Check</button>
+        <span class="spacer"></span>
+        <button class="btn primary" id="explicit-run">Run on 5 items</button>
+      </div>
+    </div>
+
+    <!-- RANDOM -->
+    <div class="mode random-mode hidden">
+      <div class="pool">
+        <div class="pool-top">
+          <span class="pill">☁ 50 in tenant</span>
+          <span style="color:var(--ink3);font-size:12px">loaded at run time</span>
+          <span class="pct-inline">
+            <input type="range" min="1" max="100" value="10" id="slider">
+            <input type="number" min="1" max="100" value="10" id="num"> %
+          </span>
+        </div>
+        <div class="pool-body">
+          Admin@blackdotpub.com<br>
+          b2cuser_contoso…@blackdotpub.onmicrosoft.com<br>
+          backupadmin@blackdotpub.com<br>
+          <span class="muted">…46 more users fetched from the tenant</span>
+        </div>
+        <div class="sel-line">A fresh random <b><span id="pct">10</span>%</b> — <b><span id="count">5</span> of 50</b> users — is selected each run. No editing needed.</div>
+      </div>
+      <div class="btnrow">
+        <span class="spacer"></span>
+        <button class="btn primary" id="random-run">Run on 5 random users</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<p class="footnote"><span class="badge">Consistent</span> The <b>Run style</b> dropdown lives in the panel header on every tab, next to the Enabled switch — smallest footprint, so the list stays the focus.</p>
+
+<script>
+  const TOTAL = 50;
+  const sel = document.getElementById('mode');
+  const explicit = document.querySelector('.explicit-mode');
+  const random = document.querySelector('.random-mode');
+  sel.addEventListener('change', () => {
+    const isRandom = sel.value === 'random';
+    random.classList.toggle('hidden', !isRandom);
+    explicit.classList.toggle('hidden', isRandom);
+  });
+
+  const slider = document.getElementById('slider');
+  const num = document.getElementById('num');
+  const pct = document.getElementById('pct');
+  const count = document.getElementById('count');
+  const runBtn = document.getElementById('random-run');
+  function setPct(v){
+    v = Math.min(100, Math.max(1, +v || 1));
+    slider.value = v; num.value = v; pct.textContent = v;
+    const n = Math.max(1, Math.round(TOTAL * v / 100));
+    count.textContent = n;
+    runBtn.textContent = `Run on ${n} random user${n===1?'':'s'}`;
+  }
+  slider.addEventListener('input', e => setPct(e.target.value));
+  num.addEventListener('input', e => setPct(e.target.value));
+
+  const ta = document.querySelector('textarea');
+  const exRun = document.getElementById('explicit-run');
+  function upExplicit(){
+    const n = ta.value.split('\n').map(s=>s.trim()).filter(Boolean).length;
+    exRun.textContent = `Run on ${n} item${n===1?'':'s'}`;
+  }
+  ta.addEventListener('input', upExplicit); upExplicit();
+</script>
+</body>
+</html>

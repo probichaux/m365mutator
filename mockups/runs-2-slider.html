@@ -1,0 +1,77 @@
+<meta charset="utf-8">
+<title>M365Mutator — Runs (Slider + presets)</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: #f3f2f1; color: #242424; }
+  header { background: #241d78; color: #fff; height: 48px; display: flex; align-items: center; padding: 0 20px; }
+  header .logo { width: 22px; height: 22px; background: #5b5fc7; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; margin-right: 10px; }
+  header b { font-size: 15px; }
+  nav { background: #fff; border-bottom: 1px solid #e1dfdd; display: flex; gap: 26px; padding: 0 22px; }
+  nav a { padding: 16px 2px; font-size: 14px; color: #444; text-decoration: none; border-bottom: 2px solid transparent; }
+  nav a.active { color: #5b5fc7; border-bottom-color: #5b5fc7; font-weight: 600; }
+  main { max-width: 760px; margin: 28px auto; padding: 0 22px; }
+  h1 { font-size: 26px; margin: 0 0 16px; }
+  .targets-note { font-size: 12px; color: #888; margin-bottom: 16px; }
+  .card { background: #fff; border: 1px solid #e1dfdd; border-radius: 8px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .card h2 { font-size: 16px; margin: 0 0 6px; }
+  .card p { font-size: 13px; color: #555; margin: 0 0 18px; line-height: 1.5; }
+  .repeat { border: 1px dashed #d0cee8; background: #faf9ff; border-radius: 8px; padding: 18px; margin-bottom: 18px; }
+  .rhead { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+  .big { font-size: 40px; font-weight: 700; line-height: 1; color: #5b5fc7; }
+  .big span { font-size: 20px; }
+  .rdesc { font-size: 13px; color: #555; }
+  .rdesc b { color: #333; }
+  input[type=range] { width: 100%; accent-color: #5b5fc7; }
+  .chips { display: flex; gap: 8px; margin-top: 12px; }
+  .chips button { border: 1px solid #d0cee8; background: #fff; color: #555; border-radius: 20px; padding: 5px 14px; font-size: 12px; cursor: pointer; }
+  .chips button.on { border-color: #5b5fc7; background: #ecebfb; color: #4b4fb0; font-weight: 600; }
+  .go { background: #5b5fc7; color: #fff; border: none; border-radius: 6px; padding: 0 22px; height: 40px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .go:hover { background: #4b4fb0; }
+  .tag { display: inline-block; font-size: 11px; background: #e8e6fb; color: #4b4fb0; border-radius: 4px; padding: 2px 7px; margin-right: 8px; vertical-align: middle; }
+  footer { max-width: 760px; margin: 18px auto 60px; padding: 0 22px; font-size: 12px; color: #888; line-height: 1.5; }
+</style>
+
+<header><span class="logo">M</span><b>M365Mutator</b></header>
+<nav>
+  <a>Identities</a><a class="active">Mail</a><a>Calendar</a><a>OneDrive</a><a>SharePoint</a>
+</nav>
+
+<main>
+  <h1>Mail</h1>
+  <div class="targets-note">▲ 5 mailboxes selected · Explicit list</div>
+
+  <div class="card">
+    <h2>Randomize mailbox activity</h2>
+    <p>For each selected mailbox, performs one random action: send a new message (30%), reply to an inbox message (35%), forward one to another selected user (30%), or move one to Deleted Items (5%).</p>
+
+    <div class="repeat">
+      <div class="rhead">
+        <div class="big"><span id="bigN">10</span><span>×</span></div>
+        <div class="rdesc">Repeat the whole pass <b id="passes">10</b> times — <b id="acts">50</b> total actions across 5 mailboxes.</div>
+      </div>
+      <input id="rng" type="range" min="1" max="50" value="10" oninput="setN(this.value)">
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <button class="go">Do it now</button>
+  </div>
+</main>
+
+<footer>
+  <span class="tag">Guided</span> A dedicated “repeat” block with a big readout, slider, and preset chips — makes the count and the resulting action total obvious. Takes the most vertical space of the three.
+</footer>
+
+<script>
+  const TOTAL = 5, PRESETS = [1,5,10,25,50];
+  const chips = document.getElementById('chips');
+  PRESETS.forEach(p => { const b = document.createElement('button'); b.textContent = p + '×'; b.dataset.v = p; b.onclick = () => setN(p); chips.appendChild(b); });
+  function setN(v){
+    v = Math.max(1, Math.min(50, parseInt(v)||1));
+    document.getElementById('rng').value = v;
+    document.getElementById('bigN').textContent = v;
+    document.getElementById('passes').textContent = v;
+    document.getElementById('acts').textContent = v * TOTAL;
+    [...chips.children].forEach(c => c.classList.toggle('on', +c.dataset.v === v));
+  }
+  setN(10);
+</script>

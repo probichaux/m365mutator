@@ -27,6 +27,7 @@
     "dotenv": "^16.5.0",
     "express": "5.1.0",
     "helmet": "^8.1.0",
+    "markdownlint": "^0.41.0",
     "multer": "^2.1.1"
   },
   "devDependencies": {
@@ -47,5 +48,9 @@
     "typescript": "5.8.2",
     "vite": "^7.3.1",
     "vitest": "^4.0.18"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "fsevents@2.3.3": true
   }
 }

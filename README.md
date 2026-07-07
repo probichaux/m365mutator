@@ -17,15 +17,94 @@ can reach (localhost, an internal network, etc.).
   `calendar.ts`, `files.ts`).
 - `src/helpers/` — shared config and file-I/O helpers.
 
+## Entra ID app registration
+
+M365Mutator signs in to Microsoft Graph as an application (app-only,
+client-credentials flow) — there is no interactive user. You register one
+Entra ID app in the target tenant, grant it admin-consented **application**
+permissions for the workloads you want to mutate, and give it a client secret
+or certificate.
+
+> **Warning:** these are tenant-wide, high-privilege permissions —
+> `User.ReadWrite.All` lets the app change any user in the tenant. Grant only
+> the permissions for the tabs you will actually use, and protect the client
+> secret or certificate like a root credential.
+
+### 1. Create the registration
+
+1. Sign in to the [Microsoft Entra admin center](https://entra.microsoft.com)
+   with an account that can register apps and grant admin consent (Global
+   Administrator, or Cloud Application Administrator plus Privileged Role
+   Administrator).
+2. Go to **Identity → Applications → App registrations → New registration**.
+3. Give it a name, e.g. `M365Mutator`.
+4. Under **Supported account types**, choose **Accounts in this organizational
+   directory only** (single tenant).
+5. Leave **Redirect URI** empty — app-only authentication needs no redirect.
+6. Select **Register**.
+7. On the **Overview** page, copy the **Application (client) ID** and
+   **Directory (tenant) ID**; these are `GRAPH_CLIENT_ID` and `GRAPH_TENANT_ID`.
+
+### 2. Add application permissions
+
+Go to **API permissions → Add a permission → Microsoft Graph → Application
+permissions** and add the permissions for the workloads you plan to use:
+
+| Tab / workload | Graph application permission  |
+| -------------- | ----------------------------- |
+| Identities     | `User.ReadWrite.All`          |
+| Mail           | `Mail.ReadWrite`, `Mail.Send` |
+| Calendar       | `Calendars.ReadWrite`         |
+| OneDrive       | `Files.ReadWrite.All`         |
+| SharePoint     | `Sites.ReadWrite.All`         |
+
+Each `*.ReadWrite.*` permission includes read access, so the **Load** and
+**Check** buttons work without adding the read-only variants separately.
+
+Then select **Grant admin consent for \<tenant\>** and confirm — the Status
+column should show a green check for every permission. Without consent, Graph
+calls fail with `Authorization_RequestDenied`.
+
+### 3. Add a credential
+
+Use **either** a client secret **or** a certificate.
+
+Client secret (simplest):
+
+1. Go to **Certificates & secrets → Client secrets → New client secret**.
+2. Set a description and expiry, then **Add**.
+3. Copy the secret **Value** immediately — it is shown only once. This is
+   `GRAPH_CLIENT_SECRET`.
+
+Certificate (recommended for production):
+
+1. Upload the certificate's public key under **Certificates & secrets →
+   Certificates → Upload certificate**.
+2. Point `GRAPH_CERTIFICATE_PATH` at a local PEM file holding the certificate
+   **and** its private key. Set `GRAPH_CERTIFICATE_PASSWORD` if the PEM is
+   encrypted, and `GRAPH_SEND_CERTIFICATE_CHAIN=true` if your tenant requires
+   subject name + issuer (SNI) authentication.
+
+### 4. Supply the values to M365Mutator
+
+Put the values into `.env` (see `.env.example`) or enter them in the admin
+UI's **Settings** panel, which can verify them against Graph before saving:
+
+```dotenv
+GRAPH_CLIENT_ID=<Application (client) ID>
+GRAPH_TENANT_ID=<Directory (tenant) ID>
+GRAPH_CLIENT_SECRET=<client secret value>   # or set GRAPH_CERTIFICATE_PATH
+```
+
 ## Setup
 
-1. Register an Entra ID app registration with the application (not delegated)
-   permissions you need, admin-consented. See `.env.example` for the common set.
+1. Create the Entra ID app registration and grant it the Graph permissions you
+   need — see [Entra ID app registration](#entra-id-app-registration) above.
 2. Copy `.env.example` to `.env` and fill in `GRAPH_CLIENT_ID`, `GRAPH_TENANT_ID`,
    and either `GRAPH_CLIENT_SECRET` or `GRAPH_CERTIFICATE_PATH`.
 3. Install dependencies and run:
 
-   ```
+   ```bash
    npm install
    npm run dev
    ```

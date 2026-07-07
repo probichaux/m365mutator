@@ -10,7 +10,7 @@ const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 export const SUBJECT_PROMPT =
   'Generate a one-sentence subject line in English related to software-as-a-service applications, airline travel, or the World Cup.';
 export const BODY_PROMPT =
-  'Generate a one-paragraph text summary of a randomly chosen Microsoft documentation page.';
+  'Generate a one-paragraph text summary of a little-known scientific fact about physics, chemistry, biology, geology, or astronomy.';
 
 /**
  * Generate text for `prompt`. If an OpenRouter API key is configured, ask the

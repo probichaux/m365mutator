@@ -1,11 +1,9 @@
 {
-  "dashboard": "Dashboard",
-  "targets": "Targets",
-  "users": "Identities",
+  "identities": "Identities",
   "mail": "Mail",
   "calendar": "Calendar",
-  "files": "Files",
+  "onedrive": "OneDrive",
+  "sharepoint": "SharePoint",
   "settings": "Settings",
-  "help": "Help",
-  "tabDisabled": "Enable this category on the Targets page to use this tab"
+  "help": "Help"
 }

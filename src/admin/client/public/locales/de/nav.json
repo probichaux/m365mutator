@@ -1,11 +1,9 @@
 {
-  "dashboard": "Übersicht",
-  "targets": "Ziele",
-  "users": "Identitäten",
+  "identities": "Identitäten",
   "mail": "E-Mail",
   "calendar": "Kalender",
-  "files": "Dateien",
+  "onedrive": "OneDrive",
+  "sharepoint": "SharePoint",
   "settings": "Einstellungen",
-  "help": "Hilfe",
-  "tabDisabled": "Aktivieren Sie diese Kategorie auf der Seite „Ziele“, um diese Registerkarte zu verwenden"
+  "help": "Hilfe"
 }

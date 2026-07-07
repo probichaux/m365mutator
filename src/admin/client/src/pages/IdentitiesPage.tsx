@@ -8,6 +8,7 @@ import {
 } from '@fluentui/react-icons';
 import { api } from '../api';
 import { useToast } from '../components/ToastProvider';
+import TargetPanel from '../components/TargetPanel';
 
 interface MutationResult {
   item: string;
@@ -20,6 +21,8 @@ interface MutationRun {
   attribute: string;
   label: string;
   results: MutationResult[];
+  runStyle?: 'explicit' | 'random';
+  pool?: number;
   error?: string;
 }
 
@@ -28,8 +31,9 @@ function formatValue(value: unknown): string {
   return String(value);
 }
 
-export default function UsersPage() {
+export default function IdentitiesPage() {
   const { t, i18n } = useTranslation('pages');
+  const { t: tt } = useTranslation('targets');
   const showToast = useToast();
 
   const [running, setRunning] = useState(false);
@@ -56,11 +60,13 @@ export default function UsersPage() {
 
     if (result.status === 200 && result.data.results) {
       setRun(result.data);
-      const failed = result.data.results.filter(r => !r.ok).length;
+      const d = result.data;
+      const failed = d.results.filter(r => !r.ok).length;
+      const okKey = d.runStyle === 'random' ? 'users.mutate.toastRandomOk' : 'users.mutate.toastAllOk';
       showToast(
         failed === 0
-          ? t('users.mutate.toastAllOk', { label: result.data.label, count: result.data.results.length })
-          : t('users.mutate.toastFailures', { label: result.data.label, failed, total: result.data.results.length }),
+          ? t(okKey, { label: d.label, count: d.results.length, pool: d.pool ?? d.results.length })
+          : t('users.mutate.toastFailures', { label: d.label, failed, total: d.results.length }),
         failed === 0 ? 'success' : 'warning',
       );
     } else {
@@ -68,23 +74,13 @@ export default function UsersPage() {
     }
   };
 
-  const operations = t('users.operations', { returnObjects: true }) as string[];
-
   return (
     <div>
-      <Title2 block style={{ marginBottom: 16 }}>{t('users.title')}</Title2>
+      <Title2 block style={{ marginBottom: 16 }}>{tt('categories.identities.label')}</Title2>
 
-      <Card style={{ marginBottom: 16 }}>
-        <Text size={300} block style={{ marginBottom: 12 }}>
-          {t('common:requiresPermission')} <Text weight="semibold" font="monospace">{t('users.permission')}</Text>.
-        </Text>
-        <Text weight="semibold" block style={{ marginBottom: 8 }}>{t('common:plannedOperations')}</Text>
-        <ul style={{ margin: 0, paddingLeft: 20, color: tokens.colorNeutralForeground2 }}>
-          {operations.map(op => <li key={op} style={{ marginBottom: 4 }}>{op}</li>)}
-        </ul>
-      </Card>
+      <TargetPanel category="identities" />
 
-      <Card style={{ marginBottom: 16 }}>
+      <Card style={{ marginTop: 16 }}>
         <Text weight="semibold" size={400} block style={{ marginBottom: 4 }}>{t('users.mutate.title')}</Text>
         <Text size={300} block style={{ color: tokens.colorNeutralForeground2, marginBottom: 16 }}>
           {t('users.mutate.description', { attributes: attributeList })}

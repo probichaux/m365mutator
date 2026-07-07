@@ -1,11 +1,9 @@
 {
-  "dashboard": "Панель",
-  "targets": "Цілі",
-  "users": "Ідентичності",
+  "identities": "Ідентичності",
   "mail": "Пошта",
   "calendar": "Календар",
-  "files": "Файли",
+  "onedrive": "OneDrive",
+  "sharepoint": "SharePoint",
   "settings": "Налаштування",
-  "help": "Довідка",
-  "tabDisabled": "Увімкніть цю категорію на сторінці «Цілі», щоб використовувати цю вкладку"
+  "help": "Довідка"
 }

@@ -10,11 +10,12 @@
     ],
     "mutate": {
       "title": "Ein Attribut zufällig ändern",
-      "description": "Wählt ein Attribut zufällig aus (aus der Menge {{attributes}}) und überschreibt es mit einem Zufallswert für jede aktivierte Identität von der Seite „Ziele“. Manager und Sponsoren sind ausgeschlossen, da sie auf andere Verzeichnisobjekte verweisen und keine einfachen Werte sind.",
+      "description": "Wählt ein Attribut zufällig aus (aus der Menge {{attributes}}) und überschreibt es mit einem Zufallswert für jede oben aufgeführte Identität (wenn Identitäten aktiviert ist). Manager und Sponsoren sind ausgeschlossen, da sie auf andere Verzeichnisobjekte verweisen und keine einfachen Werte sind.",
       "doItNow": "Jetzt ausführen",
       "running": "Wird geändert…",
       "chosenAttribute": "Zufällig gewähltes Attribut",
       "toastAllOk": "{{label}} für alle {{count}} Identitäten festgelegt",
+      "toastRandomOk": "{{label}} für {{count}} zufällige Identitäten festgelegt (von {{pool}})",
       "toastFailures": "{{label}} festgelegt: {{failed}} von {{total}} Identitäten fehlgeschlagen",
       "toastFailed": "Änderung fehlgeschlagen"
     }

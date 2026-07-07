@@ -1,24 +1,21 @@
 import { useTranslation } from 'react-i18next';
 import {
-  Button, TabList, Tab, Tooltip, tokens,
+  Button, TabList, Tab, tokens,
   type SelectTabData, type SelectTabEvent,
 } from '@fluentui/react-components';
 import { SettingsRegular, QuestionCircleRegular } from '@fluentui/react-icons';
 import LanguageSwitcher from './LanguageSwitcher';
-import type { PageId } from '../App';
+import { PAGE_IDS, type PageId } from '../App';
 
 interface LayoutProps {
   page: PageId;
   onNavigate: (page: PageId) => void;
-  isTabEnabled: (page: PageId) => boolean;
   onOpenSettings: () => void;
   onOpenHelp: () => void;
   children: React.ReactNode;
 }
 
-const TABS: PageId[] = ['dashboard', 'targets', 'users', 'mail', 'calendar', 'files'];
-
-export default function Layout({ page, onNavigate, isTabEnabled, onOpenSettings, onOpenHelp, children }: LayoutProps) {
+export default function Layout({ page, onNavigate, onOpenSettings, onOpenHelp, children }: LayoutProps) {
   const { t } = useTranslation('nav');
 
   return (
@@ -61,21 +58,9 @@ export default function Layout({ page, onNavigate, isTabEnabled, onOpenSettings,
           selectedValue={page}
           onTabSelect={(_e: SelectTabEvent, data: SelectTabData) => onNavigate(data.value as PageId)}
         >
-          {TABS.map((tabId) => {
-            const tab = (
-              <Tab key={tabId} value={tabId} disabled={!isTabEnabled(tabId)}>
-                {t(tabId)}
-              </Tab>
-            );
-            // Explain why a tab is unavailable; Tooltip wraps the disabled Tab.
-            return isTabEnabled(tabId)
-              ? tab
-              : (
-                <Tooltip key={tabId} content={t('tabDisabled')} relationship="label">
-                  {tab}
-                </Tooltip>
-              );
-          })}
+          {PAGE_IDS.map((tabId) => (
+            <Tab key={tabId} value={tabId}>{t(tabId)}</Tab>
+          ))}
         </TabList>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <LanguageSwitcher />

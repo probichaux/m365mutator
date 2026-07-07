@@ -4,9 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync, chmodSync } from 'node:fs';
 import multer from 'multer';
 import { loadConfig, saveConfig, maskSecrets, applyConfig, getDataDir, AppConfig } from './config-store.js';
-import { loadTargets, saveTargets, TARGET_CATEGORIES, TargetCategory, MAX_ITEMS_PER_CATEGORY } from './targets-store.js';
+import { loadTargets, saveTargets, saveTargetCategory, TARGET_CATEGORIES, TargetCategory, MAX_ITEMS_PER_CATEGORY } from './targets-store.js';
 import { checkTargets } from './target-check.js';
-import { loadCategory } from './target-load.js';
+import { loadCategory, resolveTargetItems } from './target-load.js';
 import { mutateIdentities } from './identity-mutate.js';
 import { sanitizeUpstreamError } from './connectivity.js';
 import { MUTABLE_ATTRIBUTES } from '../graph/user-attributes.js';
@@ -86,6 +86,22 @@ router.put('/api/targets', (req: Request, res: Response) => {
   }
 });
 
+// Update one category, merging into the stored config. Each workload page saves
+// its own category independently.
+router.put('/api/targets/:category', (req: Request, res: Response) => {
+  const category = req.params.category;
+  if (!TARGET_CATEGORIES.includes(category as TargetCategory)) {
+    res.status(400).json({ success: false, error: 'Unknown target category' });
+    return;
+  }
+  try {
+    const saved = saveTargetCategory(category as TargetCategory, req.body ?? {});
+    res.json({ success: true, category, targets: saved[category as TargetCategory] });
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
 router.post('/api/targets/check', async (req: Request, res: Response) => {
   const { category, items } = req.body as { category?: unknown; items?: unknown };
   if (!TARGET_CATEGORIES.includes(category as TargetCategory)) {
@@ -131,15 +147,20 @@ router.post('/api/identities/mutate', async (_req: Request, res: Response) => {
     res.status(400).json({ error: 'The Identities target category is not enabled' });
     return;
   }
-  if (identities.items.length === 0) {
-    res.status(400).json({ error: 'No identities are selected' });
-    return;
-  }
   try {
-    const run = await mutateIdentities(identities.items);
-    res.json(run);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    // Explicit → the saved list; random → a fresh random % of the tenant's users.
+    const resolved = await resolveTargetItems('identities', identities);
+    if (resolved.items.length === 0) {
+      const msg = resolved.runStyle === 'random'
+        ? 'No users were found in the tenant to sample'
+        : 'No identities are selected';
+      res.status(400).json({ error: msg });
+      return;
+    }
+    const run = await mutateIdentities(resolved.items);
+    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
+  } catch (err: unknown) {
+    res.status(502).json({ error: sanitizeUpstreamError(err) });
   }
 });
 

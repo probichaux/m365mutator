@@ -2,7 +2,7 @@
 
 import { listAllUsers, DirectoryUser } from '../graph/users.js';
 import { listAllSites } from '../graph/sites.js';
-import { TargetCategory, MAX_ITEMS_PER_CATEGORY } from './targets-store.js';
+import { TargetCategory, TargetCategoryConfig, RunStyle, MAX_ITEMS_PER_CATEGORY } from './targets-store.js';
 
 export interface LoadResult {
   items: string[];
@@ -72,4 +72,45 @@ export async function loadCategory(category: TargetCategory): Promise<LoadResult
 
   const items = all.slice(0, MAX_ITEMS_PER_CATEGORY);
   return { items, total: all.length, truncated: all.length > items.length };
+}
+
+/** How many items a percentage selects from a pool of `poolSize`, at least 1 (0 if the pool is empty). */
+export function sampleSize(poolSize: number, percent: number): number {
+  if (poolSize <= 0) return 0;
+  const clamped = Math.min(100, Math.max(1, percent));
+  return Math.min(poolSize, Math.max(1, Math.round((poolSize * clamped) / 100)));
+}
+
+/** Return a random subset of `items` sized to `percent` of the pool (Fisher–Yates partial shuffle). */
+export function sampleItems(items: string[], percent: number): string[] {
+  const k = sampleSize(items.length, percent);
+  const arr = [...items];
+  for (let i = 0; i < k; i++) {
+    const j = i + Math.floor(Math.random() * (arr.length - i));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, k);
+}
+
+export interface ResolvedTargets {
+  items: string[];
+  /** Size of the pool the items were drawn from (the saved list, or the loaded tenant set). */
+  pool: number;
+  runStyle: RunStyle;
+}
+
+/**
+ * Resolve the effective items an operation should act on for a category:
+ * - explicit: the saved, edited list.
+ * - random: load the full set from the tenant and take a random `randomPercent`.
+ */
+export async function resolveTargetItems(
+  category: TargetCategory,
+  config: TargetCategoryConfig,
+): Promise<ResolvedTargets> {
+  if (config.runStyle === 'random') {
+    const loaded = await loadCategory(category);
+    return { items: sampleItems(loaded.items, config.randomPercent), pool: loaded.items.length, runStyle: 'random' };
+  }
+  return { items: config.items, pool: config.items.length, runStyle: 'explicit' };
 }

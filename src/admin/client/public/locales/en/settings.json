@@ -18,6 +18,14 @@
     "verifyConnection": "Verify Graph Connection",
     "verifying": "Testing..."
   },
+  "openRouter": {
+    "sectionTitle": "OpenRouter",
+    "description": "Optional. When set, mail mutations use OpenRouter to generate random subject lines and message bodies. Without a key, a random GUID is used instead.",
+    "apiKey": "API key",
+    "apiKeyHint": "Stored as plaintext under the data directory, like the Graph secret.",
+    "model": "Model",
+    "modelHint": "OpenRouter model id. Defaults to openai/gpt-4o-mini."
+  },
   "saveConfiguration": "Save Configuration",
   "savingConfiguration": "Saving...",
   "toast": {

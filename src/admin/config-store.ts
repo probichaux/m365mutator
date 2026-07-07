@@ -12,6 +12,10 @@ export interface AppConfig {
   graphCertificatePath: string;
   graphCertificatePassword: string;
   graphSendCertificateChain: boolean;
+  /** OpenRouter API key used to generate random mail text; blank falls back to GUIDs. */
+  openRouterApiKey: string;
+  /** OpenRouter model id used for that text generation. */
+  openRouterModel: string;
   port: number;
   logPath: string;
 }
@@ -46,6 +50,8 @@ export function loadConfig(): AppConfig {
     graphCertificatePath: process.env.GRAPH_CERTIFICATE_PATH || '',
     graphCertificatePassword: process.env.GRAPH_CERTIFICATE_PASSWORD || '',
     graphSendCertificateChain: process.env.GRAPH_SEND_CERTIFICATE_CHAIN === 'true',
+    openRouterApiKey: process.env.OPENROUTER_API_KEY || '',
+    openRouterModel: process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini',
     port: parseInt(process.env.PORT || '3700', 10),
     logPath: process.env.M365MUTATOR_LOG_PATH || './m365mutator.log',
   };
@@ -86,6 +92,7 @@ export function maskSecrets(config: AppConfig): AppConfig {
     ...config,
     graphClientSecret: config.graphClientSecret === '' ? '' : '********',
     graphCertificatePassword: config.graphCertificatePassword === '' ? '' : '********',
+    openRouterApiKey: config.openRouterApiKey === '' ? '' : '********',
   };
 }
 

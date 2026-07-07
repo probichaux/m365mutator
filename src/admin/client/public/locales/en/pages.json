@@ -27,7 +27,26 @@
       "Send a new mail message as a mailbox",
       "Reply to an existing message",
       "Move or delete messages"
-    ]
+    ],
+    "mutate": {
+      "title": "Randomize mailbox activity",
+      "description": "For each selected mailbox, performs one random action: send a new message (30%), reply to an inbox message (35%), forward one to another selected user (30%), or move one to Deleted Items (5%). Random subject and body text come from OpenRouter when a key is configured, otherwise a GUID.",
+      "doItNow": "Do it now",
+      "running": "Mutating…",
+      "runsLabel": "Number of passes",
+      "runsSuffix": "pass(es)",
+      "summary": "Ran {{runs}}× — {{total}} actions · {{ok}} ok · {{failed}} failed",
+      "truncated": "Showing the first {{shown}} of {{total}} actions.",
+      "toastOk": "Completed {{total}} mail actions ({{runs}}×)",
+      "toastFailures": "{{failed}} of {{total}} mail actions failed ({{runs}}×)",
+      "toastFailed": "Mail mutation failed",
+      "op": {
+        "send": "sent",
+        "reply": "replied",
+        "forward": "forwarded",
+        "move": "moved"
+      }
+    }
   },
   "calendar": {
     "title": "Calendar",

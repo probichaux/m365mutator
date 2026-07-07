@@ -27,7 +27,26 @@
       "Eine neue E-Mail-Nachricht als Postfach senden",
       "Auf eine vorhandene Nachricht antworten",
       "Nachrichten verschieben oder löschen"
-    ]
+    ],
+    "mutate": {
+      "title": "Postfachaktivität zufällig erzeugen",
+      "description": "Führt für jedes ausgewählte Postfach eine zufällige Aktion aus: neue Nachricht senden (30 %), auf eine Posteingangsnachricht antworten (35 %), eine an einen anderen ausgewählten Benutzer weiterleiten (30 %) oder eine in Gelöschte Elemente verschieben (5 %). Zufälliger Betreff- und Textinhalt stammt von OpenRouter, wenn ein Schlüssel konfiguriert ist, andernfalls eine GUID.",
+      "doItNow": "Jetzt ausführen",
+      "running": "Wird geändert…",
+      "runsLabel": "Anzahl der Durchläufe",
+      "runsSuffix": "Durchlauf/Durchläufe",
+      "summary": "{{runs}}× ausgeführt — {{total}} Aktionen · {{ok}} ok · {{failed}} fehlgeschlagen",
+      "truncated": "Zeigt die ersten {{shown}} von {{total}} Aktionen.",
+      "toastOk": "{{total}} Mail-Aktionen abgeschlossen ({{runs}}×)",
+      "toastFailures": "{{failed}} von {{total}} Mail-Aktionen fehlgeschlagen ({{runs}}×)",
+      "toastFailed": "Mail-Mutation fehlgeschlagen",
+      "op": {
+        "send": "gesendet",
+        "reply": "geantwortet",
+        "forward": "weitergeleitet",
+        "move": "verschoben"
+      }
+    }
   },
   "calendar": {
     "title": "Kalender",

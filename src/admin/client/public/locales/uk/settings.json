@@ -18,6 +18,14 @@
     "verifyConnection": "Перевірити з'єднання з Graph",
     "verifying": "Перевірка..."
   },
+  "openRouter": {
+    "sectionTitle": "OpenRouter",
+    "description": "Необовʼязково. Якщо вказано, поштові мутації використовують OpenRouter для генерації випадкових тем і текстів повідомлень. Без ключа замість цього використовується випадковий GUID.",
+    "apiKey": "Ключ API",
+    "apiKeyHint": "Зберігається у вигляді звичайного тексту в каталозі даних, як і секрет Graph.",
+    "model": "Модель",
+    "modelHint": "Ідентифікатор моделі OpenRouter. Типово openai/gpt-4o-mini."
+  },
   "saveConfiguration": "Зберегти конфігурацію",
   "savingConfiguration": "Збереження...",
   "toast": {

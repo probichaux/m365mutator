@@ -1,0 +1,57 @@
+/* Joined −/number/+ stepper, styled after mockups/runs-1-stepper.html.
+   Colors come from the Fluent theme CSS variables so it tracks light/dark. */
+.m365-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--colorNeutralStroke1);
+  border-radius: var(--borderRadiusMedium);
+  overflow: hidden;
+  width: fit-content;
+}
+
+.m365-stepper__btn {
+  border: none;
+  background: var(--colorNeutralBackground3);
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--colorNeutralForeground1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.m365-stepper__btn:hover:not(:disabled) {
+  background: var(--colorBrandBackground2);
+  color: var(--colorBrandForeground1);
+}
+
+.m365-stepper__btn:disabled {
+  cursor: not-allowed;
+  color: var(--colorNeutralForegroundDisabled);
+}
+
+.m365-stepper__input {
+  width: 52px;
+  height: 34px;
+  text-align: center;
+  border: none;
+  border-left: 1px solid var(--colorNeutralStroke2);
+  border-right: 1px solid var(--colorNeutralStroke2);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  background: var(--colorNeutralBackground1);
+  color: var(--colorNeutralForeground1);
+}
+
+.m365-stepper__input:focus {
+  outline: none;
+}
+
+.m365-stepper__input:disabled {
+  color: var(--colorNeutralForegroundDisabled);
+}

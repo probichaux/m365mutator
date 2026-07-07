@@ -20,6 +20,8 @@ interface ConfigData {
   graphClientSecret: string;
   graphCertificatePath: string;
   graphCertificatePassword: string;
+  openRouterApiKey: string;
+  openRouterModel: string;
 }
 
 export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
@@ -32,6 +34,8 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
   const [graphClientSecret, setGraphClientSecret] = useState('');
   const [graphCertPath, setGraphCertPath] = useState('');
   const [graphCertPassword, setGraphCertPassword] = useState('');
+  const [openRouterApiKey, setOpenRouterApiKey] = useState('');
+  const [openRouterModel, setOpenRouterModel] = useState('');
 
   const [testing, setTesting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -48,6 +52,8 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
       setAuthMethod('cert');
     }
     if (c.graphCertificatePassword) setGraphCertPassword(c.graphCertificatePassword);
+    if (c.openRouterApiKey) setOpenRouterApiKey(c.openRouterApiKey);
+    if (c.openRouterModel) setOpenRouterModel(c.openRouterModel);
   }, []);
 
   useEffect(() => {
@@ -89,6 +95,9 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
       if (graphCertPath) payload.graphCertificatePath = graphCertPath;
       if (graphCertPassword && graphCertPassword !== '********') payload.graphCertificatePassword = graphCertPassword;
     }
+
+    if (openRouterApiKey && openRouterApiKey !== '********') payload.openRouterApiKey = openRouterApiKey;
+    if (openRouterModel) payload.openRouterModel = openRouterModel;
 
     const result = await api<{ success: boolean; error?: string }>('PUT', '/api/config', payload);
     setSaving(false);
@@ -197,6 +206,27 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
             <Button appearance="outline" onClick={testConnection} disabled={testing}>
               {testing ? <><Spinner size="tiny" /> {t('graph.verifying')}</> : t('graph.verifyConnection')}
             </Button>
+          </div>
+
+          {/* OpenRouter — random text generation for mail mutations */}
+          <div style={sectionStyle}>
+            <Text weight="semibold" size={400} block style={{ marginBottom: 4 }}>{t('openRouter.sectionTitle')}</Text>
+            <Text size={200} block style={{ color: tokens.colorNeutralForeground3, marginBottom: 12 }}>
+              {t('openRouter.description')}
+            </Text>
+            <div style={fieldStyle}>
+              <Label size="small">{t('openRouter.apiKey')}</Label>
+              <Input type="password" value={openRouterApiKey} onChange={(_, d) => setOpenRouterApiKey(d.value)}
+                placeholder="********" style={{ width: '100%' }} />
+              <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>{t('openRouter.apiKeyHint')}</Text>
+            </div>
+            <div style={fieldStyle}>
+              <Label size="small">{t('openRouter.model')}</Label>
+              <Input value={openRouterModel} onChange={(_, d) => setOpenRouterModel(d.value)}
+                placeholder="openai/gpt-4o-mini"
+                style={{ width: '100%', fontFamily: 'var(--fontFamilyMonospace)' }} />
+              <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>{t('openRouter.modelHint')}</Text>
+            </div>
           </div>
 
           <div>

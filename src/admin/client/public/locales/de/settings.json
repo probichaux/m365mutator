@@ -18,6 +18,14 @@
     "verifyConnection": "Graph-Verbindung überprüfen",
     "verifying": "Wird getestet..."
   },
+  "openRouter": {
+    "sectionTitle": "OpenRouter",
+    "description": "Optional. Wenn gesetzt, verwenden E-Mail-Mutationen OpenRouter, um zufällige Betreffzeilen und Nachrichtentexte zu generieren. Ohne Schlüssel wird stattdessen eine zufällige GUID verwendet.",
+    "apiKey": "API-Schlüssel",
+    "apiKeyHint": "Wird wie das Graph-Geheimnis als Klartext im Datenverzeichnis gespeichert.",
+    "model": "Modell",
+    "modelHint": "OpenRouter-Modell-ID. Standard ist openai/gpt-4o-mini."
+  },
   "saveConfiguration": "Konfiguration speichern",
   "savingConfiguration": "Wird gespeichert...",
   "toast": {

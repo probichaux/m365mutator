@@ -37,25 +37,38 @@ export const MAX_RUNS = 999;
 /** Cap on per-action results returned so a large run does not ship a huge payload. */
 const RESULT_SAMPLE_CAP = 500;
 
-/** Probability weights from the plan; must sum to 100. */
-const OP_WEIGHTS: { op: MailOp; weight: number }[] = [
+/** Probability weights; each set must sum to 100. */
+const OP_WEIGHTS_WITH_DELETE: { op: MailOp; weight: number }[] = [
   { op: 'send', weight: 30 },
   { op: 'reply', weight: 35 },
   { op: 'forward', weight: 30 },
   { op: 'move', weight: 5 },
 ];
 
+// When deletions are disabled, the move-to-Deleted-Items share (5%) goes to new messages.
+const OP_WEIGHTS_NO_DELETE: { op: MailOp; weight: number }[] = [
+  { op: 'send', weight: 35 },
+  { op: 'reply', weight: 35 },
+  { op: 'forward', weight: 30 },
+  { op: 'move', weight: 0 },
+];
+
 const DELETED_ITEMS = 'deleteditems';
 const MUTATE_CONCURRENCY = 5;
 
-/** Pick an operation by weight. `rand` returns [0, 1); injectable for tests. */
-export function pickMailOp(rand: () => number = Math.random): MailOp {
+/**
+ * Pick an operation by weight. When `allowDeletions` is false the move-to-Deleted-Items
+ * action is never chosen. `rand` returns [0, 1); injectable for tests.
+ */
+export function pickMailOp(allowDeletions: boolean, rand: () => number = Math.random): MailOp {
+  const weights = allowDeletions ? OP_WEIGHTS_WITH_DELETE : OP_WEIGHTS_NO_DELETE;
   let r = rand() * 100;
-  for (const { op, weight } of OP_WEIGHTS) {
-    if (r < weight) return op;
+  for (const { op, weight } of weights) {
+    if (weight > 0 && r < weight) return op;
     r -= weight;
   }
-  return OP_WEIGHTS[OP_WEIGHTS.length - 1].op;
+  // Unreachable for r in [0, 100); fall back to the last enabled operation.
+  return weights.filter(w => w.weight > 0).at(-1)!.op;
 }
 
 /** A different mailbox to act against, or the actor itself when it is the only one selected. */
@@ -77,8 +90,8 @@ async function runSend(actor: string, others: string[], fellBackFrom?: MailOp): 
   return { item: actor, op: 'send', ok: true, detail };
 }
 
-async function mutateOne(actor: string, others: string[]): Promise<MailResult> {
-  const chosen = pickMailOp();
+async function mutateOne(actor: string, others: string[], allowDeletions: boolean): Promise<MailResult> {
+  const chosen = pickMailOp(allowDeletions);
   try {
     if (chosen !== 'send') {
       const messages = await listInboxMessages(actor);
@@ -113,9 +126,9 @@ async function mutateOne(actor: string, others: string[]): Promise<MailResult> {
  * bounded worker pool, so one failure does not abort the rest. Returns totals
  * plus a capped sample of individual results.
  */
-export async function mutateMail(items: string[], runs = 1): Promise<MailRun> {
+export async function mutateMail(items: string[], runs = 1, allowDeletions = false): Promise<MailRun> {
   const passes = Math.min(MAX_RUNS, Math.max(1, Math.round(runs)));
-  logger.info(`[MAIL] Mutating ${items.length} mailbox(es) × ${passes} pass(es)`);
+  logger.info(`[MAIL] Mutating ${items.length} mailbox(es) × ${passes} pass(es), deletions ${allowDeletions ? 'on' : 'off'}`);
 
   // Precompute each actor's counterparts once; flatten passes into one task list.
   const othersByActor = new Map(items.map(a => [a, items.filter(i => i !== a)]));
@@ -128,7 +141,7 @@ export async function mutateMail(items: string[], runs = 1): Promise<MailRun> {
     while (next < actors.length) {
       const index = next++;
       const actor = actors[index];
-      results[index] = await mutateOne(actor, othersByActor.get(actor) ?? []);
+      results[index] = await mutateOne(actor, othersByActor.get(actor) ?? [], allowDeletions);
     }
   });
   await Promise.all(workers);

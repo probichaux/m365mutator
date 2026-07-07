@@ -173,8 +173,9 @@ router.post('/api/mail/mutate', async (req: Request, res: Response) => {
     res.status(400).json({ error: 'The Mail target category is not enabled' });
     return;
   }
-  const { runs } = req.body as { runs?: unknown };
+  const { runs, allowDeletions } = req.body as { runs?: unknown; allowDeletions?: unknown };
   const runCount = typeof runs === 'number' && Number.isFinite(runs) ? runs : 1;
+  const allowDel = allowDeletions === true;
   try {
     // Explicit → the saved list; random → a fresh random % of the tenant's mailboxes.
     const resolved = await resolveTargetItems('mail', mail);
@@ -185,7 +186,7 @@ router.post('/api/mail/mutate', async (req: Request, res: Response) => {
       res.status(400).json({ error: msg });
       return;
     }
-    const run = await mutateMail(resolved.items, runCount);
+    const run = await mutateMail(resolved.items, runCount, allowDel);
     res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
   } catch (err: unknown) {
     res.status(502).json({ error: sanitizeUpstreamError(err) });

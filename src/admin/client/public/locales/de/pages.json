@@ -39,7 +39,9 @@
     ],
     "mutate": {
       "title": "Postfachaktivität zufällig erzeugen",
-      "description": "Führt für jedes ausgewählte Postfach eine zufällige Aktion aus: neue Nachricht senden (30 %), auf eine Posteingangsnachricht antworten (35 %), eine an einen anderen ausgewählten Benutzer weiterleiten (30 %) oder eine in Gelöschte Elemente verschieben (5 %). Zufälliger Betreff- und Textinhalt stammt von OpenRouter, wenn ein Schlüssel konfiguriert ist, andernfalls eine GUID.",
+      "description": "Führt für jedes ausgewählte Postfach eine zufällige Aktion aus: neue Nachricht senden ({{send}} %), auf eine Posteingangsnachricht antworten (35 %), eine an einen anderen ausgewählten Benutzer weiterleiten (30 %){{deletions}}. Zufälliger Betreff- und Textinhalt stammt von OpenRouter, wenn ein Schlüssel konfiguriert ist, andernfalls eine GUID.",
+      "deletionsClause": " oder eine in Gelöschte Elemente verschieben (5 %)",
+      "allowDeletions": "Löschungen zulassen",
       "doItNow": "Jetzt ausführen",
       "running": "Wird geändert…",
       "runsLabel": "Anzahl der Durchläufe",

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Button, Card, Spinner, Text, Title2, tokens,
+  Button, Card, Spinner, Switch, Text, Title2, tokens,
 } from '@fluentui/react-components';
 import {
   CheckmarkCircle20Filled, DismissCircle20Filled, FlashRegular,
@@ -39,12 +39,13 @@ export default function MailPage() {
 
   const [running, setRunning] = useState(false);
   const [runs, setRuns] = useState(1);
+  const [allowDeletions, setAllowDeletions] = useState(false);
   const [run, setRun] = useState<MailRun | null>(null);
 
   const doItNow = async () => {
     setRunning(true);
     setRun(null);
-    const result = await api<MailRun>('POST', '/api/mail/mutate', { runs });
+    const result = await api<MailRun>('POST', '/api/mail/mutate', { runs, allowDeletions });
     setRunning(false);
 
     if (result.status === 200 && result.data.results) {
@@ -69,8 +70,20 @@ export default function MailPage() {
       <Card style={{ marginTop: 16 }}>
         <Text weight="semibold" size={400} block style={{ marginBottom: 4 }}>{tp('mail.mutate.title')}</Text>
         <Text size={300} block style={{ color: tokens.colorNeutralForeground2, marginBottom: 16 }}>
-          {tp('mail.mutate.description')}
+          {tp('mail.mutate.description', {
+            send: allowDeletions ? 30 : 35,
+            deletions: allowDeletions ? tp('mail.mutate.deletionsClause') : '',
+          })}
         </Text>
+
+        <div style={{ marginBottom: 12 }}>
+          <Switch
+            checked={allowDeletions}
+            disabled={running}
+            onChange={(_, d) => setAllowDeletions(d.checked)}
+            label={tp('mail.mutate.allowDeletions')}
+          />
+        </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <RunStepper

@@ -39,7 +39,9 @@
     ],
     "mutate": {
       "title": "Randomize mailbox activity",
-      "description": "For each selected mailbox, performs one random action: send a new message (30%), reply to an inbox message (35%), forward one to another selected user (30%), or move one to Deleted Items (5%). Random subject and body text come from OpenRouter when a key is configured, otherwise a GUID.",
+      "description": "For each selected mailbox, performs one random action: send a new message ({{send}}%), reply to an inbox message (35%), forward one to another selected user (30%){{deletions}}. Random subject and body text come from OpenRouter when a key is configured, otherwise a GUID.",
+      "deletionsClause": ", or move one to Deleted Items (5%)",
+      "allowDeletions": "Allow deletions",
       "doItNow": "Do it now",
       "running": "Mutating…",
       "runsLabel": "Number of passes",

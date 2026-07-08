@@ -9,6 +9,7 @@ import { checkTargets } from './target-check.js';
 import { loadCategory, resolveTargetItems } from './target-load.js';
 import { mutateIdentities } from './identity-mutate.js';
 import { mutateMail } from './mail-mutate.js';
+import { mutateCalendar } from './calendar-mutate.js';
 import { sanitizeUpstreamError } from './connectivity.js';
 import { MUTABLE_ATTRIBUTES } from '../graph/user-attributes.js';
 import { testGraph } from './connectivity.js';
@@ -187,6 +188,33 @@ router.post('/api/mail/mutate', async (req: Request, res: Response) => {
       return;
     }
     const run = await mutateMail(resolved.items, runCount, allowDel);
+    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
+  } catch (err: unknown) {
+    res.status(502).json({ error: sanitizeUpstreamError(err) });
+  }
+});
+
+// ── Calendar: 50/50 random meeting-or-appointment creation ──────────
+
+router.post('/api/calendar/mutate', async (req: Request, res: Response) => {
+  const calendar = loadTargets().calendar;
+  if (!calendar.enabled) {
+    res.status(400).json({ error: 'The Calendar target category is not enabled' });
+    return;
+  }
+  const { runs } = req.body as { runs?: unknown };
+  const runCount = typeof runs === 'number' && Number.isFinite(runs) ? runs : 1;
+  try {
+    // Explicit → the saved list; random → a fresh random % of the tenant's mailboxes.
+    const resolved = await resolveTargetItems('calendar', calendar);
+    if (resolved.items.length === 0) {
+      const msg = resolved.runStyle === 'random'
+        ? 'No mailboxes were found in the tenant to sample'
+        : 'No mailboxes are selected';
+      res.status(400).json({ error: msg });
+      return;
+    }
+    const run = await mutateCalendar(resolved.items, runCount);
     res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
   } catch (err: unknown) {
     res.status(502).json({ error: sanitizeUpstreamError(err) });

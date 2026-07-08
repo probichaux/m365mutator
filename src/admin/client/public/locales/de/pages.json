@@ -61,12 +61,29 @@
   },
   "calendar": {
     "title": "Kalender",
-    "permission": "Calendars.ReadWrite",
+    "permission": "Calendars.ReadWrite, MailboxSettings.Read",
     "operations": [
       "Einen Kalendertermin mit Teilnehmern erstellen",
       "Einen vorhandenen Termin aktualisieren",
       "Einen Termin absagen/löschen"
-    ]
+    ],
+    "mutate": {
+      "title": "Kalenderaktivität zufällig erzeugen",
+      "description": "Führt für jedes ausgewählte Postfach eine zufällige Aktion aus: eine Besprechungsanfrage an einen anderen ausgewählten Benutzer erstellen (50 %) oder einen Einzeltermin erstellen (50 %). Jeweils ein 30-minütiger Termin an einem Wochentag innerhalb der Arbeitszeit des Absenders, mit einem zufälligen Betreff von OpenRouter, wenn ein Schlüssel konfiguriert ist, andernfalls eine GUID.",
+      "doItNow": "Jetzt ausführen",
+      "running": "Wird geändert…",
+      "runsLabel": "Anzahl der Durchläufe",
+      "runsSuffix": "Durchlauf/Durchläufe",
+      "summary": "{{runs}}× ausgeführt — {{total}} Aktionen · {{ok}} ok · {{failed}} fehlgeschlagen",
+      "truncated": "Zeigt die ersten {{shown}} von {{total}} Aktionen.",
+      "toastOk": "{{total}} Kalenderaktionen abgeschlossen ({{runs}}×)",
+      "toastFailures": "{{failed}} von {{total}} Kalenderaktionen fehlgeschlagen ({{runs}}×)",
+      "toastFailed": "Kalender-Mutation fehlgeschlagen",
+      "op": {
+        "meeting": "Besprechung",
+        "appointment": "Termin"
+      }
+    }
   },
   "files": {
     "title": "Dateien",

@@ -61,12 +61,29 @@
   },
   "calendar": {
     "title": "Calendar",
-    "permission": "Calendars.ReadWrite",
+    "permission": "Calendars.ReadWrite, MailboxSettings.Read",
     "operations": [
       "Create a calendar event with attendees",
       "Update an existing event",
       "Cancel / delete an event"
-    ]
+    ],
+    "mutate": {
+      "title": "Randomize calendar activity",
+      "description": "For each selected mailbox, performs one random action: create a meeting request inviting another selected user (50%) or create a single-user appointment (50%). Each is a 30-minute event on a weekday within the sender's working hours, with a random subject from OpenRouter when a key is configured, otherwise a GUID.",
+      "doItNow": "Do it now",
+      "running": "Mutating…",
+      "runsLabel": "Number of passes",
+      "runsSuffix": "pass(es)",
+      "summary": "Ran {{runs}}× — {{total}} actions · {{ok}} ok · {{failed}} failed",
+      "truncated": "Showing the first {{shown}} of {{total}} actions.",
+      "toastOk": "Completed {{total}} calendar actions ({{runs}}×)",
+      "toastFailures": "{{failed}} of {{total}} calendar actions failed ({{runs}}×)",
+      "toastFailed": "Calendar mutation failed",
+      "op": {
+        "meeting": "meeting",
+        "appointment": "appointment"
+      }
+    }
   },
   "files": {
     "title": "Files",

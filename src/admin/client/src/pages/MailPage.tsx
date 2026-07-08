@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Button, Card, Spinner, Switch, Text, Title2, tokens,
+  Button, Card, Spinner, Switch, Text, Title2, Tooltip, tokens,
 } from '@fluentui/react-components';
 import {
   CheckmarkCircle20Filled, DismissCircle20Filled, FlashRegular,
@@ -41,6 +41,7 @@ export default function MailPage() {
   const [runs, setRuns] = useState(1);
   const [allowDeletions, setAllowDeletions] = useState(false);
   const [run, setRun] = useState<MailRun | null>(null);
+  const [ready, setReady] = useState(false);
 
   const doItNow = async () => {
     setRunning(true);
@@ -65,7 +66,7 @@ export default function MailPage() {
     <div>
       <Title2 block style={{ marginBottom: 16 }}>{t('categories.mail.label')}</Title2>
 
-      <TargetPanel category="mail" />
+      <TargetPanel category="mail" onReadyChange={setReady} />
 
       <Card style={{ marginTop: 16 }}>
         <Text weight="semibold" size={400} block style={{ marginBottom: 4 }}>{tp('mail.mutate.title')}</Text>
@@ -95,16 +96,19 @@ export default function MailPage() {
             ariaLabel={tp('mail.mutate.runsLabel')}
           />
           <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>{tp('mail.mutate.runsSuffix')}</Text>
-          <Button
-            appearance="primary"
-            icon={running ? <Spinner size="tiny" /> : <FlashRegular />}
-            disabled={running}
-            onClick={doItNow}
-          >
-            {running
-              ? tp('mail.mutate.running')
-              : tp('mail.mutate.doItNow') + (runs > 1 ? ` · ${runs}×` : '')}
-          </Button>
+          <Tooltip content={tp('run.needTargets')} relationship="label" visible={ready ? false : undefined}>
+            <Button
+              appearance="primary"
+              icon={running ? <Spinner size="tiny" /> : <FlashRegular />}
+              disabled={running}
+              disabledFocusable={!ready}
+              onClick={doItNow}
+            >
+              {running
+                ? tp('mail.mutate.running')
+                : tp('mail.mutate.doItNow') + (runs > 1 ? ` · ${runs}×` : '')}
+            </Button>
+          </Tooltip>
         </div>
 
         {run && (

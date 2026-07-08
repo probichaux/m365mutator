@@ -1,4 +1,7 @@
 {
+  "run": {
+    "needTargets": "Load or enter targets, then click Save targets to enable this."
+  },
   "scaffold": {
     "calendarTitle": "Randomize calendar activity",
     "onedriveTitle": "Randomize OneDrive activity",

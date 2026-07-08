@@ -145,10 +145,6 @@ router.get('/api/identities/attributes', (_req: Request, res: Response) => {
 
 router.post('/api/identities/mutate', async (_req: Request, res: Response) => {
   const identities = loadTargets().identities;
-  if (!identities.enabled) {
-    res.status(400).json({ error: 'The Identities target category is not enabled' });
-    return;
-  }
   try {
     // Explicit → the saved list; random → a fresh random % of the tenant's users.
     const resolved = await resolveTargetItems('identities', identities);
@@ -170,10 +166,6 @@ router.post('/api/identities/mutate', async (_req: Request, res: Response) => {
 
 router.post('/api/mail/mutate', async (req: Request, res: Response) => {
   const mail = loadTargets().mail;
-  if (!mail.enabled) {
-    res.status(400).json({ error: 'The Mail target category is not enabled' });
-    return;
-  }
   const { runs, allowDeletions } = req.body as { runs?: unknown; allowDeletions?: unknown };
   const runCount = typeof runs === 'number' && Number.isFinite(runs) ? runs : 1;
   const allowDel = allowDeletions === true;
@@ -198,10 +190,6 @@ router.post('/api/mail/mutate', async (req: Request, res: Response) => {
 
 router.post('/api/calendar/mutate', async (req: Request, res: Response) => {
   const calendar = loadTargets().calendar;
-  if (!calendar.enabled) {
-    res.status(400).json({ error: 'The Calendar target category is not enabled' });
-    return;
-  }
   const { runs } = req.body as { runs?: unknown };
   const runCount = typeof runs === 'number' && Number.isFinite(runs) ? runs : 1;
   try {

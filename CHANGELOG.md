@@ -2,6 +2,11 @@
 
 All notable changes to M365Mutator are documented in this file.
 
+## 0.3.0 — 2026-07-08
+
+- Remove the per-page Enabled/Disabled toggle; each workload tab is self-contained now.
+- Keep each tab's "Do it now" action disabled until targets are loaded and saved, with a tooltip explaining what to do.
+
 ## 0.2.1 — 2026-07-08
 
 - Fix the Targets "Load" button returning no mailboxes or sites in CDX/demo tenants, where service plans report as `Suspended` rather than `Enabled`.

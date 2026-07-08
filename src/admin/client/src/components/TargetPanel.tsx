@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Button, Card, Spinner, Switch, Text, Textarea, Tooltip, tokens,
+  Button, Card, Spinner, Text, Textarea, Tooltip, tokens,
 } from '@fluentui/react-components';
 import {
   CheckmarkRegular, CheckmarkCircle20Filled, DismissCircle20Filled, CloudArrowDownRegular,
@@ -49,15 +49,21 @@ function sampleSize(pool: number, percent: number): number {
  * The full control set for one target category. Explicit mode edits a list;
  * Random mode picks a percentage of the tenant, sampled at run time. Loads and
  * persists only its own category so each workload page is independent.
+ *
+ * `onReadyChange` reports whether the category has runnable saved targets, so the
+ * page can gate its "Do it now" action: explicit needs saved items, random is
+ * always ready (it samples the tenant live).
  */
-export default function TargetPanel({ category }: { category: TargetCategory }) {
+export default function TargetPanel(
+  { category, onReadyChange }: { category: TargetCategory; onReadyChange?: (ready: boolean) => void },
+) {
   const { t } = useTranslation('targets');
   const showToast = useToast();
 
-  const [enabled, setEnabled] = useState(false);
   const [runStyle, setRunStyle] = useState<RunStyle>('explicit');
   const [percent, setPercent] = useState(10);
   const [text, setText] = useState('');
+  const [savedCount, setSavedCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -67,12 +73,13 @@ export default function TargetPanel({ category }: { category: TargetCategory }) 
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    api<Record<string, { enabled?: boolean; items?: string[]; runStyle?: RunStyle; randomPercent?: number }>>('GET', '/api/targets').then(r => {
+    api<Record<string, { items?: string[]; runStyle?: RunStyle; randomPercent?: number }>>('GET', '/api/targets').then(r => {
       if (r.status !== 200) return;
       const slice = r.data[category];
       if (slice) {
-        setEnabled(!!slice.enabled);
-        setText((slice.items ?? []).join('\n'));
+        const items = slice.items ?? [];
+        setText(items.join('\n'));
+        setSavedCount(items.length);
         if (slice.runStyle === 'random') setRunStyle('random');
         if (typeof slice.randomPercent === 'number') setPercent(slice.randomPercent);
       }
@@ -82,9 +89,15 @@ export default function TargetPanel({ category }: { category: TargetCategory }) 
   const persist = (cat: TargetCategory, partial: Record<string, unknown>) =>
     api<{ success: boolean; error?: string }>('PUT', `/api/targets/${cat}`, partial);
 
+  // Tell the page whether "Do it now" should be enabled: random samples the
+  // tenant live (always ready); explicit needs saved targets to run against.
+  useEffect(() => {
+    onReadyChange?.(runStyle === 'random' ? true : savedCount > 0);
+  }, [runStyle, savedCount, onReadyChange]);
+
   // In random mode, fetch the tenant pool size once so the live count is real.
   useEffect(() => {
-    if (runStyle !== 'random' || !enabled || pool || poolLoading) return;
+    if (runStyle !== 'random' || pool || poolLoading) return;
     setPoolLoading(true);
     api<{ items?: string[]; total?: number; truncated?: boolean; error?: string }>('POST', '/api/targets/load', { category })
       .then(r => {
@@ -93,16 +106,7 @@ export default function TargetPanel({ category }: { category: TargetCategory }) 
         }
       })
       .finally(() => setPoolLoading(false));
-  }, [runStyle, enabled, category, pool, poolLoading]);
-
-  const toggleEnabled = async (checked: boolean) => {
-    setEnabled(checked);
-    const r = await persist(category, { enabled: checked });
-    if (!r.data.success) {
-      showToast(r.data.error || t('toast.saveFailed'), 'error');
-      setEnabled(!checked);
-    }
-  };
+  }, [runStyle, category, pool, poolLoading]);
 
   const changeRunStyle = (style: RunStyle) => {
     if (style === runStyle) return;
@@ -120,8 +124,10 @@ export default function TargetPanel({ category }: { category: TargetCategory }) 
 
   const save = async () => {
     setSaving(true);
-    const r = await persist(category, { enabled, items: textToItems(text) });
+    const items = textToItems(text);
+    const r = await persist(category, { items });
     setSaving(false);
+    if (r.data.success) setSavedCount(items.length);
     showToast(
       r.data.success ? t('toast.saved') : (r.data.error || t('toast.saveFailed')),
       r.data.success ? 'success' : 'error',
@@ -196,8 +202,8 @@ export default function TargetPanel({ category }: { category: TargetCategory }) 
   const errText = (e: string): string =>
     e === 'not found' ? t('errors.notFound')
       : e === 'not a valid UPN' ? t('errors.invalidUpn')
-      : e === 'not a valid URL' ? t('errors.invalidUrl')
-      : e;
+        : e === 'not a valid URL' ? t('errors.invalidUrl')
+          : e;
 
   const isUrl = category === 'sharepoint';
 
@@ -211,14 +217,7 @@ export default function TargetPanel({ category }: { category: TargetCategory }) 
 
   return (
     <Card>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>{t(`categories.${category}.hint`)}</Text>
-        <Switch
-          checked={enabled}
-          onChange={(_, d) => toggleEnabled(d.checked)}
-          label={enabled ? t('enabled') : t('disabled')}
-        />
-      </div>
+      <Text size={200} block style={{ color: tokens.colorNeutralForeground3 }}>{t(`categories.${category}.hint`)}</Text>
 
       {/* Run-style: segmented control */}
       <div role="tablist" aria-label={t('runStyleLabel')}
@@ -235,7 +234,6 @@ export default function TargetPanel({ category }: { category: TargetCategory }) 
         <>
           <Textarea
             value={text}
-            disabled={!enabled}
             onChange={(_, d) => { setText(d.value); setResults(null); }}
             placeholder={t(isUrl ? 'placeholderUrls' : 'placeholderUpns')}
             resize="vertical"
@@ -246,19 +244,19 @@ export default function TargetPanel({ category }: { category: TargetCategory }) 
           <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
             <Tooltip content={t('loadFromTenant')} relationship="label">
               <Button appearance="outline" icon={loading ? <Spinner size="tiny" /> : <CloudArrowDownRegular />}
-                disabled={!enabled || loading} onClick={load}>
+                disabled={loading} onClick={load}>
                 {loading ? t('loading') : t('load')}
               </Button>
             </Tooltip>
             <Tooltip content={t('importCsv')} relationship="label">
-              <Button appearance="outline" disabled={!enabled} onClick={() => fileRef.current?.click()}>
+              <Button appearance="outline" onClick={() => fileRef.current?.click()}>
                 {t('upload')}
               </Button>
             </Tooltip>
             <input ref={fileRef} type="file" accept=".csv,text/csv" hidden
               onChange={e => { const f = e.target.files?.[0]; if (f) { importCsv(f); e.target.value = ''; } }} />
             <Button appearance="outline" icon={checking ? <Spinner size="tiny" /> : <CheckmarkRegular />}
-              disabled={!enabled || checking} onClick={check}>
+              disabled={checking} onClick={check}>
               {checking ? t('checking') : t('check')}
             </Button>
             <Button appearance="primary" onClick={save} disabled={saving} style={{ marginLeft: 'auto' }}>
@@ -285,7 +283,7 @@ export default function TargetPanel({ category }: { category: TargetCategory }) 
       ) : (
         <div style={{
           border: `1px dashed ${tokens.colorNeutralStroke2}`, borderRadius: 8, padding: 20,
-          background: tokens.colorNeutralBackground2, opacity: enabled ? 1 : 0.6,
+          background: tokens.colorNeutralBackground2,
         }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 12 }}>
             <span style={{ fontSize: 44, fontWeight: 700, lineHeight: 1, color: tokens.colorBrandForeground1 }}>
@@ -299,19 +297,19 @@ export default function TargetPanel({ category }: { category: TargetCategory }) 
                   : t('randomModifyUnknown', { percent })}
             </Text>
           </div>
-          <input type="range" min={1} max={100} value={percent} disabled={!enabled}
+          <input type="range" min={1} max={100} value={percent}
             onChange={e => setPercent(+e.target.value)}
             onPointerUp={e => commitPercent(+(e.target as HTMLInputElement).value)}
             onKeyUp={e => commitPercent(+(e.target as HTMLInputElement).value)}
             style={{ width: '100%', accentColor: tokens.colorBrandBackground }} />
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
             {PERCENT_PRESETS.map(p => (
-              <button key={p} disabled={!enabled} onClick={() => commitPercent(p)}
+              <button key={p} onClick={() => commitPercent(p)}
                 style={{
                   border: `1px solid ${percent === p ? tokens.colorBrandStroke1 : tokens.colorNeutralStroke2}`,
                   background: percent === p ? tokens.colorBrandBackground2 : tokens.colorNeutralBackground1,
                   color: percent === p ? tokens.colorBrandForeground1 : tokens.colorNeutralForeground2,
-                  borderRadius: 20, padding: '5px 14px', fontSize: 12, cursor: enabled ? 'pointer' : 'not-allowed',
+                  borderRadius: 20, padding: '5px 14px', fontSize: 12, cursor: 'pointer',
                   fontWeight: percent === p ? 600 : 400,
                 }}>
                 {p}%

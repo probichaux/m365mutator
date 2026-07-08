@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Button, Card, Spinner, Text, Title2, tokens,
+  Button, Card, Spinner, Text, Title2, Tooltip, tokens,
 } from '@fluentui/react-components';
 import {
   CheckmarkCircle20Filled, DismissCircle20Filled, FlashRegular,
@@ -39,6 +39,7 @@ export default function IdentitiesPage() {
   const [running, setRunning] = useState(false);
   const [run, setRun] = useState<MutationRun | null>(null);
   const [attributes, setAttributes] = useState<string[]>([]);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     api<{ attributes?: string[] }>('GET', '/api/identities/attributes').then(r => {
@@ -78,7 +79,7 @@ export default function IdentitiesPage() {
     <div>
       <Title2 block style={{ marginBottom: 16 }}>{tt('categories.identities.label')}</Title2>
 
-      <TargetPanel category="identities" />
+      <TargetPanel category="identities" onReadyChange={setReady} />
 
       <Card style={{ marginTop: 16 }}>
         <Text weight="semibold" size={400} block style={{ marginBottom: 4 }}>{t('users.mutate.title')}</Text>
@@ -86,14 +87,17 @@ export default function IdentitiesPage() {
           {t('users.mutate.description', { attributes: attributeList })}
         </Text>
 
-        <Button
-          appearance="primary"
-          icon={running ? <Spinner size="tiny" /> : <FlashRegular />}
-          disabled={running}
-          onClick={doItNow}
-        >
-          {running ? t('users.mutate.running') : t('users.mutate.doItNow')}
-        </Button>
+        <Tooltip content={t('run.needTargets')} relationship="label" visible={ready ? false : undefined}>
+          <Button
+            appearance="primary"
+            icon={running ? <Spinner size="tiny" /> : <FlashRegular />}
+            disabled={running}
+            disabledFocusable={!ready}
+            onClick={doItNow}
+          >
+            {running ? t('users.mutate.running') : t('users.mutate.doItNow')}
+          </Button>
+        </Tooltip>
 
         {run && (
           <div style={{ marginTop: 20 }}>

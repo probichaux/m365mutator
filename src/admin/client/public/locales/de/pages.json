@@ -1,4 +1,7 @@
 {
+  "run": {
+    "needTargets": "Ziele laden oder eingeben und auf „Ziele speichern“ klicken, um dies zu aktivieren."
+  },
   "scaffold": {
     "calendarTitle": "Kalenderaktivität zufällig erzeugen",
     "onedriveTitle": "OneDrive-Aktivität zufällig erzeugen",

@@ -8,7 +8,7 @@ const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 /** Prompts specified by the mod03-mail plan. */
 export const SUBJECT_PROMPT =
-  'Generate a one-sentence subject line in English related to software-as-a-service applications, airline travel, or the World Cup.';
+  'Generate a one-sentence subject line in English related to software-as-a-service applications, OR airline travel, OR the World Cup.';
 export const BODY_PROMPT =
   'Generate a one-paragraph text summary of a little-known scientific fact about physics, chemistry, biology, geology, or astronomy.';
 

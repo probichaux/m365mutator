@@ -2,6 +2,10 @@
 
 All notable changes to M365Mutator are documented in this file.
 
+## 0.2.1 — 2026-07-08
+
+- Fix the Targets "Load" button returning no mailboxes or sites in CDX/demo tenants, where service plans report as `Suspended` rather than `Enabled`.
+
 ## 0.2.0 — 2026-07-07
 
 - Initial support for mutating calendar items.

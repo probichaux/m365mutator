@@ -11,10 +11,15 @@ export interface LoadResult {
   truncated: boolean;
 }
 
-/** True if the user has the named Graph service plan provisioned and enabled. */
+/**
+ * True if the user has the named Graph service plan provisioned and not removed.
+ * We accept any capabilityStatus except 'Deleted' — CDX/demo tenants (a primary
+ * use case) report their plans as 'Suspended' even though the mailboxes and sites
+ * are fully functional, so requiring 'Enabled' would exclude every user there.
+ */
 export function hasServicePlan(user: DirectoryUser, service: string): boolean {
   return (user.assignedPlans ?? []).some(
-    (p) => p.service?.toLowerCase() === service.toLowerCase() && p.capabilityStatus === 'Enabled',
+    (p) => p.service?.toLowerCase() === service.toLowerCase() && p.capabilityStatus !== 'Deleted',
   );
 }
 

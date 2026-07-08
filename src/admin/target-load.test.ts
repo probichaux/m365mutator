@@ -8,29 +8,32 @@ const user = (plans: { service: string; capabilityStatus: string }[]): Directory
 });
 
 describe('target-load filters', () => {
-  it('hasServicePlan matches service case-insensitively and requires Enabled status', () => {
+  it('hasServicePlan matches service case-insensitively for a provisioned plan', () => {
     const u = user([{ service: 'exchange', capabilityStatus: 'Enabled' }]);
     expect(hasServicePlan(u, 'exchange')).toBe(true);
     expect(hasServicePlan(u, 'Exchange')).toBe(true);
     expect(hasServicePlan(u, 'SharePoint')).toBe(false);
   });
 
-  it('ignores plans that are not Enabled', () => {
-    const u = user([{ service: 'exchange', capabilityStatus: 'Deleted' }]);
-    expect(hasServicePlan(u, 'exchange')).toBe(false);
+  it('accepts Suspended plans (CDX/demo tenants) but not Deleted ones', () => {
+    expect(hasServicePlan(user([{ service: 'exchange', capabilityStatus: 'Suspended' }]), 'exchange')).toBe(true);
+    expect(hasServicePlan(user([{ service: 'exchange', capabilityStatus: 'Deleted' }]), 'exchange')).toBe(false);
   });
 
   it('handles users with no assignedPlans', () => {
     expect(hasServicePlan({ userPrincipalName: 'u@contoso.com' }, 'exchange')).toBe(false);
   });
 
-  it('isMailbox is true only for an enabled Exchange plan', () => {
+  it('isMailbox is true for a provisioned Exchange plan', () => {
     expect(isMailbox(user([{ service: 'exchange', capabilityStatus: 'Enabled' }]))).toBe(true);
+    expect(isMailbox(user([{ service: 'exchange', capabilityStatus: 'Suspended' }]))).toBe(true);
+    expect(isMailbox(user([{ service: 'exchange', capabilityStatus: 'Deleted' }]))).toBe(false);
     expect(isMailbox(user([{ service: 'SharePoint', capabilityStatus: 'Enabled' }]))).toBe(false);
   });
 
-  it('hasOneDrive is true only for an enabled SharePoint plan', () => {
+  it('hasOneDrive is true for a provisioned SharePoint plan', () => {
     expect(hasOneDrive(user([{ service: 'SharePoint', capabilityStatus: 'Enabled' }]))).toBe(true);
+    expect(hasOneDrive(user([{ service: 'SharePoint', capabilityStatus: 'Suspended' }]))).toBe(true);
     expect(hasOneDrive(user([{ service: 'exchange', capabilityStatus: 'Enabled' }]))).toBe(false);
   });
 });

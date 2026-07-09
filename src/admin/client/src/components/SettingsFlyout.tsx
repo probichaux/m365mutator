@@ -115,7 +115,7 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
     const result = await fetch('/api/upload-certificate', { method: 'POST', body: form, credentials: 'same-origin' });
     const data = await result.json();
     if (data.success) {
-      setGraphCertPath(data.path);
+      setGraphCertPath(data.filename);
       showToast(t('toast.certificateUploaded'), 'success');
     } else {
       showToast(data.error || t('toast.uploadFailed'), 'error');

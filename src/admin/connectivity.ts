@@ -1,6 +1,6 @@
 import { graphConfig } from '../helpers/graph-config.helper.js';
 import { GraphAuthManager } from '../graph/graph-auth.js';
-import { loadConfig, saveConfig } from './config-store.js';
+import { loadConfig, saveConfig, sanitizeCertPath } from './config-store.js';
 import { logger } from '../logger/logger.js';
 
 export interface ConnectivityResult {
@@ -45,6 +45,14 @@ export async function testGraph(overrides?: GraphTestOverrides): Promise<Connect
   const saved = { ...graphConfig };
 
   if (overrides) {
+    // Validate cert path before touching any globals so we can return cleanly
+    if (overrides.graphCertificatePath !== undefined) {
+      try {
+        overrides = { ...overrides, graphCertificatePath: sanitizeCertPath(overrides.graphCertificatePath) };
+      } catch (e: any) {
+        return { success: false, latencyMs: 0, error: e.message };
+      }
+    }
     logger.info(`[CONNECTIVITY] Graph test overrides: tenantId=${overrides.graphTenantId ?? '(none)'}, clientId=${overrides.graphClientId ?? '(none)'}, secret=${overrides.graphClientSecret ? '(set)' : '(none)'}, certPath=${overrides.graphCertificatePath ?? '(none)'}`);
     if (overrides.graphClientId !== undefined) graphConfig.graphClientId = overrides.graphClientId;
     if (overrides.graphTenantId !== undefined) graphConfig.graphTenantId = overrides.graphTenantId;

@@ -1,9 +1,9 @@
 import { Router, Request, Response, static as expressStatic } from 'express';
-import { join, dirname } from 'node:path';
+import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync, chmodSync } from 'node:fs';
 import multer from 'multer';
-import { loadConfig, saveConfig, maskSecrets, applyConfig, getDataDir, AppConfig } from './config-store.js';
+import { loadConfig, saveConfig, maskSecrets, applyConfig, getDataDir, sanitizeCertPath, AppConfig } from './config-store.js';
 import { loadTargets, saveTargets, saveTargetCategory, TARGET_CATEGORIES, TargetCategory, MAX_ITEMS_PER_CATEGORY } from './targets-store.js';
 import { checkTargets } from './target-check.js';
 import { loadCategory, resolveTargetItems } from './target-load.js';
@@ -54,6 +54,15 @@ router.put('/api/config', (req: Request, res: Response) => {
         if (typeof incoming === 'string' && incoming !== '' && incoming !== '********') {
           (merged as unknown as Record<string, unknown>)[key] = incoming;
         }
+      }
+    }
+
+    if (merged.graphCertificatePath) {
+      try {
+        merged.graphCertificatePath = sanitizeCertPath(merged.graphCertificatePath);
+      } catch (e: any) {
+        res.status(400).json({ success: false, error: e.message });
+        return;
       }
     }
 
@@ -253,7 +262,7 @@ router.post('/api/upload-certificate', (req: Request, res: Response) => {
       applyConfig(config);
 
       logger.info(`[ADMIN] Certificate uploaded and saved to ${certPath}`);
-      res.json({ success: true, path: certPath });
+      res.json({ success: true, filename: basename(certPath) });
     } catch (writeErr: any) {
       logger.error('[ADMIN] Failed to save certificate:', writeErr);
       res.status(500).json({ error: 'Failed to save certificate: ' + writeErr.message });

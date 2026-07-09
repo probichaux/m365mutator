@@ -1,4 +1,4 @@
-import { join } from 'node:path';
+import { join, resolve, sep, basename } from 'node:path';
 import { mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { graphConfig } from '../helpers/graph-config.helper.js';
@@ -93,7 +93,29 @@ export function maskSecrets(config: AppConfig): AppConfig {
     graphClientSecret: config.graphClientSecret === '' ? '' : '********',
     graphCertificatePassword: config.graphCertificatePassword === '' ? '' : '********',
     openRouterApiKey: config.openRouterApiKey === '' ? '' : '********',
+    graphCertificatePath: config.graphCertificatePath === '' ? '' : basename(config.graphCertificatePath),
   };
+}
+
+/**
+ * Validate and resolve a certificate path supplied by the client.
+ * Accepts either a bare filename (resolved into the data directory) or an
+ * absolute path that must already sit inside the data directory.
+ * Throws if the resolved path would escape the data directory.
+ */
+export function sanitizeCertPath(inputPath: string): string {
+  if (!inputPath) return '';
+  const dataDir = resolve(getDataDirInternal());
+  // Bare filename — resolve into the data directory
+  if (!inputPath.includes('/') && !inputPath.includes('\\')) {
+    return join(dataDir, inputPath);
+  }
+  // Absolute path must stay within the data directory
+  const resolved = resolve(inputPath);
+  if (resolved === dataDir || resolved.startsWith(dataDir + sep)) {
+    return resolved;
+  }
+  throw new Error('Certificate path must be a filename or reside within the application data directory');
 }
 
 export function applyConfig(config: AppConfig): void {

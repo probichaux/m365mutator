@@ -22,7 +22,7 @@
     ],
     "mutate": {
       "title": "Ein Attribut zufällig ändern",
-      "description": "Wählt ein Attribut zufällig aus (aus der Menge {{attributes}}) und überschreibt es mit einem Zufallswert für jede oben aufgeführte Identität (wenn Identitäten aktiviert ist). Manager und Sponsoren sind ausgeschlossen, da sie auf andere Verzeichnisobjekte verweisen und keine einfachen Werte sind.",
+      "description": "Wählt ein Attribut zufällig aus (aus der Menge {{attributes}}) und überschreibt es mit einem Zufallswert für jede oben aufgeführte Identität (wenn Identitäten aktiviert ist). ",
       "doItNow": "Jetzt ausführen",
       "running": "Wird geändert…",
       "chosenAttribute": "Zufällig gewähltes Attribut",
@@ -42,7 +42,7 @@
     ],
     "mutate": {
       "title": "Postfachaktivität zufällig erzeugen",
-      "description": "Führt für jedes ausgewählte Postfach eine zufällige Aktion aus: neue Nachricht senden ({{send}} %), auf eine Posteingangsnachricht antworten (35 %), eine an einen anderen ausgewählten Benutzer weiterleiten (30 %){{deletions}}. Zufälliger Betreff- und Textinhalt stammt von OpenRouter, wenn ein Schlüssel konfiguriert ist, andernfalls eine GUID.",
+      "description": "Führt für jedes ausgewählte Postfach eine zufällige Aktion aus: neue Nachricht senden ({{send}} %), auf eine vorhandene Nachricht antworten (35 %), eine Nachricht an einen anderen zufällig ausgewählten Benutzer weiterleiten (30 %){{deletions}}. Zufälliger Betreff- und Textinhalt stammt von OpenRouter, wenn ein Schlüssel konfiguriert ist, andernfalls sind es einfache GUIDs.",
       "deletionsClause": " oder eine in Gelöschte Elemente verschieben (5 %)",
       "allowDeletions": "Löschungen zulassen",
       "doItNow": "Jetzt ausführen",
@@ -72,7 +72,7 @@
     ],
     "mutate": {
       "title": "Kalenderaktivität zufällig erzeugen",
-      "description": "Führt für jedes ausgewählte Postfach eine zufällige Aktion aus: eine Besprechungsanfrage an einen anderen ausgewählten Benutzer erstellen (50 %) oder einen Einzeltermin erstellen (50 %). Jeweils ein 30-minütiger Termin an einem Wochentag innerhalb der Arbeitszeit des Absenders, mit einem zufälligen Betreff von OpenRouter, wenn ein Schlüssel konfiguriert ist, andernfalls eine GUID.",
+      "description": "Führt für jedes ausgewählte Postfach eine zufällige Aktion aus: eine Besprechungsanfrage an einen anderen ausgewählten Benutzer erstellen (50 %) oder einen Einzeltermin erstellen (50 %). Jeweils ein 30-minütiger Termin an einem Wochentag innerhalb der Arbeitszeit des Absenders, mit einem zufälligen Betreff von OpenRouter, wenn ein Schlüssel konfiguriert ist.",
       "doItNow": "Jetzt ausführen",
       "running": "Wird geändert…",
       "runsLabel": "Anzahl der Durchläufe",

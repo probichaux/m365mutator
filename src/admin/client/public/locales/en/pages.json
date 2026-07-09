@@ -22,7 +22,7 @@
     ],
     "mutate": {
       "title": "Randomize an attribute",
-      "description": "Picks one attribute at random (from the set {{attributes}}) and overwrites it with a random value on every identity listed above (when Identities is enabled). Manager and Sponsors are excluded because they reference other directory objects rather than plain values.",
+      "description": "Picks one attribute at random (from the set {{attributes}}) and overwrites it with a random value on every identity listed above (when Identities is enabled). ",
       "doItNow": "Do it now",
       "running": "Mutating…",
       "chosenAttribute": "Randomly chose attribute",
@@ -42,7 +42,7 @@
     ],
     "mutate": {
       "title": "Randomize mailbox activity",
-      "description": "For each selected mailbox, performs one random action: send a new message ({{send}}%), reply to an inbox message (35%), forward one to another selected user (30%){{deletions}}. Random subject and body text come from OpenRouter when a key is configured, otherwise a GUID.",
+      "description": "For each selected mailbox, performs one random action: send a new message ({{send}}%), reply to an existing message (35%), forward one message to another randomly-selected user (30%){{deletions}}. Random subject and body text come from OpenRouter when a key is configured, otherwise they're a simple GUID.",
       "deletionsClause": ", or move one to Deleted Items (5%)",
       "allowDeletions": "Allow deletions",
       "doItNow": "Do it now",
@@ -72,7 +72,7 @@
     ],
     "mutate": {
       "title": "Randomize calendar activity",
-      "description": "For each selected mailbox, performs one random action: create a meeting request inviting another selected user (50%) or create a single-user appointment (50%). Each is a 30-minute event on a weekday within the sender's working hours, with a random subject from OpenRouter when a key is configured, otherwise a GUID.",
+      "description": "For each selected mailbox, performs one random action: create a meeting request inviting another selected user (50%) or create a single-user appointment (50%). Each is a 30-minute event on a weekday within the sender's working hours, with a random subject from OpenRouter when a key is configured.",
       "doItNow": "Do it now",
       "running": "Mutating…",
       "runsLabel": "Number of passes",

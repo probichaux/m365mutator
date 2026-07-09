@@ -2,6 +2,11 @@
 
 All notable changes to M365Mutator are documented in this file.
 
+## 0.3.1 - 2026-07-09
+
+- Updated the readme with new screenshots and some clarifying text
+- Fixed a couple of minor UX issues
+
 ## 0.3.0 — 2026-07-08
 
 - Remove the per-page Enabled/Disabled toggle; each workload tab is self-contained now.

@@ -4,15 +4,15 @@
   "categories": {
     "identities": {
       "label": "Identitäten",
-      "hint": "Benutzerkonten, die geändert werden dürfen, als UPNs"
+      "hint": "Führen Sie die Benutzerkonten auf, die geändert werden dürfen, als UPNs. Verwenden Sie die Schaltfläche „Laden“, um eine Liste von UPNs einzulesen, oder um alle Benutzerobjekte aus dem Mandanten zu laden."
     },
     "mail": {
       "label": "E-Mail",
-      "hint": "Postfächer, deren Nachrichten geändert werden dürfen, als UPNs"
+      "hint": "Führen Sie die Postfächer auf, deren Nachrichten geändert werden dürfen, als UPNs. Verwenden Sie die Schaltfläche „Laden“, um eine Liste von UPNs einzulesen, oder um alle Benutzerobjekte aus dem Mandanten zu laden."
     },
     "calendar": {
       "label": "Kalender",
-      "hint": "Postfächer, deren Kalender geändert werden dürfen, als UPNs"
+      "hint": "Führen Sie die Postfächer auf, deren Kalender geändert werden dürfen, als UPNs. Verwenden Sie die Schaltfläche „Laden“, um eine Liste von UPNs einzulesen, oder um alle Benutzerobjekte aus dem Mandanten zu laden."
     },
     "onedrive": {
       "label": "OneDrive",
@@ -31,7 +31,7 @@
   "randomCounting": "Mandant wird gezählt…",
   "randomModify": "~{{count}} von {{pool}} ändern, bei jeder Ausführung zufällig gewählt",
   "randomModifyUnknown": "Bei jeder Ausführung zufällige {{percent}}% des Mandanten ändern",
-  "randomPoolNote": "Der vollständige Satz wird zur Ausführungszeit aus dem Mandanten geladen — keine Liste einzufügen.",
+  "randomPoolNote": "Der vollständige Satz wird zur Ausführungszeit aus dem Mandanten geladen — die Liste kann nicht bearbeitet werden.",
   "randomTruncatedNote": "(Stichprobe aus den ersten {{pool}} von {{total}})",
   "placeholderUpns": "Ein UPN pro Zeile, z. B. user@contoso.com",
   "placeholderUrls": "Eine Website-URL pro Zeile, z. B. contoso.sharepoint.com/sites/marketing",

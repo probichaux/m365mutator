@@ -17,7 +17,10 @@ This application requires write permissions on Graph. It's meant, for now, to be
 
 The admin console has one tab per workload. Each tab chooses its targets
 either as an **explicit list** you paste or load, or a **random percentage**
-of the tenant sampled at run time — then runs that workload's mutation.
+of the tenant sampled at run time — then runs that workload's mutation. In
+explicit mode you create the list, edit it to taste, and then click **Save targets**. That way you can be confident that the tool isn't going to do anything until you've approved the list of items to be changed. The **Do it now** action stays
+disabled until targets are loaded and saved (random mode samples the tenant
+live, so it's always ready).
 
 **Identities** — paste or load user UPNs, then randomize an Entra ID attribute
 across them:
@@ -197,13 +200,13 @@ GRAPH_CLIENT_SECRET=<client secret value>   # or set GRAPH_CERTIFICATE_PATH
     targets, and the per-workload mutations.
   - `config-store.ts` — persisted app config (Graph credentials, OpenRouter
     key/model).
-  - `targets-store.ts` — each workload's target list, enabled flag, and
-    explicit/random run style.
+  - `targets-store.ts` — each workload's target list and explicit/random run
+    style.
   - `target-load.ts` / `target-check.ts` — load matching objects from the
     tenant, validate targets, and resolve the effective set (the explicit list,
     or a random sample).
-  - `identity-mutate.ts` / `mail-mutate.ts` — the mutation operations for the
-    Identities and Mail workloads.
+  - `identity-mutate.ts` / `mail-mutate.ts` / `calendar-mutate.ts` — the
+    mutation operations for the Identities, Mail, and Calendar workloads.
   - `random-text.ts` — random subject/body text via OpenRouter, with a GUID
     fallback when no key is set.
 - `src/admin/client/` — the React admin console (Fluent UI, i18n en/de/uk):

@@ -4,15 +4,15 @@
   "categories": {
     "identities": {
       "label": "Identities",
-      "hint": "User accounts that may be modified, as UPNs"
+      "hint": "List the user accounts that may be modified, as UPNs. Use the Load button to ingest a list of UPNs, or use the Load button to load all user objects from the tenant."
     },
     "mail": {
       "label": "Mail",
-      "hint": "Mailboxes whose messages may be modified, as UPNs"
+      "hint": "List the mailboxes whose messages may be modified, as UPNs. Use the Load button to ingest a list of UPNs, or use the Load button to load all user objects from the tenant."
     },
     "calendar": {
       "label": "Calendar",
-      "hint": "Mailboxes whose calendars may be modified, as UPNs"
+      "hint": "List the mailboxes whose calendars may be modified, as UPNs. Use the Load button to ingest a list of UPNs, or use the Load button to load all user objects from the tenant."
     },
     "onedrive": {
       "label": "OneDrive",
@@ -31,7 +31,7 @@
   "randomCounting": "Counting the tenant…",
   "randomModify": "Modify ~{{count}} of {{pool}}, chosen at random each run",
   "randomModifyUnknown": "Modify a random {{percent}}% of the tenant each run",
-  "randomPoolNote": "The full set is loaded from the tenant at run time — no list to paste.",
+  "randomPoolNote": "The full set is loaded from the tenant at run time — you can't modify the list.",
   "randomTruncatedNote": "(sampled from the first {{pool}} of {{total}})",
   "placeholderUpns": "One UPN per line, e.g. user@contoso.com",
   "placeholderUrls": "One site URL per line, e.g. contoso.sharepoint.com/sites/marketing",

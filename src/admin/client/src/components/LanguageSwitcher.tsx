@@ -6,6 +6,8 @@ import {
 const LANGUAGES = [
   { code: 'en', flag: '🇺🇸', name: 'English' },
   { code: 'de', flag: '🇩🇪', name: 'Deutsch' },
+  { code: 'fr', flag: '🇫🇷', name: 'Français' },
+  { code: 'nl', flag: '🇳🇱', name: 'Nederlands' },
   { code: 'uk', flag: '🇺🇦', name: 'Українська' },
 ] as const;
 

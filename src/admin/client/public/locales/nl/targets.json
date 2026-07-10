@@ -1,0 +1,67 @@
+{
+  "title": "Doelen",
+  "description": "Geef op welke gebruikers, postvakken en sites mogen worden gewijzigd. Schakel een categorie in en vermeld de doelen, één per regel.",
+  "categories": {
+    "identities": {
+      "label": "Identiteiten",
+      "hint": "Vermeld de gebruikersaccounts die mogen worden gewijzigd, als UPN's. Gebruik de knop Laden om een lijst met UPN's in te lezen of om alle gebruikersobjecten uit de tenant te laden."
+    },
+    "mail": {
+      "label": "E-mail",
+      "hint": "Vermeld de postvakken waarvan de berichten mogen worden gewijzigd, als UPN's. Gebruik de knop Laden om een lijst met UPN's in te lezen of om alle gebruikersobjecten uit de tenant te laden."
+    },
+    "calendar": {
+      "label": "Agenda",
+      "hint": "Vermeld de postvakken waarvan de agenda's mogen worden gewijzigd, als UPN's. Gebruik de knop Laden om een lijst met UPN's in te lezen of om alle gebruikersobjecten uit de tenant te laden."
+    },
+    "onedrive": {
+      "label": "OneDrive",
+      "hint": "Gebruikers van wie de OneDrive-bestanden mogen worden gewijzigd, als UPN's"
+    },
+    "sharepoint": {
+      "label": "SharePoint",
+      "hint": "Site-URL's waarvan de inhoud mag worden gewijzigd (het voorvoegsel https:// is optioneel)"
+    }
+  },
+  "enabled": "Ingeschakeld",
+  "disabled": "Uitgeschakeld",
+  "runStyleLabel": "Uitvoeringsstijl",
+  "explicit": "Expliciet",
+  "random": "Willekeurig",
+  "randomCounting": "Tenant wordt geteld…",
+  "randomModify": "~{{count}} van {{pool}} wijzigen, bij elke uitvoering willekeurig gekozen",
+  "randomModifyUnknown": "Bij elke uitvoering een willekeurige {{percent}}% van de tenant wijzigen",
+  "randomPoolNote": "De volledige set wordt bij uitvoering uit de tenant geladen — u kunt de lijst niet wijzigen.",
+  "randomTruncatedNote": "(steekproef uit de eerste {{pool}} van {{total}})",
+  "placeholderUpns": "Eén UPN per regel, bijv. user@contoso.com",
+  "placeholderUrls": "Eén site-URL per regel, bijv. contoso.sharepoint.com/sites/marketing",
+  "load": "Laden",
+  "loading": "Bezig met laden…",
+  "loadFromTenant": "Alle overeenkomende objecten uit de tenant laden",
+  "upload": "Uploaden",
+  "importCsv": "Doelen importeren uit een CSV-bestand",
+  "check": "Controleren",
+  "checking": "Bezig met controleren…",
+  "save": "Doelen opslaan",
+  "saving": "Bezig met opslaan…",
+  "errors": {
+    "notFound": "niet gevonden",
+    "invalidUpn": "geen geldige UPN",
+    "invalidUrl": "geen geldige URL"
+  },
+  "toast": {
+    "csvEmpty": "Het CSV-bestand bevatte geen bruikbare vermeldingen",
+    "csvReadFailed": "Kan het CSV-bestand niet lezen",
+    "nothingToCheck": "Voer ten minste één doel in om te controleren",
+    "checkAllOk": "Alle {{total}} doelen zijn omgezet",
+    "checkFailures": "{{failed}} van {{total}} doelen konden niet worden omgezet",
+    "checkFailed": "Controle mislukt",
+    "loadedCount": "{{count}} geladen uit de tenant",
+    "loadedMirrored": "{{count}} geladen uit de tenant (ook ingesteld voor Agenda)",
+    "loadTruncated": "{{count}} van {{total}} geladen uit de tenant (begrensd)",
+    "loadEmpty": "Geen overeenkomende objecten gevonden in de tenant",
+    "loadFailed": "Laden mislukt",
+    "saved": "Doelen opgeslagen",
+    "saveFailed": "Doelen opslaan mislukt"
+  }
+}

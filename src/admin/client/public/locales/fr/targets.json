@@ -1,0 +1,67 @@
+{
+  "title": "Cibles",
+  "description": "Indiquez les utilisateurs, boîtes aux lettres et sites qui peuvent être modifiés. Activez une catégorie et listez ses cibles, une par ligne.",
+  "categories": {
+    "identities": {
+      "label": "Identités",
+      "hint": "Listez les comptes d'utilisateur qui peuvent être modifiés, sous forme d'UPN. Utilisez le bouton Charger pour importer une liste d'UPN ou pour charger tous les objets utilisateur du locataire."
+    },
+    "mail": {
+      "label": "Courrier",
+      "hint": "Listez les boîtes aux lettres dont les messages peuvent être modifiés, sous forme d'UPN. Utilisez le bouton Charger pour importer une liste d'UPN ou pour charger tous les objets utilisateur du locataire."
+    },
+    "calendar": {
+      "label": "Calendrier",
+      "hint": "Listez les boîtes aux lettres dont les calendriers peuvent être modifiés, sous forme d'UPN. Utilisez le bouton Charger pour importer une liste d'UPN ou pour charger tous les objets utilisateur du locataire."
+    },
+    "onedrive": {
+      "label": "OneDrive",
+      "hint": "Utilisateurs dont les fichiers OneDrive peuvent être modifiés, sous forme d'UPN"
+    },
+    "sharepoint": {
+      "label": "SharePoint",
+      "hint": "URL des sites dont le contenu peut être modifié (le préfixe https:// est facultatif)"
+    }
+  },
+  "enabled": "Activé",
+  "disabled": "Désactivé",
+  "runStyleLabel": "Style d'exécution",
+  "explicit": "Explicite",
+  "random": "Aléatoire",
+  "randomCounting": "Comptage du locataire…",
+  "randomModify": "Modifier ~{{count}} sur {{pool}}, choisis au hasard à chaque exécution",
+  "randomModifyUnknown": "Modifier {{percent}} % du locataire au hasard à chaque exécution",
+  "randomPoolNote": "L'ensemble complet est chargé depuis le locataire au moment de l'exécution — la liste ne peut pas être modifiée.",
+  "randomTruncatedNote": "(échantillon des {{pool}} premiers sur {{total}})",
+  "placeholderUpns": "Un UPN par ligne, p. ex. user@contoso.com",
+  "placeholderUrls": "Une URL de site par ligne, p. ex. contoso.sharepoint.com/sites/marketing",
+  "load": "Charger",
+  "loading": "Chargement…",
+  "loadFromTenant": "Charger tous les objets correspondants du locataire",
+  "upload": "Importer",
+  "importCsv": "Importer des cibles depuis un fichier CSV",
+  "check": "Vérifier",
+  "checking": "Vérification…",
+  "save": "Enregistrer les cibles",
+  "saving": "Enregistrement…",
+  "errors": {
+    "notFound": "introuvable",
+    "invalidUpn": "UPN non valide",
+    "invalidUrl": "URL non valide"
+  },
+  "toast": {
+    "csvEmpty": "Le fichier CSV ne contenait aucune entrée utilisable",
+    "csvReadFailed": "Impossible de lire le fichier CSV",
+    "nothingToCheck": "Saisissez au moins une cible à vérifier",
+    "checkAllOk": "Les {{total}} cibles ont toutes été résolues",
+    "checkFailures": "Échec de la résolution de {{failed}} cibles sur {{total}}",
+    "checkFailed": "Échec de la vérification",
+    "loadedCount": "{{count}} chargés depuis le locataire",
+    "loadedMirrored": "{{count}} chargés depuis le locataire (également définis pour Calendrier)",
+    "loadTruncated": "{{count}} sur {{total}} chargés depuis le locataire (plafonné)",
+    "loadEmpty": "Aucun objet correspondant trouvé dans le locataire",
+    "loadFailed": "Échec du chargement",
+    "saved": "Cibles enregistrées",
+    "saveFailed": "Échec de l'enregistrement des cibles"
+  }
+}

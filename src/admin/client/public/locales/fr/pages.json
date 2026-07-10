@@ -1,0 +1,101 @@
+{
+  "run": {
+    "needTargets": "Chargez ou saisissez des cibles, puis cliquez sur Enregistrer les cibles pour activer cette fonction."
+  },
+  "scaffold": {
+    "calendarTitle": "Générer une activité de calendrier aléatoire",
+    "onedriveTitle": "Générer une activité OneDrive aléatoire",
+    "sharepointTitle": "Générer une activité SharePoint aléatoire",
+    "noOperation": "Aucune opération de mutation pour cette charge de travail pour le moment.",
+    "runsLabel": "Nombre de passes",
+    "runsSuffix": "passe(s)",
+    "doItNow": "Exécuter maintenant"
+  },
+  "users": {
+    "title": "Identités",
+    "permission": "User.ReadWrite.All",
+    "operations": [
+      "Rechercher un utilisateur par ID ou UPN",
+      "Mettre à jour les champs de profil d'un utilisateur",
+      "Activer/désactiver un compte",
+      "Attribuer ou supprimer des licences et des rôles"
+    ],
+    "mutate": {
+      "title": "Modifier un attribut de façon aléatoire",
+      "description": "Choisit un attribut au hasard (dans l'ensemble {{attributes}}) et le remplace par une valeur aléatoire sur chaque identité listée ci-dessus (lorsque Identités est activé). ",
+      "doItNow": "Exécuter maintenant",
+      "running": "Mutation en cours…",
+      "chosenAttribute": "Attribut choisi au hasard",
+      "toastAllOk": "{{label}} défini sur les {{count}} identités",
+      "toastRandomOk": "{{label}} défini sur {{count}} identités aléatoires (sur {{pool}})",
+      "toastFailures": "{{label}} défini : échec pour {{failed}} identités sur {{total}}",
+      "toastFailed": "Échec de la mutation"
+    }
+  },
+  "mail": {
+    "title": "Courrier",
+    "permission": "Mail.ReadWrite, Mail.Send",
+    "operations": [
+      "Envoyer un nouveau message en tant que boîte aux lettres",
+      "Répondre à un message existant",
+      "Déplacer ou supprimer des messages"
+    ],
+    "mutate": {
+      "title": "Générer une activité de boîte aux lettres aléatoire",
+      "description": "Pour chaque boîte aux lettres sélectionnée, effectue une action aléatoire : envoyer un nouveau message ({{send}} %), répondre à un message existant (35 %), transférer un message à un autre utilisateur choisi au hasard (30 %){{deletions}}. L'objet et le corps aléatoires proviennent d'OpenRouter lorsqu'une clé est configurée ; sinon, il s'agit d'un simple GUID.",
+      "deletionsClause": ", ou en déplacer un vers les Éléments supprimés (5 %)",
+      "allowDeletions": "Autoriser les suppressions",
+      "doItNow": "Exécuter maintenant",
+      "running": "Mutation en cours…",
+      "runsLabel": "Nombre de passes",
+      "runsSuffix": "passe(s)",
+      "summary": "Exécuté {{runs}}× — {{total}} actions · {{ok}} ok · {{failed}} en échec",
+      "truncated": "Affichage des {{shown}} premières actions sur {{total}}.",
+      "toastOk": "{{total}} actions de courrier terminées ({{runs}}×)",
+      "toastFailures": "Échec de {{failed}} actions de courrier sur {{total}} ({{runs}}×)",
+      "toastFailed": "Échec de la mutation du courrier",
+      "op": {
+        "send": "envoyé",
+        "reply": "répondu",
+        "forward": "transféré",
+        "move": "déplacé"
+      }
+    }
+  },
+  "calendar": {
+    "title": "Calendrier",
+    "permission": "Calendars.ReadWrite, MailboxSettings.Read",
+    "operations": [
+      "Créer un événement de calendrier avec des participants",
+      "Mettre à jour un événement existant",
+      "Annuler/supprimer un événement"
+    ],
+    "mutate": {
+      "title": "Générer une activité de calendrier aléatoire",
+      "description": "Pour chaque boîte aux lettres sélectionnée, effectue une action aléatoire : créer une demande de réunion invitant un autre utilisateur sélectionné (50 %) ou créer un rendez-vous individuel (50 %). Chacun est un événement de 30 minutes un jour de semaine, pendant les heures de travail de l'expéditeur, avec un objet aléatoire provenant d'OpenRouter lorsqu'une clé est configurée.",
+      "doItNow": "Exécuter maintenant",
+      "running": "Mutation en cours…",
+      "runsLabel": "Nombre de passes",
+      "runsSuffix": "passe(s)",
+      "summary": "Exécuté {{runs}}× — {{total}} actions · {{ok}} ok · {{failed}} en échec",
+      "truncated": "Affichage des {{shown}} premières actions sur {{total}}.",
+      "toastOk": "{{total}} actions de calendrier terminées ({{runs}}×)",
+      "toastFailures": "Échec de {{failed}} actions de calendrier sur {{total}} ({{runs}}×)",
+      "toastFailed": "Échec de la mutation du calendrier",
+      "op": {
+        "meeting": "réunion",
+        "appointment": "rendez-vous"
+      }
+    }
+  },
+  "files": {
+    "title": "Fichiers",
+    "permission": "Files.ReadWrite.All, Sites.ReadWrite.All",
+    "operations": [
+      "Charger un document dans le OneDrive d'un utilisateur",
+      "Charger un document dans une bibliothèque de site SharePoint",
+      "Modifier les métadonnées d'un document",
+      "Supprimer un document de OneDrive ou de SharePoint"
+    ]
+  }
+}

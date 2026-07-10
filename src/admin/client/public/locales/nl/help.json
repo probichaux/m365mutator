@@ -1,0 +1,24 @@
+{
+  "title": "Help",
+  "about": {
+    "heading": "Over M365Mutator",
+    "body": "M365Mutator maakt via Microsoft Graph verbinding met een Microsoft 365-tenant en stelt een operator in staat gebruikers bij te werken, e-mail te verzenden of te beantwoorden, agenda-items te beheren en OneDrive/SharePoint-documenten te beheren."
+  },
+  "gettingStarted": {
+    "heading": "Aan de slag",
+    "steps": [
+      "Open Instellingen en voer de tenant-ID en client-ID van de Entra ID-app-registratie in, plus een clientgeheim of certificaat.",
+      "Gebruik Graph-verbinding controleren om te bevestigen dat de referenties werken.",
+      "Gebruik Doelen om te kiezen op welke gebruikers, postvakken of sites bewerkingen worden uitgevoerd.",
+      "Gebruik de tabbladen Gebruikers, E-mail, Agenda en Bestanden om mutaties op die doelen uit te voeren."
+    ]
+  },
+  "permissions": {
+    "heading": "Vereiste Graph-machtigingen",
+    "body": "Elk tabblad vermeldt de toepassingsmachtiging die het nodig heeft. Verleen alleen wat u van plan bent te gebruiken en laat een tenantbeheerder hiervoor toestemming geven in de Entra ID-app-registratie."
+  },
+  "repository": {
+    "heading": "Documentatie en problemen",
+    "body": "Aanvullende documentatie en probleemregistratie voor M365Mutator zijn beschikbaar in de GitHub-opslagplaats:"
+  }
+}

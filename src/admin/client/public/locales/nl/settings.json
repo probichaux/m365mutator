@@ -1,0 +1,39 @@
+{
+  "title": "Instellingen",
+  "graph": {
+    "sectionTitle": "Microsoft Graph",
+    "description": "Referenties voor de Entra ID-app-registratie die wordt gebruikt om Microsoft Graph aan te roepen. Verleen deze de toepassingsmachtigingen die uw mutaties nodig hebben (bijv. User.ReadWrite.All, Mail.ReadWrite, Calendars.ReadWrite, Files.ReadWrite.All, Sites.ReadWrite.All) en laat een tenantbeheerder hiervoor toestemming geven.",
+    "tenantId": "Tenant-ID",
+    "tenantIdFormat": "Indeling: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "authMethod": "Verificatiemethode",
+    "authMethodSecret": "Clientgeheim",
+    "authMethodCert": "Certificaat",
+    "clientId": "Client-ID",
+    "clientSecret": "Clientgeheim",
+    "certificate": "Certificaat (PEM)",
+    "certificateNotUploaded": "Geen certificaat geüpload",
+    "uploadPem": "PEM uploaden",
+    "certificatePassword": "Certificaatwachtwoord",
+    "certificatePasswordHint": "Optioneel — alleen vereist voor versleutelde PEM-bestanden",
+    "verifyConnection": "Graph-verbinding controleren",
+    "verifying": "Bezig met testen..."
+  },
+  "openRouter": {
+    "sectionTitle": "OpenRouter",
+    "description": "Optioneel. Indien ingesteld gebruiken e-mailmutaties OpenRouter om willekeurige onderwerpregels en berichtteksten te genereren. Zonder sleutel wordt in plaats daarvan een willekeurige GUID gebruikt.",
+    "apiKey": "API-sleutel",
+    "apiKeyHint": "Wordt als platte tekst opgeslagen in de gegevensmap, net als het Graph-geheim.",
+    "model": "Model",
+    "modelHint": "OpenRouter-model-id. Standaard openai/gpt-4o-mini."
+  },
+  "saveConfiguration": "Configuratie opslaan",
+  "savingConfiguration": "Bezig met opslaan...",
+  "toast": {
+    "graphConnectionSuccess": "Graph-verbinding geslaagd ({{latencyMs}} ms)",
+    "graphConnectionFailed": "Graph-verbinding mislukt: {{error}}",
+    "configurationSaved": "Configuratie opgeslagen",
+    "saveFailed": "Opslaan mislukt",
+    "certificateUploaded": "Certificaat geüpload",
+    "uploadFailed": "Uploaden mislukt"
+  }
+}

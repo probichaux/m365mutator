@@ -1,0 +1,24 @@
+{
+  "title": "Aide",
+  "about": {
+    "heading": "À propos de M365Mutator",
+    "body": "M365Mutator se connecte à un locataire Microsoft 365 via Microsoft Graph et permet à un opérateur de mettre à jour des utilisateurs, d'envoyer des courriers et d'y répondre, de gérer des éléments de calendrier et de gérer des documents OneDrive/SharePoint."
+  },
+  "gettingStarted": {
+    "heading": "Prise en main",
+    "steps": [
+      "Ouvrez Paramètres et saisissez l'ID de locataire et l'ID client de l'inscription d'application Entra ID, ainsi qu'un secret client ou un certificat.",
+      "Utilisez Vérifier la connexion Graph pour confirmer que les informations d'identification fonctionnent.",
+      "Utilisez Cibles pour choisir les utilisateurs, boîtes aux lettres ou sites sur lesquels agir.",
+      "Utilisez les onglets Utilisateurs, Courrier, Calendrier et Fichiers pour exécuter des mutations sur ces cibles."
+    ]
+  },
+  "permissions": {
+    "heading": "Autorisations Graph requises",
+    "body": "Chaque onglet indique l'autorisation d'application dont il a besoin. N'accordez que ce que vous prévoyez d'utiliser et demandez à un administrateur de locataire d'y consentir dans l'inscription d'application Entra ID."
+  },
+  "repository": {
+    "heading": "Documentation et problèmes",
+    "body": "La documentation supplémentaire et le suivi des problèmes de M365Mutator sont disponibles dans le dépôt GitHub :"
+  }
+}

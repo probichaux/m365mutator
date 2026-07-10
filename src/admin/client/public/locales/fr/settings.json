@@ -1,0 +1,39 @@
+{
+  "title": "Paramètres",
+  "graph": {
+    "sectionTitle": "Microsoft Graph",
+    "description": "Informations d'identification de l'inscription d'application Entra ID utilisée pour appeler Microsoft Graph. Accordez-lui les autorisations d'application dont vos mutations ont besoin (p. ex. User.ReadWrite.All, Mail.ReadWrite, Calendars.ReadWrite, Files.ReadWrite.All, Sites.ReadWrite.All) et demandez à un administrateur de locataire d'y consentir.",
+    "tenantId": "ID de locataire",
+    "tenantIdFormat": "Format : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "authMethod": "Méthode d'authentification",
+    "authMethodSecret": "Secret client",
+    "authMethodCert": "Certificat",
+    "clientId": "ID client",
+    "clientSecret": "Secret client",
+    "certificate": "Certificat (PEM)",
+    "certificateNotUploaded": "Aucun certificat chargé",
+    "uploadPem": "Charger un PEM",
+    "certificatePassword": "Mot de passe du certificat",
+    "certificatePasswordHint": "Facultatif — requis uniquement pour les fichiers PEM chiffrés",
+    "verifyConnection": "Vérifier la connexion Graph",
+    "verifying": "Test en cours..."
+  },
+  "openRouter": {
+    "sectionTitle": "OpenRouter",
+    "description": "Facultatif. Lorsqu'une clé est définie, les mutations de courrier utilisent OpenRouter pour générer des objets et des corps de message aléatoires. Sans clé, un GUID aléatoire est utilisé à la place.",
+    "apiKey": "Clé API",
+    "apiKeyHint": "Stockée en texte clair dans le répertoire de données, comme le secret Graph.",
+    "model": "Modèle",
+    "modelHint": "ID de modèle OpenRouter. Par défaut : openai/gpt-4o-mini."
+  },
+  "saveConfiguration": "Enregistrer la configuration",
+  "savingConfiguration": "Enregistrement...",
+  "toast": {
+    "graphConnectionSuccess": "Connexion Graph réussie ({{latencyMs}} ms)",
+    "graphConnectionFailed": "Échec de la connexion Graph : {{error}}",
+    "configurationSaved": "Configuration enregistrée",
+    "saveFailed": "Échec de l'enregistrement",
+    "certificateUploaded": "Certificat chargé",
+    "uploadFailed": "Échec du chargement"
+  }
+}

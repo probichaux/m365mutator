@@ -2,6 +2,10 @@
 
 All notable changes to M365Mutator are documented in this file.
 
+## 0.4.0 — 2026-07-10
+
+- Add Dutch and French localizations for the admin UI.
+
 ## 0.3.1 - 2026-07-09
 
 - Updated the readme with new screenshots and some clarifying text

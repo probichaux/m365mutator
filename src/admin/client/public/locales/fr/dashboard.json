@@ -1,0 +1,13 @@
+{
+  "title": "Tableau de bord",
+  "graphCard": {
+    "title": "Microsoft Graph",
+    "configured": "Configuré",
+    "notConfigured": "Non configuré",
+    "authMode": "Mode d'authentification : {{mode}}",
+    "authModeCertificate": "certificat",
+    "authModeClientSecret": "secret client",
+    "openSettingsHint": "Ouvrez Paramètres pour ajouter une inscription d'application Entra ID."
+  },
+  "footer": "Utilisez les onglets ci-dessus pour gérer les utilisateurs, le courrier, les éléments de calendrier et les documents OneDrive/SharePoint du locataire Microsoft 365 connecté."
+}

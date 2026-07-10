@@ -1,0 +1,101 @@
+{
+  "run": {
+    "needTargets": "Laad of voer doelen in en klik op Doelen opslaan om dit in te schakelen."
+  },
+  "scaffold": {
+    "calendarTitle": "Agenda-activiteit willekeurig genereren",
+    "onedriveTitle": "OneDrive-activiteit willekeurig genereren",
+    "sharepointTitle": "SharePoint-activiteit willekeurig genereren",
+    "noOperation": "Nog geen mutatiebewerking voor deze workload.",
+    "runsLabel": "Aantal doorlopen",
+    "runsSuffix": "doorloop/doorlopen",
+    "doItNow": "Nu uitvoeren"
+  },
+  "users": {
+    "title": "Identiteiten",
+    "permission": "User.ReadWrite.All",
+    "operations": [
+      "Een gebruiker opzoeken op ID of UPN",
+      "Profielvelden van een gebruiker bijwerken",
+      "Een account in-/uitschakelen",
+      "Licenties en rollen toewijzen of verwijderen"
+    ],
+    "mutate": {
+      "title": "Een kenmerk willekeurig wijzigen",
+      "description": "Kiest willekeurig één kenmerk (uit de set {{attributes}}) en overschrijft het met een willekeurige waarde voor elke hierboven vermelde identiteit (wanneer Identiteiten is ingeschakeld). ",
+      "doItNow": "Nu uitvoeren",
+      "running": "Wordt gewijzigd…",
+      "chosenAttribute": "Willekeurig gekozen kenmerk",
+      "toastAllOk": "{{label}} ingesteld voor alle {{count}} identiteiten",
+      "toastRandomOk": "{{label}} ingesteld voor {{count}} willekeurige identiteiten (van {{pool}})",
+      "toastFailures": "{{label}} ingesteld: {{failed}} van {{total}} identiteiten mislukt",
+      "toastFailed": "Mutatie mislukt"
+    }
+  },
+  "mail": {
+    "title": "E-mail",
+    "permission": "Mail.ReadWrite, Mail.Send",
+    "operations": [
+      "Een nieuw e-mailbericht verzenden als een postvak",
+      "Een bestaand bericht beantwoorden",
+      "Berichten verplaatsen of verwijderen"
+    ],
+    "mutate": {
+      "title": "Postvakactiviteit willekeurig genereren",
+      "description": "Voert voor elk geselecteerd postvak één willekeurige actie uit: een nieuw bericht verzenden ({{send}}%), een bestaand bericht beantwoorden (35%), één bericht doorsturen naar een andere willekeurig gekozen gebruiker (30%){{deletions}}. Willekeurige onderwerpen en berichtteksten komen van OpenRouter wanneer een sleutel is geconfigureerd; anders is het een eenvoudige GUID.",
+      "deletionsClause": ", of één bericht naar Verwijderde items verplaatsen (5%)",
+      "allowDeletions": "Verwijderingen toestaan",
+      "doItNow": "Nu uitvoeren",
+      "running": "Wordt gewijzigd…",
+      "runsLabel": "Aantal doorlopen",
+      "runsSuffix": "doorloop/doorlopen",
+      "summary": "{{runs}}× uitgevoerd — {{total}} acties · {{ok}} ok · {{failed}} mislukt",
+      "truncated": "De eerste {{shown}} van {{total}} acties worden weergegeven.",
+      "toastOk": "{{total}} e-mailacties voltooid ({{runs}}×)",
+      "toastFailures": "{{failed}} van {{total}} e-mailacties mislukt ({{runs}}×)",
+      "toastFailed": "E-mailmutatie mislukt",
+      "op": {
+        "send": "verzonden",
+        "reply": "beantwoord",
+        "forward": "doorgestuurd",
+        "move": "verplaatst"
+      }
+    }
+  },
+  "calendar": {
+    "title": "Agenda",
+    "permission": "Calendars.ReadWrite, MailboxSettings.Read",
+    "operations": [
+      "Een agendagebeurtenis met deelnemers maken",
+      "Een bestaande gebeurtenis bijwerken",
+      "Een gebeurtenis annuleren/verwijderen"
+    ],
+    "mutate": {
+      "title": "Agenda-activiteit willekeurig genereren",
+      "description": "Voert voor elk geselecteerd postvak één willekeurige actie uit: een vergaderverzoek maken waarvoor een andere geselecteerde gebruiker wordt uitgenodigd (50%) of een afspraak voor één gebruiker maken (50%). Elk is een gebeurtenis van 30 minuten op een weekdag binnen de werkuren van de afzender, met een willekeurig onderwerp van OpenRouter wanneer een sleutel is geconfigureerd.",
+      "doItNow": "Nu uitvoeren",
+      "running": "Wordt gewijzigd…",
+      "runsLabel": "Aantal doorlopen",
+      "runsSuffix": "doorloop/doorlopen",
+      "summary": "{{runs}}× uitgevoerd — {{total}} acties · {{ok}} ok · {{failed}} mislukt",
+      "truncated": "De eerste {{shown}} van {{total}} acties worden weergegeven.",
+      "toastOk": "{{total}} agenda-acties voltooid ({{runs}}×)",
+      "toastFailures": "{{failed}} van {{total}} agenda-acties mislukt ({{runs}}×)",
+      "toastFailed": "Agendamutatie mislukt",
+      "op": {
+        "meeting": "vergadering",
+        "appointment": "afspraak"
+      }
+    }
+  },
+  "files": {
+    "title": "Bestanden",
+    "permission": "Files.ReadWrite.All, Sites.ReadWrite.All",
+    "operations": [
+      "Een document uploaden naar de OneDrive van een gebruiker",
+      "Een document uploaden naar een SharePoint-sitebibliotheek",
+      "Documentmetagegevens wijzigen",
+      "Een document verwijderen uit OneDrive of SharePoint"
+    ]
+  }
+}

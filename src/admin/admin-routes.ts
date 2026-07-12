@@ -10,6 +10,7 @@ import { loadCategory, resolveTargetItems } from './target-load.js';
 import { mutateIdentities } from './identity-mutate.js';
 import { mutateMail } from './mail-mutate.js';
 import { mutateCalendar } from './calendar-mutate.js';
+import { mutateOneDrive } from './onedrive-mutate.js';
 import {
   mutateDeletions, DELETION_WORKLOADS, DELETION_SCOPES,
   DeletionWorkload, DeletionScope, isValidDate,
@@ -216,6 +217,29 @@ router.post('/api/calendar/mutate', async (req: Request, res: Response) => {
       return;
     }
     const run = await mutateCalendar(resolved.items, runCount);
+    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
+  } catch (err: unknown) {
+    res.status(502).json({ error: sanitizeUpstreamError(err) });
+  }
+});
+
+// ── OneDrive: weighted random file/folder operations ────────────────
+
+router.post('/api/onedrive/mutate', async (req: Request, res: Response) => {
+  const onedrive = loadTargets().onedrive;
+  const { runs } = req.body as { runs?: unknown };
+  const runCount = typeof runs === 'number' && Number.isFinite(runs) ? runs : 1;
+  try {
+    // Explicit → the saved list; random → a fresh random % of the tenant's OneDrive users.
+    const resolved = await resolveTargetItems('onedrive', onedrive);
+    if (resolved.items.length === 0) {
+      const msg = resolved.runStyle === 'random'
+        ? 'No OneDrive users were found in the tenant to sample'
+        : 'No OneDrive users are selected';
+      res.status(400).json({ error: msg });
+      return;
+    }
+    const run = await mutateOneDrive(resolved.items, runCount);
     res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
   } catch (err: unknown) {
     res.status(502).json({ error: sanitizeUpstreamError(err) });

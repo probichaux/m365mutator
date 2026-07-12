@@ -2,6 +2,11 @@
 
 All notable changes to M365Mutator are documented in this file.
 
+## 0.6.0 — 2026-07-12
+
+- Add real OneDrive mutation activity to the OneDrive tab (replacing the scaffold): one weighted-random action per selected user per pass — create a text file, create a Word or PDF document, rename a file (keeping its extension), create a folder, remove a file, create a folder and move a file into it, or add a random image from Wikimedia Commons.
+- Each action targets a random existing folder in the user's drive (the root when there are none); document and text content come from OpenRouter when a key is configured.
+
 ## 0.5.0 — 2026-07-12
 
 - Add a **Deletions** tab: select users (explicit list or a random tenant sample), pick the Mail, Calendar, and/or OneDrive workloads, and delete a date-scoped range of items to test deleted-item recovery and retention.

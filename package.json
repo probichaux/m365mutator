@@ -1,6 +1,6 @@
 {
   "name": "m365mutator",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "M365Mutator — logs into a Microsoft 365 tenant via Microsoft Graph and mutates users, mail, calendar items, and OneDrive/SharePoint documents.",
   "license": "MIT",
   "author": "Paul Robichaux",
@@ -24,11 +24,13 @@
   "dependencies": {
     "@azure/identity": "^4.13.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
+    "docx": "^9.7.1",
     "dotenv": "^16.5.0",
     "express": "5.1.0",
     "helmet": "^8.1.0",
     "markdownlint": "^0.41.0",
-    "multer": "^2.1.1"
+    "multer": "^2.1.1",
+    "pdf-lib": "^1.17.1"
   },
   "devDependencies": {
     "@fluentui/react-components": "^9.73.7",

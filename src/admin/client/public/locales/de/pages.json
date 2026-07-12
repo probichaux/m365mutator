@@ -151,5 +151,29 @@
       "calendar": "Kalender",
       "onedrive": "OneDrive"
     }
+  },
+  "onedrive": {
+    "mutate": {
+      "title": "OneDrive-Aktivität randomisieren",
+      "description": "Führt für jeden ausgewählten Benutzer eine zufällige Aktion in einem zufälligen vorhandenen Ordner aus: eine Textdatei erstellen, ein Word- oder PDF-Dokument erstellen, eine Datei umbenennen, einen Ordner erstellen, eine Datei entfernen, einen Ordner erstellen und eine Datei hineinverschieben oder ein zufälliges Bild von Wikimedia Commons hinzufügen. Dokument- und Textinhalte stammen von OpenRouter, wenn ein Schlüssel konfiguriert ist.",
+      "doItNow": "Jetzt ausführen",
+      "running": "Wird geändert…",
+      "runsLabel": "Anzahl der Durchläufe",
+      "runsSuffix": "Durchlauf/Durchläufe",
+      "summary": "{{runs}}× ausgeführt — {{total}} Aktionen · {{ok}} ok · {{failed}} fehlgeschlagen",
+      "truncated": "Zeigt die ersten {{shown}} von {{total}} Aktionen.",
+      "toastOk": "{{total}} OneDrive-Aktionen abgeschlossen ({{runs}}×)",
+      "toastFailures": "{{failed}} von {{total}} OneDrive-Aktionen fehlgeschlagen ({{runs}}×)",
+      "toastFailed": "OneDrive-Änderung fehlgeschlagen",
+      "op": {
+        "createText": "Textdatei",
+        "createDoc": "Dokument",
+        "rename": "umbenennen",
+        "createFolder": "Ordner",
+        "remove": "entfernen",
+        "folderMove": "verschieben",
+        "image": "Bild"
+      }
+    }
   }
 }

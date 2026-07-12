@@ -13,6 +13,8 @@ and makes changes to user account objects in Entra, sends and receives mail and 
 
 This application requires write permissions on Graph. It's meant, for now, to be run locally. Be careful with it; don't host it on the Internet, for crying out loud.
 
+Note also that the OneDrive workload's "add a random image" action downloads a file from **Wikimedia Commons** and uploads it into the target tenant. It's the one operation that pulls external content in — it's bounded (a curated category, an image-mime allowlist, and a size cap) and fails gracefully, but the server needs outbound internet access for it, and you should be comfortable with third-party images landing in the tenant.
+
 ## Screenshots
 
 The admin console has one tab per workload. Each tab chooses its targets
@@ -217,10 +219,13 @@ GRAPH_CLIENT_SECRET=<client secret value>   # or set GRAPH_CERTIFICATE_PATH
     tenant, validate targets, and resolve the effective set (the explicit list,
     or a random sample).
   - `identity-mutate.ts` / `mail-mutate.ts` / `calendar-mutate.ts` /
-    `deletion-mutate.ts` — the mutation operations for the Identities, Mail, and
-    Calendar workloads, and the date-scoped Deletions across Mail/Calendar/OneDrive.
+    `onedrive-mutate.ts` / `deletion-mutate.ts` — the mutation operations for the
+    Identities, Mail, Calendar, and OneDrive workloads, and the date-scoped
+    Deletions across Mail/Calendar/OneDrive.
   - `random-text.ts` — random subject/body text via OpenRouter, with a GUID
     fallback when no key is set.
+  - `doc-gen.ts` / `wikimedia.ts` — generate Word/PDF documents and fetch a
+    random Wikimedia Commons image for the OneDrive workload.
 - `src/admin/client/` — the React admin console (Fluent UI, i18n en/de/fr/nl/uk):
   one page per workload (Identities, Mail, Calendar, OneDrive, SharePoint) plus
   Deletions, a shared `TargetPanel`, the run-count `RunStepper`, and Settings/Help

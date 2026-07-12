@@ -151,5 +151,29 @@
       "calendar": "agenda",
       "onedrive": "OneDrive"
     }
+  },
+  "onedrive": {
+    "mutate": {
+      "title": "OneDrive-activiteit willekeurig maken",
+      "description": "Voert voor elke geselecteerde gebruiker één willekeurige actie uit in een willekeurige bestaande map: een tekstbestand maken, een Word- of PDF-document maken, een bestand hernoemen, een map maken, een bestand verwijderen, een map maken en een bestand erin verplaatsen, of een willekeurige afbeelding van Wikimedia Commons toevoegen. Document- en tekstinhoud komt van OpenRouter wanneer een sleutel is geconfigureerd.",
+      "doItNow": "Nu uitvoeren",
+      "running": "Wordt gewijzigd…",
+      "runsLabel": "Aantal doorlopen",
+      "runsSuffix": "doorloop/doorlopen",
+      "summary": "{{runs}}× uitgevoerd — {{total}} acties · {{ok}} ok · {{failed}} mislukt",
+      "truncated": "De eerste {{shown}} van {{total}} acties worden weergegeven.",
+      "toastOk": "{{total}} OneDrive-acties voltooid ({{runs}}×)",
+      "toastFailures": "{{failed}} van {{total}} OneDrive-acties mislukt ({{runs}}×)",
+      "toastFailed": "OneDrive-mutatie mislukt",
+      "op": {
+        "createText": "tekstbestand",
+        "createDoc": "document",
+        "rename": "hernoemen",
+        "createFolder": "map",
+        "remove": "verwijderen",
+        "folderMove": "verplaatsen",
+        "image": "afbeelding"
+      }
+    }
   }
 }

@@ -151,5 +151,29 @@
       "calendar": "calendrier",
       "onedrive": "OneDrive"
     }
+  },
+  "onedrive": {
+    "mutate": {
+      "title": "Randomiser l'activité OneDrive",
+      "description": "Pour chaque utilisateur sélectionné, effectue une action aléatoire dans un dossier existant choisi au hasard : créer un fichier texte, créer un document Word ou PDF, renommer un fichier, créer un dossier, supprimer un fichier, créer un dossier et y déplacer un fichier, ou ajouter une image aléatoire de Wikimedia Commons. Le contenu des documents et du texte provient d'OpenRouter lorsqu'une clé est configurée.",
+      "doItNow": "Exécuter maintenant",
+      "running": "Mutation en cours…",
+      "runsLabel": "Nombre de passes",
+      "runsSuffix": "passe(s)",
+      "summary": "Exécuté {{runs}}× — {{total}} actions · {{ok}} ok · {{failed}} en échec",
+      "truncated": "Affichage des {{shown}} premières actions sur {{total}}.",
+      "toastOk": "{{total}} actions OneDrive terminées ({{runs}}×)",
+      "toastFailures": "{{failed}} action(s) OneDrive sur {{total}} en échec ({{runs}}×)",
+      "toastFailed": "Échec de la mutation OneDrive",
+      "op": {
+        "createText": "fichier texte",
+        "createDoc": "document",
+        "rename": "renommer",
+        "createFolder": "dossier",
+        "remove": "supprimer",
+        "folderMove": "déplacer",
+        "image": "image"
+      }
+    }
   }
 }

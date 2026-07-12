@@ -151,5 +151,29 @@
       "calendar": "calendar",
       "onedrive": "OneDrive"
     }
+  },
+  "onedrive": {
+    "mutate": {
+      "title": "Randomize OneDrive activity",
+      "description": "For each selected user, performs one random action in a random existing folder: create a text file, create a Word or PDF document, rename a file, create a folder, remove a file, create a folder and move a file into it, or add a random image from Wikimedia Commons. Document and text content come from OpenRouter when a key is configured.",
+      "doItNow": "Do it now",
+      "running": "Mutating…",
+      "runsLabel": "Number of passes",
+      "runsSuffix": "pass(es)",
+      "summary": "Ran {{runs}}× — {{total}} actions · {{ok}} ok · {{failed}} failed",
+      "truncated": "Showing the first {{shown}} of {{total}} actions.",
+      "toastOk": "Completed {{total}} OneDrive actions ({{runs}}×)",
+      "toastFailures": "{{failed}} of {{total}} OneDrive actions failed ({{runs}}×)",
+      "toastFailed": "OneDrive mutation failed",
+      "op": {
+        "createText": "text file",
+        "createDoc": "document",
+        "rename": "rename",
+        "createFolder": "folder",
+        "remove": "remove",
+        "folderMove": "move",
+        "image": "image"
+      }
+    }
   }
 }

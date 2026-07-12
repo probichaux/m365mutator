@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M365Mutator — Deletions (Sentence builder)</title>
+<style>
+  :root {
+    --brand:#5b5fc7; --brand-hover:#4f52b3; --purple:#241d78;
+    --ink:#242424; --ink2:#616161; --ink3:#8a8886;
+    --line:#e1dfdd; --line2:#edebe9; --bg:#f3f2f1; --card:#fff;
+    --green:#0e7a0b; --red:#b10e1c; --red-bg:#fdf3f4; --red-line:#f1bfc4;
+    --mono:'Cascadia Code',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Segoe UI',system-ui,-apple-system,sans-serif; color:var(--ink); background:var(--bg); font-size:14px; }
+  header { display:flex; align-items:center; justify-content:space-between; background:var(--purple); color:#fff; padding:12px 24px; }
+  .brand { display:flex; align-items:center; gap:12px; }
+  .logo { width:26px; height:26px; border-radius:6px; background:linear-gradient(135deg,#5b5fc7,#8b8ff0); display:grid; place-items:center; font-weight:700; }
+  .brand span { font-size:18px; font-weight:600; }
+  .icons { display:flex; gap:8px; }
+  .icons button { width:32px; height:32px; border-radius:6px; border:none; background:transparent; color:#fff; font-size:16px; cursor:pointer; }
+  .icons button:hover { background:rgba(255,255,255,.15); }
+  nav { display:flex; justify-content:center; gap:4px; background:var(--card); border-bottom:1px solid var(--line); padding:0 24px; }
+  nav a { padding:12px 16px; font-size:13px; font-weight:500; color:var(--ink); text-decoration:none; border-bottom:2px solid transparent; cursor:pointer; }
+  nav a.active { color:var(--brand); border-bottom-color:var(--brand); font-weight:600; }
+  nav a:not(.active):hover { background:var(--line2); }
+  main { max-width:1000px; margin:0 auto; padding:24px; }
+  h1 { font-size:26px; margin:0 0 6px; }
+  .lede { color:var(--ink2); margin:0 0 16px; max-width:70ch; line-height:1.5; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:16px; font-weight:600; margin:0 0 4px; }
+  .card-sub { color:var(--ink2); font-size:13px; margin:0 0 16px; }
+  .seg { display:inline-flex; background:var(--line2); border-radius:8px; padding:3px; margin:12px 0; }
+  .seg-btn { border:none; background:transparent; padding:7px 20px; border-radius:6px; font-size:13px; font-weight:600; color:var(--ink2); cursor:pointer; }
+  .seg-btn.active { background:var(--card); color:var(--brand); box-shadow:0 1px 2px rgba(0,0,0,.12); }
+  textarea { width:100%; min-height:120px; border:1px solid var(--line); border-radius:6px; padding:10px 12px; font-family:var(--mono); font-size:13px; color:var(--ink); resize:vertical; }
+  textarea:focus { outline:2px solid var(--brand); border-color:var(--brand); }
+  .btnrow { display:flex; gap:8px; margin-top:12px; align-items:center; }
+  .btn { border:1px solid var(--line); background:var(--card); border-radius:6px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; color:var(--ink); display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover { background:var(--line2); }
+  .spacer { flex:1; }
+  /* workload chips */
+  .chips { display:flex; gap:10px; flex-wrap:wrap; }
+  .chip { display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); background:var(--card); border-radius:24px; padding:8px 16px; cursor:pointer; user-select:none; font-weight:600; color:var(--ink2); }
+  .chip:hover { border-color:var(--brand); }
+  .chip.on { border-color:var(--brand); background:#f0f0fb; color:var(--brand); }
+  .chip .box { width:16px; height:16px; border-radius:4px; border:2px solid var(--ink3); display:grid; place-items:center; font-size:11px; color:#fff; }
+  .chip.on .box { background:var(--brand); border-color:var(--brand); }
+  /* sentence builder */
+  .sentence { font-size:17px; line-height:2.1; color:var(--ink); }
+  .sentence select, .sentence input[type=date] {
+    font-family:inherit; font-size:16px; font-weight:600; color:var(--brand);
+    border:none; border-bottom:2px solid var(--brand); background:#f4f4fc;
+    border-radius:6px 6px 0 0; padding:3px 8px; cursor:pointer;
+  }
+  .sentence select:focus, .sentence input:focus { outline:2px solid var(--brand); }
+  .sentence input[type=date] { color:var(--ink); }
+  .sentence .hidden { display:none; }
+  /* danger + run */
+  .summary { border:1px solid var(--red-line); background:var(--red-bg); border-radius:8px; padding:14px 16px; display:flex; gap:12px; align-items:flex-start; }
+  .summary .warn { color:var(--red); font-size:20px; }
+  .summary p { margin:0; line-height:1.5; }
+  .summary b { color:var(--red); }
+  .run-row { display:flex; align-items:center; gap:12px; margin-top:16px; }
+  .confirm { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink2); cursor:pointer; user-select:none; }
+  .confirm input { width:16px; height:16px; accent-color:var(--red); }
+  .btn.danger { background:var(--red); border-color:var(--red); color:#fff; }
+  .btn.danger:disabled { background:#e6b9bd; border-color:#e6b9bd; cursor:not-allowed; }
+  .footnote { max-width:1000px; margin:8px auto 40px; padding:0 24px; color:var(--ink3); font-size:12px; }
+  .badge { display:inline-block; background:#f0f0fb; color:var(--brand); border:1px solid #d6d6f5; border-radius:4px; padding:1px 6px; font-size:11px; font-weight:600; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">M</div><span>M365Mutator</span></div>
+  <div class="icons"><button title="Settings">⚙</button><button title="Help">?</button></div>
+</header>
+<nav>
+  <a>Identities</a><a>Mail</a><a>Calendar</a><a>OneDrive</a><a>SharePoint</a><a class="active">Deletions</a>
+</nav>
+
+<main>
+  <h1>Deletions</h1>
+  <p class="lede">Delete a range of items across a user's workloads to test deleted-item recovery and retention. Choose the users, pick which workloads to touch, then build the deletion rule.</p>
+
+  <div class="card">
+    <p class="card-title">Users</p>
+    <p class="card-sub">Accounts whose items may be deleted, as UPNs.</p>
+    <div class="seg" role="tablist" aria-label="Run style">
+      <button class="seg-btn active">Explicit</button>
+      <button class="seg-btn">Random</button>
+    </div>
+    <textarea spellcheck="false">alice@blackdotpub.com
+bob@blackdotpub.com
+carol@blackdotpub.com</textarea>
+    <div class="btnrow">
+      <button class="btn">☁ Load</button>
+      <button class="btn">Upload</button>
+      <button class="btn">✓ Check</button>
+      <span class="spacer"></span>
+      <button class="btn">Save</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-title">Deletion rule</p>
+    <p class="card-sub">Pick the workloads, then complete the sentence to scope the deletion by date.</p>
+
+    <div class="chips" style="margin-bottom:20px">
+      <label class="chip on"><span class="box">✓</span><input type="checkbox" checked hidden data-wl="Mail">✉️ Mail</label>
+      <label class="chip on"><span class="box">✓</span><input type="checkbox" checked hidden data-wl="Calendar">📅 Calendar</label>
+      <label class="chip"><span class="box">✓</span><input type="checkbox" hidden data-wl="OneDrive">📁 OneDrive</label>
+    </div>
+
+    <div class="sentence">
+      Delete
+      <select id="scope">
+        <option value="all">everything</option>
+        <option value="after" selected>everything after</option>
+        <option value="before">everything before</option>
+        <option value="between">everything between</option>
+      </select>
+      <input type="date" id="from" value="2025-01-01">
+      <span id="and" class="hidden">and</span>
+      <input type="date" id="to" class="hidden" value="2025-06-30">
+      from the selected workloads.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="summary">
+      <span class="warn">⚠</span>
+      <p id="summary-text"></p>
+    </div>
+    <div class="run-row">
+      <label class="confirm"><input type="checkbox" id="ack"> I understand this permanently deletes items</label>
+      <span class="spacer"></span>
+      <button class="btn danger" id="run" disabled>🗑 Delete items</button>
+    </div>
+  </div>
+</main>
+
+<p class="footnote"><span class="badge">Natural language</span> The scope reads as one editable sentence, so the exact rule is unambiguous as you build it. Date fields hide/show as the verb changes. Workloads are toggle chips above the sentence.</p>
+
+<script>
+  const scope = document.getElementById('scope');
+  const from = document.getElementById('from'), to = document.getElementById('to'), and = document.getElementById('and');
+  const summary = document.getElementById('summary-text');
+  const ack = document.getElementById('ack'), run = document.getElementById('run');
+
+  function selectedWorkloads(){ return [...document.querySelectorAll('.chip input:checked')].map(i => i.dataset.wl); }
+  function fmt(el){ return el.value ? new Date(el.value+'T00:00').toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) : '—'; }
+
+  function render(){
+    const s = scope.value;
+    from.classList.toggle('hidden', s === 'all');
+    to.classList.toggle('hidden', s !== 'between');
+    and.classList.toggle('hidden', s !== 'between');
+
+    const wls = selectedWorkloads();
+    const wlText = wls.length ? wls.join(', ') : 'no workloads';
+    let when = '<b>every item</b>';
+    if (s === 'after')   when = 'items dated after <b>' + fmt(from) + '</b>';
+    if (s === 'before')  when = 'items dated before <b>' + fmt(from) + '</b>';
+    if (s === 'between') when = 'items between <b>' + fmt(from) + '</b> and <b>' + fmt(to) + '</b>';
+    summary.innerHTML = `Delete ${when} from <b>${wlText}</b> for the selected users.`;
+    run.disabled = !ack.checked || wls.length === 0;
+  }
+
+  scope.addEventListener('change', render);
+  from.addEventListener('change', render);
+  to.addEventListener('change', render);
+  ack.addEventListener('change', render);
+  document.querySelectorAll('.chip input').forEach(i => i.addEventListener('change', () => {
+    i.closest('.chip').classList.toggle('on', i.checked); render();
+  }));
+  render();
+</script>
+</body>
+</html>

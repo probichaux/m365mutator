@@ -97,5 +97,59 @@
       "Modifier les métadonnées d'un document",
       "Supprimer un document de OneDrive ou de SharePoint"
     ]
+  },
+  "deletions": {
+    "title": "Suppressions",
+    "lede": "Supprimez une plage d'éléments dans les charges de travail d'un utilisateur pour tester la récupération et la gestion des éléments supprimés. Choisissez les utilisateurs, indiquez les charges de travail concernées, puis délimitez la suppression par date.",
+    "workloads": {
+      "title": "Charges de travail",
+      "subtitle": "Quelles données supprimer. Sélectionnez-en une ou plusieurs.",
+      "mail": "Courrier",
+      "mailSub": "messages",
+      "calendar": "Calendrier",
+      "calendarSub": "événements",
+      "onedrive": "OneDrive",
+      "onedriveSub": "fichiers"
+    },
+    "scope": {
+      "title": "Éléments à supprimer",
+      "subtitle": "Les éléments sont filtrés selon leur date d'arrivée — date de réception pour le courrier, date de création pour les événements de calendrier et les fichiers. Les dates limites sont incluses.",
+      "all": "Tout",
+      "allDesc": "Supprimer tous les éléments, quelle que soit la date",
+      "after": "Après une date",
+      "afterDesc": "Uniquement les éléments datés à partir de cette date (incluse)",
+      "before": "Avant une date",
+      "beforeDesc": "Uniquement les éléments datés jusqu'à cette date (incluse)",
+      "between": "Entre deux dates",
+      "betweenDesc": "Uniquement les éléments compris dans une plage de dates",
+      "afterLabel": "Après",
+      "beforeLabel": "Avant",
+      "fromLabel": "Du",
+      "toLabel": "Au",
+      "orderError": "La date de début ne doit pas être postérieure à la date de fin."
+    },
+    "summary": {
+      "all": "Supprimer tous les éléments de {{workloads}} pour les utilisateurs sélectionnés.",
+      "after": "Supprimer les éléments datés du {{date}} ou après de {{workloads}} pour les utilisateurs sélectionnés.",
+      "before": "Supprimer les éléments datés du {{date}} ou avant de {{workloads}} pour les utilisateurs sélectionnés.",
+      "between": "Supprimer les éléments datés entre le {{from}} et le {{to}} de {{workloads}} pour les utilisateurs sélectionnés."
+    },
+    "noWorkloads": "aucune charge de travail",
+    "acknowledge": "Je comprends que cela supprime des éléments des utilisateurs sélectionnés",
+    "needConfirm": "Sélectionnez des charges de travail, confirmez l'avertissement et enregistrez les cibles pour activer cette action.",
+    "deleteButton": "Supprimer les éléments",
+    "deleting": "Suppression…",
+    "runSummary": "{{deleted}} éléments supprimés sur {{matched}} correspondants pour {{users}} utilisateur(s)",
+    "resultLine": "{{deleted}}/{{matched}} supprimés",
+    "truncated": "Affichage des {{shown}} premiers résultats sur {{total}}.",
+    "toastNone": "Aucun élément correspondant à supprimer",
+    "toastOk": "{{deleted}} éléments supprimés pour {{users}} utilisateur(s)",
+    "toastFailures": "{{deleted}} éléments supprimés ; {{failed}} en échec",
+    "toastFailed": "Échec de la suppression",
+    "workloadName": {
+      "mail": "courrier",
+      "calendar": "calendrier",
+      "onedrive": "OneDrive"
+    }
   }
 }

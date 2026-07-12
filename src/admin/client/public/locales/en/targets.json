@@ -21,6 +21,10 @@
     "sharepoint": {
       "label": "SharePoint",
       "hint": "Site URLs whose contents may be modified (the https:// prefix is optional)"
+    },
+    "deletions": {
+      "label": "Deletions",
+      "hint": "List the users whose mail, calendar, or OneDrive items may be deleted, as UPNs. Use the Load button to ingest a list of UPNs, or to load all applicable users from the tenant."
     }
   },
   "enabled": "Enabled",

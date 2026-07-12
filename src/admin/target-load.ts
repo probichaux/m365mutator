@@ -70,6 +70,11 @@ export async function loadCategory(category: TargetCategory): Promise<LoadResult
     case 'onedrive':
       all = await loadUpns(hasOneDrive);
       break;
+    case 'deletions':
+      // Deletions can touch mail, calendar, or OneDrive, so the pool is any user
+      // with a mailbox or OneDrive provisioned.
+      all = await loadUpns(u => isMailbox(u) || hasOneDrive(u));
+      break;
     case 'sharepoint':
       all = dedupe(await listAllSites());
       break;

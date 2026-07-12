@@ -97,5 +97,59 @@
       "Modify document metadata",
       "Remove a document from OneDrive or SharePoint"
     ]
+  },
+  "deletions": {
+    "title": "Deletions",
+    "lede": "Delete a range of items across a user's workloads to test deleted-item recovery and retention. Choose the users, pick which workloads to touch, then scope the deletion by date.",
+    "workloads": {
+      "title": "Workloads",
+      "subtitle": "Which data to delete from. Select one or more.",
+      "mail": "Mail",
+      "mailSub": "messages",
+      "calendar": "Calendar",
+      "calendarSub": "events",
+      "onedrive": "OneDrive",
+      "onedriveSub": "files"
+    },
+    "scope": {
+      "title": "What to delete",
+      "subtitle": "Items are matched by the date they arrived — received date for mail, created date for calendar events and files. Boundary dates are included.",
+      "all": "Everything",
+      "allDesc": "Delete every item, regardless of date",
+      "after": "After a date",
+      "afterDesc": "Only items dated on or after the date",
+      "before": "Before a date",
+      "beforeDesc": "Only items dated on or before the date",
+      "between": "Between two dates",
+      "betweenDesc": "Only items inside a date range",
+      "afterLabel": "After",
+      "beforeLabel": "Before",
+      "fromLabel": "From",
+      "toLabel": "To",
+      "orderError": "The start date must not be after the end date."
+    },
+    "summary": {
+      "all": "Delete every item from {{workloads}} for the selected users.",
+      "after": "Delete items dated on or after {{date}} from {{workloads}} for the selected users.",
+      "before": "Delete items dated on or before {{date}} from {{workloads}} for the selected users.",
+      "between": "Delete items dated between {{from}} and {{to}} from {{workloads}} for the selected users."
+    },
+    "noWorkloads": "no workloads",
+    "acknowledge": "I understand this deletes items for the selected users",
+    "needConfirm": "Select workloads, confirm the acknowledgement, and save targets to enable this.",
+    "deleteButton": "Delete items",
+    "deleting": "Deleting…",
+    "runSummary": "Deleted {{deleted}} of {{matched}} matched items across {{users}} user(s)",
+    "resultLine": "{{deleted}}/{{matched}} deleted",
+    "truncated": "Showing the first {{shown}} of {{total}} results.",
+    "toastNone": "No matching items were found to delete",
+    "toastOk": "Deleted {{deleted}} items across {{users}} user(s)",
+    "toastFailures": "Deleted {{deleted}} items; {{failed}} failed",
+    "toastFailed": "Deletion failed",
+    "workloadName": {
+      "mail": "mail",
+      "calendar": "calendar",
+      "onedrive": "OneDrive"
+    }
   }
 }

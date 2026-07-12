@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { getDataDir } from './config-store.js';
 import { atomicWriteJson, safeReadJson } from '../helpers/file.helper.js';
 
-export const TARGET_CATEGORIES = ['identities', 'mail', 'calendar', 'onedrive', 'sharepoint'] as const;
+export const TARGET_CATEGORIES = ['identities', 'mail', 'calendar', 'onedrive', 'sharepoint', 'deletions'] as const;
 export type TargetCategory = (typeof TARGET_CATEGORIES)[number];
 
 /** How an operation chooses its targets: the edited list, or a random % of the tenant. */

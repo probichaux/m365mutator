@@ -4,6 +4,7 @@
   "calendar": "Calendar",
   "onedrive": "OneDrive",
   "sharepoint": "SharePoint",
+  "deletions": "Deletions",
   "settings": "Settings",
   "help": "Help"
 }

@@ -97,5 +97,59 @@
       "Dokumentmetadaten ändern",
       "Ein Dokument aus OneDrive oder SharePoint entfernen"
     ]
+  },
+  "deletions": {
+    "title": "Löschungen",
+    "lede": "Löschen Sie einen Bereich von Elementen über die Workloads eines Benutzers hinweg, um die Wiederherstellung und Verwaltung gelöschter Elemente zu testen. Wählen Sie die Benutzer aus, legen Sie fest, welche Workloads betroffen sind, und grenzen Sie die Löschung nach Datum ein.",
+    "workloads": {
+      "title": "Workloads",
+      "subtitle": "Welche Daten gelöscht werden sollen. Wählen Sie eine oder mehrere aus.",
+      "mail": "E-Mail",
+      "mailSub": "Nachrichten",
+      "calendar": "Kalender",
+      "calendarSub": "Termine",
+      "onedrive": "OneDrive",
+      "onedriveSub": "Dateien"
+    },
+    "scope": {
+      "title": "Was gelöscht werden soll",
+      "subtitle": "Elemente werden anhand ihres Eingangsdatums abgeglichen – Empfangsdatum bei E-Mail, Erstellungsdatum bei Kalenderterminen und Dateien. Die Grenzdaten sind eingeschlossen.",
+      "all": "Alles",
+      "allDesc": "Jedes Element löschen, unabhängig vom Datum",
+      "after": "Nach einem Datum",
+      "afterDesc": "Nur Elemente ab dem Datum (einschließlich)",
+      "before": "Vor einem Datum",
+      "beforeDesc": "Nur Elemente bis zum Datum (einschließlich)",
+      "between": "Zwischen zwei Daten",
+      "betweenDesc": "Nur Elemente innerhalb eines Datumsbereichs",
+      "afterLabel": "Nach",
+      "beforeLabel": "Vor",
+      "fromLabel": "Von",
+      "toLabel": "Bis",
+      "orderError": "Das Startdatum darf nicht nach dem Enddatum liegen."
+    },
+    "summary": {
+      "all": "Jedes Element aus {{workloads}} für die ausgewählten Benutzer löschen.",
+      "after": "Elemente ab dem {{date}} (einschließlich) aus {{workloads}} für die ausgewählten Benutzer löschen.",
+      "before": "Elemente bis zum {{date}} (einschließlich) aus {{workloads}} für die ausgewählten Benutzer löschen.",
+      "between": "Elemente zwischen dem {{from}} und dem {{to}} aus {{workloads}} für die ausgewählten Benutzer löschen."
+    },
+    "noWorkloads": "keine Workloads",
+    "acknowledge": "Mir ist bewusst, dass dadurch Elemente der ausgewählten Benutzer gelöscht werden",
+    "needConfirm": "Wählen Sie Workloads aus, bestätigen Sie den Hinweis und speichern Sie die Ziele, um dies zu aktivieren.",
+    "deleteButton": "Elemente löschen",
+    "deleting": "Wird gelöscht…",
+    "runSummary": "{{deleted}} von {{matched}} passenden Elementen bei {{users}} Benutzer(n) gelöscht",
+    "resultLine": "{{deleted}}/{{matched}} gelöscht",
+    "truncated": "Die ersten {{shown}} von {{total}} Ergebnissen werden angezeigt.",
+    "toastNone": "Keine passenden Elemente zum Löschen gefunden",
+    "toastOk": "{{deleted}} Elemente bei {{users}} Benutzer(n) gelöscht",
+    "toastFailures": "{{deleted}} Elemente gelöscht; {{failed}} fehlgeschlagen",
+    "toastFailed": "Löschung fehlgeschlagen",
+    "workloadName": {
+      "mail": "E-Mail",
+      "calendar": "Kalender",
+      "onedrive": "OneDrive"
+    }
   }
 }

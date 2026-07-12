@@ -21,6 +21,10 @@
     "sharepoint": {
       "label": "SharePoint",
       "hint": "URL des sites dont le contenu peut être modifié (le préfixe https:// est facultatif)"
+    },
+    "deletions": {
+      "label": "Suppressions",
+      "hint": "Listez les utilisateurs dont les éléments de courrier, calendrier ou OneDrive peuvent être supprimés, sous forme d'UPN. Utilisez le bouton Charger pour importer une liste d'UPN ou pour charger tous les utilisateurs concernés du locataire."
     }
   },
   "enabled": "Activé",

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M365Mutator — Deletions (Inline scope)</title>
+<style>
+  :root {
+    --brand:#5b5fc7; --brand-hover:#4f52b3; --purple:#241d78;
+    --ink:#242424; --ink2:#616161; --ink3:#8a8886;
+    --line:#e1dfdd; --line2:#edebe9; --bg:#f3f2f1; --card:#fff;
+    --green:#0e7a0b; --red:#b10e1c; --red-bg:#fdf3f4; --red-line:#f1bfc4;
+    --mono:'Cascadia Code',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Segoe UI',system-ui,-apple-system,sans-serif; color:var(--ink); background:var(--bg); font-size:14px; }
+  header { display:flex; align-items:center; justify-content:space-between; background:var(--purple); color:#fff; padding:12px 24px; }
+  .brand { display:flex; align-items:center; gap:12px; }
+  .logo { width:26px; height:26px; border-radius:6px; background:linear-gradient(135deg,#5b5fc7,#8b8ff0); display:grid; place-items:center; font-weight:700; }
+  .brand span { font-size:18px; font-weight:600; }
+  .icons { display:flex; gap:8px; }
+  .icons button { width:32px; height:32px; border-radius:6px; border:none; background:transparent; color:#fff; font-size:16px; cursor:pointer; }
+  .icons button:hover { background:rgba(255,255,255,.15); }
+  nav { display:flex; justify-content:center; gap:4px; background:var(--card); border-bottom:1px solid var(--line); padding:0 24px; }
+  nav a { padding:12px 16px; font-size:13px; font-weight:500; color:var(--ink); text-decoration:none; border-bottom:2px solid transparent; cursor:pointer; }
+  nav a.active { color:var(--brand); border-bottom-color:var(--brand); font-weight:600; }
+  nav a:not(.active):hover { background:var(--line2); }
+  main { max-width:1000px; margin:0 auto; padding:24px; }
+  h1 { font-size:26px; margin:0 0 6px; }
+  .lede { color:var(--ink2); margin:0 0 16px; max-width:70ch; line-height:1.5; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:16px; font-weight:600; margin:0 0 4px; }
+  .card-sub { color:var(--ink2); font-size:13px; margin:0 0 16px; }
+  .hint { color:var(--ink3); font-size:12px; }
+  /* segmented control (reused for user run style) */
+  .seg { display:inline-flex; background:var(--line2); border-radius:8px; padding:3px; margin:12px 0; }
+  .seg-btn { border:none; background:transparent; padding:7px 20px; border-radius:6px; font-size:13px; font-weight:600; color:var(--ink2); cursor:pointer; }
+  .seg-btn.active { background:var(--card); color:var(--brand); box-shadow:0 1px 2px rgba(0,0,0,.12); }
+  textarea { width:100%; min-height:120px; border:1px solid var(--line); border-radius:6px; padding:10px 12px; font-family:var(--mono); font-size:13px; color:var(--ink); resize:vertical; }
+  textarea:focus { outline:2px solid var(--brand); border-color:var(--brand); }
+  .btnrow { display:flex; gap:8px; margin-top:12px; align-items:center; }
+  .btn { border:1px solid var(--line); background:var(--card); border-radius:6px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; color:var(--ink); display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover { background:var(--line2); }
+  .spacer { flex:1; }
+  /* workload checkboxes */
+  .wl-row { display:flex; gap:10px; flex-wrap:wrap; }
+  .wl { display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:8px; padding:10px 16px; cursor:pointer; user-select:none; flex:1; min-width:180px; }
+  .wl:hover { border-color:var(--brand); }
+  .wl.on { border-color:var(--brand); background:#f4f4fc; }
+  .wl input { width:18px; height:18px; accent-color:var(--brand); margin:0; }
+  .wl .ic { font-size:20px; }
+  .wl .lbl { font-weight:600; }
+  .wl .cnt { color:var(--ink3); font-size:12px; margin-left:auto; }
+  /* scope segmented + date fields */
+  .scope-seg { display:inline-flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+  .scope-btn { border:1px solid var(--line); background:var(--card); border-radius:20px; padding:7px 16px; font-size:13px; font-weight:600; color:var(--ink2); cursor:pointer; }
+  .scope-btn.active { border-color:var(--brand); color:var(--brand); background:#f0f0fb; }
+  .dates { display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap; }
+  .field { display:flex; flex-direction:column; gap:4px; }
+  .field label { font-size:12px; font-weight:600; color:var(--ink2); }
+  .field input { border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-size:13px; font-family:inherit; color:var(--ink); }
+  .field input:focus { outline:2px solid var(--brand); border-color:var(--brand); }
+  .field.hidden { display:none; }
+  /* danger summary + run */
+  .summary { border:1px solid var(--red-line); background:var(--red-bg); border-radius:8px; padding:14px 16px; display:flex; gap:12px; align-items:flex-start; margin-top:4px; }
+  .summary .warn { color:var(--red); font-size:20px; line-height:1.2; }
+  .summary p { margin:0; line-height:1.5; }
+  .summary b { color:var(--red); }
+  .run-row { display:flex; align-items:center; gap:12px; margin-top:16px; }
+  .confirm { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink2); cursor:pointer; user-select:none; }
+  .confirm input { width:16px; height:16px; accent-color:var(--red); }
+  .btn.danger { background:var(--red); border-color:var(--red); color:#fff; font-weight:600; }
+  .btn.danger:disabled { background:#e6b9bd; border-color:#e6b9bd; cursor:not-allowed; }
+  .footnote { max-width:1000px; margin:8px auto 40px; padding:0 24px; color:var(--ink3); font-size:12px; }
+  .badge { display:inline-block; background:#f0f0fb; color:var(--brand); border:1px solid #d6d6f5; border-radius:4px; padding:1px 6px; font-size:11px; font-weight:600; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">M</div><span>M365Mutator</span></div>
+  <div class="icons"><button title="Settings">⚙</button><button title="Help">?</button></div>
+</header>
+<nav>
+  <a>Identities</a><a>Mail</a><a>Calendar</a><a>OneDrive</a><a>SharePoint</a><a class="active">Deletions</a>
+</nav>
+
+<main>
+  <h1>Deletions</h1>
+  <p class="lede">Delete a range of items across a user's workloads to test deleted-item recovery and retention. Choose the users, pick which workloads to touch, then scope the deletion by date.</p>
+
+  <!-- 1. Users (reuses the standard target panel) -->
+  <div class="card">
+    <p class="card-title">Users</p>
+    <p class="card-sub">Accounts whose items may be deleted, as UPNs.</p>
+    <div class="seg" role="tablist" aria-label="Run style">
+      <button class="seg-btn active">Explicit</button>
+      <button class="seg-btn">Random</button>
+    </div>
+    <textarea spellcheck="false">alice@blackdotpub.com
+bob@blackdotpub.com
+carol@blackdotpub.com</textarea>
+    <div class="btnrow">
+      <button class="btn">☁ Load</button>
+      <button class="btn">Upload</button>
+      <button class="btn">✓ Check</button>
+      <span class="spacer"></span>
+      <button class="btn">Save</button>
+    </div>
+  </div>
+
+  <!-- 2. Workloads -->
+  <div class="card">
+    <p class="card-title">Workloads</p>
+    <p class="card-sub">Which data to delete from. Select one or more.</p>
+    <div class="wl-row">
+      <label class="wl on"><input type="checkbox" checked data-wl="Mail"><span class="ic">✉️</span><span class="lbl">Mail</span><span class="cnt">messages</span></label>
+      <label class="wl on"><input type="checkbox" checked data-wl="Calendar"><span class="ic">📅</span><span class="lbl">Calendar</span><span class="cnt">events</span></label>
+      <label class="wl"><input type="checkbox" data-wl="OneDrive"><span class="ic">📁</span><span class="lbl">OneDrive</span><span class="cnt">files</span></label>
+    </div>
+  </div>
+
+  <!-- 3. Scope -->
+  <div class="card">
+    <p class="card-title">What to delete</p>
+    <p class="card-sub">Items are matched by their date (received, start, or last-modified depending on workload).</p>
+    <div class="scope-seg" role="tablist">
+      <button class="scope-btn" data-scope="all">Everything</button>
+      <button class="scope-btn active" data-scope="after">After a date</button>
+      <button class="scope-btn" data-scope="before">Before a date</button>
+      <button class="scope-btn" data-scope="between">Between two dates</button>
+    </div>
+    <div class="dates">
+      <div class="field" id="f-from"><label>From</label><input type="date" id="from" value="2025-01-01"></div>
+      <div class="field hidden" id="f-to"><label>To</label><input type="date" id="to" value="2025-06-30"></div>
+    </div>
+  </div>
+
+  <!-- summary + run -->
+  <div class="card">
+    <div class="summary">
+      <span class="warn">⚠</span>
+      <p id="summary-text"></p>
+    </div>
+    <div class="run-row">
+      <label class="confirm"><input type="checkbox" id="ack"> I understand this permanently deletes items</label>
+      <span class="spacer"></span>
+      <button class="btn danger" id="run" disabled>🗑 Delete items</button>
+    </div>
+  </div>
+</main>
+
+<p class="footnote"><span class="badge">Compact</span> Scope is a single pill row; date fields appear inline only for the modes that need them. A live plain-English summary and an explicit acknowledgement gate the destructive action.</p>
+
+<script>
+  const scopeBtns = document.querySelectorAll('.scope-btn');
+  const fFrom = document.getElementById('f-from'), fTo = document.getElementById('f-to');
+  const lblFrom = fFrom.querySelector('label');
+  const summary = document.getElementById('summary-text');
+  const ack = document.getElementById('ack'), run = document.getElementById('run');
+  let scope = 'after';
+
+  function selectedWorkloads(){
+    return [...document.querySelectorAll('.wl input:checked')].map(i => i.dataset.wl);
+  }
+  function fmt(id){ const v = document.getElementById(id).value; return v ? new Date(v+'T00:00').toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) : '—'; }
+
+  function render(){
+    fFrom.classList.toggle('hidden', scope === 'all');
+    fTo.classList.toggle('hidden', scope !== 'between');
+    lblFrom.textContent = scope === 'before' ? 'Before' : scope === 'between' ? 'From' : 'After';
+
+    const wls = selectedWorkloads();
+    const wlText = wls.length ? wls.join(', ') : 'no workloads';
+    let when = 'ALL items';
+    if (scope === 'after')   when = 'items dated after <b>' + fmt('from') + '</b>';
+    if (scope === 'before')  when = 'items dated before <b>' + fmt('from') + '</b>';
+    if (scope === 'between') when = 'items dated between <b>' + fmt('from') + '</b> and <b>' + fmt('to') + '</b>';
+    if (scope === 'all')     when = '<b>every item</b>';
+    summary.innerHTML = `Delete ${when} from <b>${wlText}</b> for the selected users.`;
+
+    run.disabled = !ack.checked || wls.length === 0;
+  }
+
+  scopeBtns.forEach(b => b.addEventListener('click', () => {
+    scopeBtns.forEach(x => x.classList.remove('active'));
+    b.classList.add('active'); scope = b.dataset.scope; render();
+  }));
+  document.querySelectorAll('.wl input').forEach(i => i.addEventListener('change', () => {
+    i.closest('.wl').classList.toggle('on', i.checked); render();
+  }));
+  document.getElementById('from').addEventListener('change', render);
+  document.getElementById('to').addEventListener('change', render);
+  ack.addEventListener('change', render);
+  render();
+</script>
+</body>
+</html>

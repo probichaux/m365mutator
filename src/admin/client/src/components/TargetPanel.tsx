@@ -9,7 +9,7 @@ import {
 import { api } from '../api';
 import { useToast } from './ToastProvider';
 
-export type TargetCategory = 'identities' | 'mail' | 'calendar' | 'onedrive' | 'sharepoint';
+export type TargetCategory = 'identities' | 'mail' | 'calendar' | 'onedrive' | 'sharepoint' | 'deletions';
 type RunStyle = 'explicit' | 'random';
 
 interface CheckResult {

@@ -10,6 +10,10 @@ import { loadCategory, resolveTargetItems } from './target-load.js';
 import { mutateIdentities } from './identity-mutate.js';
 import { mutateMail } from './mail-mutate.js';
 import { mutateCalendar } from './calendar-mutate.js';
+import {
+  mutateDeletions, DELETION_WORKLOADS, DELETION_SCOPES,
+  DeletionWorkload, DeletionScope, isValidDate,
+} from './deletion-mutate.js';
 import { sanitizeUpstreamError } from './connectivity.js';
 import { MUTABLE_ATTRIBUTES } from '../graph/user-attributes.js';
 import { testGraph } from './connectivity.js';
@@ -212,6 +216,62 @@ router.post('/api/calendar/mutate', async (req: Request, res: Response) => {
       return;
     }
     const run = await mutateCalendar(resolved.items, runCount);
+    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
+  } catch (err: unknown) {
+    res.status(502).json({ error: sanitizeUpstreamError(err) });
+  }
+});
+
+// ── Deletions: date-scoped deletion across mail / calendar / OneDrive ──
+
+router.post('/api/deletions/mutate', async (req: Request, res: Response) => {
+  const { workloads, scope, after, before } = req.body as {
+    workloads?: unknown; scope?: unknown; after?: unknown; before?: unknown;
+  };
+
+  const selected = Array.isArray(workloads)
+    ? DELETION_WORKLOADS.filter(w => (workloads as unknown[]).includes(w))
+    : [];
+  if (selected.length === 0) {
+    res.status(400).json({ error: 'Select at least one workload' });
+    return;
+  }
+  if (!DELETION_SCOPES.includes(scope as DeletionScope)) {
+    res.status(400).json({ error: 'Invalid deletion scope' });
+    return;
+  }
+  const scopeVal = scope as DeletionScope;
+  const needsAfter = scopeVal === 'after' || scopeVal === 'between';
+  const needsBefore = scopeVal === 'before' || scopeVal === 'between';
+  if (needsAfter && !isValidDate(after)) {
+    res.status(400).json({ error: 'A valid start date is required' });
+    return;
+  }
+  if (needsBefore && !isValidDate(before)) {
+    res.status(400).json({ error: 'A valid end date is required' });
+    return;
+  }
+  if (scopeVal === 'between' && String(after) > String(before)) {
+    res.status(400).json({ error: 'The start date must not be after the end date' });
+    return;
+  }
+
+  try {
+    const resolved = await resolveTargetItems('deletions', loadTargets().deletions);
+    if (resolved.items.length === 0) {
+      const msg = resolved.runStyle === 'random'
+        ? 'No users were found in the tenant to sample'
+        : 'No users are selected';
+      res.status(400).json({ error: msg });
+      return;
+    }
+    const run = await mutateDeletions(
+      resolved.items,
+      selected as DeletionWorkload[],
+      scopeVal,
+      needsAfter ? String(after) : undefined,
+      needsBefore ? String(before) : undefined,
+    );
     res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
   } catch (err: unknown) {
     res.status(502).json({ error: sanitizeUpstreamError(err) });

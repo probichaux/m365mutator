@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M365Mutator — Deletions (Choice cards)</title>
+<style>
+  :root {
+    --brand:#5b5fc7; --brand-hover:#4f52b3; --purple:#241d78;
+    --ink:#242424; --ink2:#616161; --ink3:#8a8886;
+    --line:#e1dfdd; --line2:#edebe9; --bg:#f3f2f1; --card:#fff;
+    --green:#0e7a0b; --red:#b10e1c; --red-bg:#fdf3f4; --red-line:#f1bfc4;
+    --mono:'Cascadia Code',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Segoe UI',system-ui,-apple-system,sans-serif; color:var(--ink); background:var(--bg); font-size:14px; }
+  header { display:flex; align-items:center; justify-content:space-between; background:var(--purple); color:#fff; padding:12px 24px; }
+  .brand { display:flex; align-items:center; gap:12px; }
+  .logo { width:26px; height:26px; border-radius:6px; background:linear-gradient(135deg,#5b5fc7,#8b8ff0); display:grid; place-items:center; font-weight:700; }
+  .brand span { font-size:18px; font-weight:600; }
+  .icons { display:flex; gap:8px; }
+  .icons button { width:32px; height:32px; border-radius:6px; border:none; background:transparent; color:#fff; font-size:16px; cursor:pointer; }
+  .icons button:hover { background:rgba(255,255,255,.15); }
+  nav { display:flex; justify-content:center; gap:4px; background:var(--card); border-bottom:1px solid var(--line); padding:0 24px; }
+  nav a { padding:12px 16px; font-size:13px; font-weight:500; color:var(--ink); text-decoration:none; border-bottom:2px solid transparent; cursor:pointer; }
+  nav a.active { color:var(--brand); border-bottom-color:var(--brand); font-weight:600; }
+  nav a:not(.active):hover { background:var(--line2); }
+  main { max-width:1000px; margin:0 auto; padding:24px; }
+  h1 { font-size:26px; margin:0 0 6px; }
+  .lede { color:var(--ink2); margin:0 0 16px; max-width:70ch; line-height:1.5; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:16px; font-weight:600; margin:0 0 4px; }
+  .card-sub { color:var(--ink2); font-size:13px; margin:0 0 16px; }
+  .seg { display:inline-flex; background:var(--line2); border-radius:8px; padding:3px; margin:12px 0; }
+  .seg-btn { border:none; background:transparent; padding:7px 20px; border-radius:6px; font-size:13px; font-weight:600; color:var(--ink2); cursor:pointer; }
+  .seg-btn.active { background:var(--card); color:var(--brand); box-shadow:0 1px 2px rgba(0,0,0,.12); }
+  textarea { width:100%; min-height:120px; border:1px solid var(--line); border-radius:6px; padding:10px 12px; font-family:var(--mono); font-size:13px; color:var(--ink); resize:vertical; }
+  textarea:focus { outline:2px solid var(--brand); border-color:var(--brand); }
+  .btnrow { display:flex; gap:8px; margin-top:12px; align-items:center; }
+  .btn { border:1px solid var(--line); background:var(--card); border-radius:6px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; color:var(--ink); display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover { background:var(--line2); }
+  .spacer { flex:1; }
+  /* workload toggle cards */
+  .wl-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .wl { position:relative; border:1px solid var(--line); border-radius:10px; padding:16px; cursor:pointer; user-select:none; text-align:center; }
+  .wl:hover { border-color:var(--brand); }
+  .wl.on { border-color:var(--brand); background:#f4f4fc; box-shadow:inset 0 0 0 1px var(--brand); }
+  .wl .ic { display:flex; justify-content:center; align-items:flex-end; height:40px; }
+  .wl .ic svg { height:38px; width:auto; display:block; }
+  .wl .lbl { display:block; font-weight:600; margin-top:6px; }
+  .wl .cnt { display:block; color:var(--ink3); font-size:12px; margin-top:1px; }
+  .wl .tick { position:absolute; top:10px; right:12px; color:var(--brand); font-weight:700; opacity:0; }
+  .wl.on .tick { opacity:1; }
+  /* scope radio cards */
+  .scope-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  .scope { border:1px solid var(--line); border-radius:10px; padding:14px 16px; cursor:pointer; display:flex; gap:12px; align-items:flex-start; }
+  .scope:hover { border-color:var(--brand); }
+  .scope.on { border-color:var(--brand); background:#f4f4fc; }
+  .scope .radio { width:18px; height:18px; border-radius:50%; border:2px solid var(--ink3); flex-shrink:0; margin-top:2px; position:relative; }
+  .scope.on .radio { border-color:var(--brand); }
+  .scope.on .radio::after { content:''; position:absolute; inset:3px; border-radius:50%; background:var(--brand); }
+  .scope .name { font-weight:600; }
+  .scope .desc { color:var(--ink2); font-size:12px; margin-top:2px; }
+  .dates { display:flex; gap:16px; margin-top:16px; align-items:flex-end; flex-wrap:wrap; }
+  .dates.hidden { display:none; }
+  .field { display:flex; flex-direction:column; gap:4px; }
+  .field label { font-size:12px; font-weight:600; color:var(--ink2); }
+  .field input { border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-size:13px; font-family:inherit; color:var(--ink); }
+  .field input:focus { outline:2px solid var(--brand); border-color:var(--brand); }
+  .field.hidden { display:none; }
+  .summary { border:1px solid var(--red-line); background:var(--red-bg); border-radius:8px; padding:14px 16px; display:flex; gap:12px; align-items:flex-start; }
+  .summary .warn { color:var(--red); font-size:20px; }
+  .summary p { margin:0; line-height:1.5; }
+  .summary b { color:var(--red); }
+  .run-row { display:flex; align-items:center; gap:12px; margin-top:16px; }
+  .confirm { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink2); cursor:pointer; user-select:none; }
+  .confirm input { width:16px; height:16px; accent-color:var(--red); }
+  .btn.danger { background:var(--red); border-color:var(--red); color:#fff; }
+  .btn.danger:disabled { background:#e6b9bd; border-color:#e6b9bd; cursor:not-allowed; }
+  .footnote { max-width:1000px; margin:8px auto 40px; padding:0 24px; color:var(--ink3); font-size:12px; }
+  .badge { display:inline-block; background:#f0f0fb; color:var(--brand); border:1px solid #d6d6f5; border-radius:4px; padding:1px 6px; font-size:11px; font-weight:600; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">M</div><span>M365Mutator</span></div>
+  <div class="icons"><button title="Settings">⚙</button><button title="Help">?</button></div>
+</header>
+<nav>
+  <a>Identities</a><a>Mail</a><a>Calendar</a><a>OneDrive</a><a>SharePoint</a><a class="active">Deletions</a>
+</nav>
+
+<main>
+  <h1>Deletions</h1>
+  <p class="lede">Delete a range of items across a user's workloads to test deleted-item recovery and retention. Choose the users, pick which workloads to touch, then scope the deletion by date.</p>
+
+  <div class="card">
+    <p class="card-title">Users</p>
+    <p class="card-sub">Accounts whose items may be deleted, as UPNs.</p>
+    <div class="seg" role="tablist" aria-label="Run style">
+      <button class="seg-btn active">Explicit</button>
+      <button class="seg-btn">Random</button>
+    </div>
+    <textarea spellcheck="false">alice@blackdotpub.com
+bob@blackdotpub.com
+carol@blackdotpub.com</textarea>
+    <div class="btnrow">
+      <button class="btn">☁ Load</button>
+      <button class="btn">Upload</button>
+      <button class="btn">✓ Check</button>
+      <span class="spacer"></span>
+      <button class="btn">Save</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-title">Workloads</p>
+    <p class="card-sub">Which data to delete from. Select one or more.</p>
+    <div class="wl-grid">
+      <label class="wl on"><span class="tick">✓</span><input type="checkbox" checked hidden data-wl="Mail">
+        <span class="ic"><svg viewBox="0 0 48 48" aria-label="Outlook" role="img">
+          <rect x="19" y="12" width="26" height="24" rx="2" fill="#fff"/>
+          <path d="M20 15.5 32 24 44 15.5" fill="none" stroke="#0F6CBD" stroke-width="2.4" stroke-linejoin="round"/>
+          <rect x="3" y="9" width="24" height="30" rx="4" fill="#0F6CBD"/>
+          <ellipse cx="15" cy="24" rx="6.6" ry="8.4" fill="none" stroke="#fff" stroke-width="3.4"/>
+        </svg></span>
+        <span class="lbl">Mail</span><span class="cnt">messages</span></label>
+      <label class="wl on"><span class="tick">✓</span><input type="checkbox" checked hidden data-wl="Calendar">
+        <span class="ic"><svg viewBox="0 0 48 48" aria-label="Calendar" role="img">
+          <rect x="6" y="10" width="36" height="32" rx="4" fill="#fff" stroke="#c7c6c4" stroke-width="1"/>
+          <path d="M6 16 a4 4 0 0 1 4-4 h28 a4 4 0 0 1 4 4 v3 H6 z" fill="#0F6CBD"/>
+          <rect x="14" y="7" width="3.5" height="8" rx="1.75" fill="#0F6CBD"/>
+          <rect x="30.5" y="7" width="3.5" height="8" rx="1.75" fill="#0F6CBD"/>
+          <text x="24" y="37" text-anchor="middle" font-family="'Segoe UI',sans-serif" font-size="17" font-weight="700" fill="#0F6CBD">31</text>
+        </svg></span>
+        <span class="lbl">Calendar</span><span class="cnt">events</span></label>
+      <label class="wl"><span class="tick">✓</span><input type="checkbox" hidden data-wl="OneDrive">
+        <span class="ic"><svg viewBox="0 0 48 34" aria-label="OneDrive" role="img">
+          <path fill="#0364B8" d="M17.5 12.2a10 10 0 0 1 18.3 3.1A8 8 0 0 1 38 31H14A9.5 9.5 0 0 1 4 21.5a9.5 9.5 0 0 1 9.6-9.5c1.4 0 2.7.3 3.9.7z"/>
+          <path fill="#1490DF" d="M35.8 15.3A8 8 0 0 1 38 31H18l6.4-14.6a10 10 0 0 1 11.4-1.1z"/>
+        </svg></span>
+        <span class="lbl">OneDrive</span><span class="cnt">files</span></label>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-title">What to delete</p>
+    <p class="card-sub">Items are matched by the date they arrived — received date for mail, created date for calendar events and files. Boundary dates are included.</p>
+    <div class="scope-grid">
+      <label class="scope"><span class="radio"></span><input type="radio" name="scope" value="all" hidden><span><span class="name">Everything</span><span class="desc">Delete every item, regardless of date</span></span></label>
+      <label class="scope on"><span class="radio"></span><input type="radio" name="scope" value="after" checked hidden><span><span class="name">After a date</span><span class="desc">Only items dated on or after the date</span></span></label>
+      <label class="scope"><span class="radio"></span><input type="radio" name="scope" value="before" hidden><span><span class="name">Before a date</span><span class="desc">Only items dated on or before the date</span></span></label>
+      <label class="scope"><span class="radio"></span><input type="radio" name="scope" value="between" hidden><span><span class="name">Between two dates</span><span class="desc">Only items inside a date range</span></span></label>
+    </div>
+    <div class="dates" id="dates">
+      <div class="field" id="f-from"><label id="l-from">After</label><input type="date" id="from" value="2025-01-01"></div>
+      <div class="field hidden" id="f-to"><label>To</label><input type="date" id="to" value="2025-06-30"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="summary">
+      <span class="warn">⚠</span>
+      <p id="summary-text"></p>
+    </div>
+    <div class="run-row">
+      <label class="confirm"><input type="checkbox" id="ack"> I understand this permanently deletes items</label>
+      <span class="spacer"></span>
+      <button class="btn danger" id="run" disabled>🗑 Delete items</button>
+    </div>
+  </div>
+</main>
+
+<p class="footnote"><span class="badge">Explanatory</span> Descriptive radio cards spell out each scope in words before any date is entered — good for a rarely-used, destructive page where clarity matters more than density.</p>
+
+<script>
+  const dates = document.getElementById('dates');
+  const fFrom = document.getElementById('f-from'), fTo = document.getElementById('f-to');
+  const lFrom = document.getElementById('l-from');
+  const summary = document.getElementById('summary-text');
+  const ack = document.getElementById('ack'), run = document.getElementById('run');
+  let scope = 'after';
+
+  function selectedWorkloads(){ return [...document.querySelectorAll('.wl input:checked')].map(i => i.dataset.wl); }
+  function fmt(id){ const v = document.getElementById(id).value; return v ? new Date(v+'T00:00').toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) : '—'; }
+
+  function render(){
+    dates.classList.toggle('hidden', scope === 'all');
+    fTo.classList.toggle('hidden', scope !== 'between');
+    lFrom.textContent = scope === 'before' ? 'Before' : scope === 'between' ? 'From' : 'After';
+
+    const wls = selectedWorkloads();
+    const wlText = wls.length ? wls.join(', ') : 'no workloads';
+    let when = '<b>every item</b>';
+    if (scope === 'after')   when = 'items dated after <b>' + fmt('from') + '</b>';
+    if (scope === 'before')  when = 'items dated before <b>' + fmt('from') + '</b>';
+    if (scope === 'between') when = 'items between <b>' + fmt('from') + '</b> and <b>' + fmt('to') + '</b>';
+    summary.innerHTML = `Delete ${when} from <b>${wlText}</b> for the selected users.`;
+    run.disabled = !ack.checked || wls.length === 0;
+  }
+
+  document.querySelectorAll('.scope input').forEach(r => r.addEventListener('change', () => {
+    document.querySelectorAll('.scope').forEach(s => s.classList.remove('on'));
+    r.closest('.scope').classList.add('on'); scope = r.value; render();
+  }));
+  document.querySelectorAll('.wl input').forEach(i => i.addEventListener('change', () => {
+    i.closest('.wl').classList.toggle('on', i.checked); render();
+  }));
+  document.getElementById('from').addEventListener('change', render);
+  document.getElementById('to').addEventListener('change', render);
+  ack.addEventListener('change', render);
+  render();
+</script>
+</body>
+</html>

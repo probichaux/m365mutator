@@ -97,5 +97,59 @@
       "Documentmetagegevens wijzigen",
       "Een document verwijderen uit OneDrive of SharePoint"
     ]
+  },
+  "deletions": {
+    "title": "Verwijderingen",
+    "lede": "Verwijder een reeks items binnen de workloads van een gebruiker om herstel en beheer van verwijderde items te testen. Kies de gebruikers, selecteer welke workloads worden geraakt en bepaal vervolgens de reikwijdte van de verwijdering op datum.",
+    "workloads": {
+      "title": "Workloads",
+      "subtitle": "Welke gegevens verwijderd moeten worden. Selecteer er een of meer.",
+      "mail": "E-mail",
+      "mailSub": "berichten",
+      "calendar": "Agenda",
+      "calendarSub": "afspraken",
+      "onedrive": "OneDrive",
+      "onedriveSub": "bestanden"
+    },
+    "scope": {
+      "title": "Wat te verwijderen",
+      "subtitle": "Items worden gefilterd op de datum waarop ze binnenkwamen — ontvangstdatum voor e-mail, aanmaakdatum voor agenda-afspraken en bestanden. De grensdatums zijn inbegrepen.",
+      "all": "Alles",
+      "allDesc": "Elk item verwijderen, ongeacht de datum",
+      "after": "Na een datum",
+      "afterDesc": "Alleen items vanaf die datum (inclusief)",
+      "before": "Vóór een datum",
+      "beforeDesc": "Alleen items tot en met die datum",
+      "between": "Tussen twee datums",
+      "betweenDesc": "Alleen items binnen een datumbereik",
+      "afterLabel": "Na",
+      "beforeLabel": "Vóór",
+      "fromLabel": "Van",
+      "toLabel": "Tot",
+      "orderError": "De begindatum mag niet na de einddatum liggen."
+    },
+    "summary": {
+      "all": "Verwijder elk item uit {{workloads}} voor de geselecteerde gebruikers.",
+      "after": "Verwijder items van {{date}} of later uit {{workloads}} voor de geselecteerde gebruikers.",
+      "before": "Verwijder items van {{date}} of eerder uit {{workloads}} voor de geselecteerde gebruikers.",
+      "between": "Verwijder items tussen {{from}} en {{to}} uit {{workloads}} voor de geselecteerde gebruikers."
+    },
+    "noWorkloads": "geen workloads",
+    "acknowledge": "Ik begrijp dat hiermee items van de geselecteerde gebruikers worden verwijderd",
+    "needConfirm": "Selecteer workloads, bevestig de melding en sla de doelen op om dit in te schakelen.",
+    "deleteButton": "Items verwijderen",
+    "deleting": "Bezig met verwijderen…",
+    "runSummary": "{{deleted}} van {{matched}} overeenkomende items verwijderd voor {{users}} gebruiker(s)",
+    "resultLine": "{{deleted}}/{{matched}} verwijderd",
+    "truncated": "De eerste {{shown}} van {{total}} resultaten worden weergegeven.",
+    "toastNone": "Geen overeenkomende items gevonden om te verwijderen",
+    "toastOk": "{{deleted}} items verwijderd voor {{users}} gebruiker(s)",
+    "toastFailures": "{{deleted}} items verwijderd; {{failed}} mislukt",
+    "toastFailed": "Verwijderen mislukt",
+    "workloadName": {
+      "mail": "e-mail",
+      "calendar": "agenda",
+      "onedrive": "OneDrive"
+    }
   }
 }

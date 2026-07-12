@@ -7,7 +7,7 @@ If you use your own paid tenant, refreshing data means a) that maybe you're test
 If you use a Microsoft CDX tenant, the data doesn't change once the tenant's instantiated so if you want to do anything that depends on tenant activity, you can't unless you go in and add files, send email, etc. by hand. Sad!
 
 Thus this tool: *m365mutator*. It's a web-based console that logs into a Microsoft 365 tenant via Microsoft Graph
-and makes changes to user account objects in Entra, sends and receives mail and calendar items, and does CRUD operations on SharePoint and OneDrive files.
+and makes changes to user account objects in Entra, sends and receives mail and calendar items, and does CRUD operations on SharePoint and OneDrive files. It can also bulk-delete a date-scoped range of mail, calendar, and OneDrive items so you can exercise deleted-item recovery and retention.
 
 ## A bit of a warning
 
@@ -36,6 +36,13 @@ Items), repeatable for N passes via the stepper:
 the tenant, resolved when you run:
 
 ![Calendar tab in Random mode: a 25% sampling control with a live count](public/screenshot-random.png)
+
+**Deletions** — select users and workloads (Mail / Calendar / OneDrive), then
+delete a date-scoped range of items — everything, or before / after / between
+dates — to test deleted-item recovery. Deletions are soft (recoverable) and
+gated behind an explicit acknowledgement:
+
+![Deletions tab: a user list, Mail/Calendar/OneDrive workload cards, and the date-scope selector above a confirmation gate](public/screenshot-deletions.png)
 
 ## Setup
 
@@ -146,6 +153,10 @@ permissions** and add the permissions for the workloads you plan to use:
 | OneDrive       | `Files.ReadWrite.All`                         |
 | SharePoint     | `Sites.ReadWrite.All`                         |
 
+The **Deletions** tab reuses these same permissions — `Mail.ReadWrite`,
+`Calendars.ReadWrite`, and/or `Files.ReadWrite.All` — for whichever of Mail,
+Calendar, and OneDrive you delete from.
+
 Each `*.ReadWrite.*` permission includes read access, so the **Load** and
 **Check** buttons work without adding the read-only variants separately.
 
@@ -205,13 +216,15 @@ GRAPH_CLIENT_SECRET=<client secret value>   # or set GRAPH_CERTIFICATE_PATH
   - `target-load.ts` / `target-check.ts` — load matching objects from the
     tenant, validate targets, and resolve the effective set (the explicit list,
     or a random sample).
-  - `identity-mutate.ts` / `mail-mutate.ts` / `calendar-mutate.ts` — the
-    mutation operations for the Identities, Mail, and Calendar workloads.
+  - `identity-mutate.ts` / `mail-mutate.ts` / `calendar-mutate.ts` /
+    `deletion-mutate.ts` — the mutation operations for the Identities, Mail, and
+    Calendar workloads, and the date-scoped Deletions across Mail/Calendar/OneDrive.
   - `random-text.ts` — random subject/body text via OpenRouter, with a GUID
     fallback when no key is set.
-- `src/admin/client/` — the React admin console (Fluent UI, i18n en/de/uk):
-  one page per workload (Identities, Mail, Calendar, OneDrive, SharePoint), a
-  shared `TargetPanel`, the run-count `RunStepper`, and Settings/Help flyouts.
+- `src/admin/client/` — the React admin console (Fluent UI, i18n en/de/fr/nl/uk):
+  one page per workload (Identities, Mail, Calendar, OneDrive, SharePoint) plus
+  Deletions, a shared `TargetPanel`, the run-count `RunStepper`, and Settings/Help
+  flyouts.
 - `src/graph/` — Microsoft Graph authentication (`graph-auth.ts`, client secret
   or certificate) and per-area helpers (`users.ts`, `mail.ts`, `calendar.ts`,
   `files.ts`, `sites.ts`) plus pagination.

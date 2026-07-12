@@ -21,6 +21,10 @@
     "sharepoint": {
       "label": "SharePoint",
       "hint": "Site-URL's waarvan de inhoud mag worden gewijzigd (het voorvoegsel https:// is optioneel)"
+    },
+    "deletions": {
+      "label": "Verwijderingen",
+      "hint": "Vermeld de gebruikers van wie e-mail-, agenda- of OneDrive-items mogen worden verwijderd, als UPN's. Gebruik de knop Laden om een lijst met UPN's in te lezen of om alle betreffende gebruikers uit de tenant te laden."
     }
   },
   "enabled": "Ingeschakeld",

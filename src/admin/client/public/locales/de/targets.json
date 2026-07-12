@@ -21,6 +21,10 @@
     "sharepoint": {
       "label": "SharePoint",
       "hint": "Website-URLs, deren Inhalte geändert werden dürfen (das Präfix https:// ist optional)"
+    },
+    "deletions": {
+      "label": "Löschungen",
+      "hint": "Führen Sie die Benutzer auf, deren E-Mail-, Kalender- oder OneDrive-Elemente gelöscht werden dürfen, als UPNs. Verwenden Sie die Schaltfläche „Laden“, um eine Liste von UPNs einzulesen oder alle infrage kommenden Benutzer aus dem Mandanten zu laden."
     }
   },
   "enabled": "Aktiviert",

@@ -1,4 +1,5 @@
 import { getGraphClient } from './graph-client.js';
+import { collectAllPages } from './graph-paginate.js';
 
 export interface MailMessage {
   subject: string;
@@ -47,4 +48,25 @@ export async function listInboxMessages(userId: string, top = 50): Promise<MailR
     .top(top)
     .get();
   return (res.value ?? []) as MailRef[];
+}
+
+/**
+ * List every message across the mailbox matching an optional OData `$filter`
+ * (e.g. on receivedDateTime), following pagination. Selects id + subject only.
+ * Requires Mail.ReadWrite.
+ */
+export async function listMessagesByFilter(userId: string, filter?: string): Promise<MailRef[]> {
+  return collectAllPages<MailRef>(getGraphClient(), `/users/${seg(userId)}/messages`, req => {
+    let r = req.select('id,subject').top(999);
+    if (filter) r = r.filter(filter);
+    return r;
+  });
+}
+
+/**
+ * Delete a message. Graph moves it to Deleted Items (a recoverable soft delete),
+ * which is what deleted-item recovery testing needs. Requires Mail.ReadWrite.
+ */
+export async function deleteMessage(userId: string, messageId: string): Promise<void> {
+  await getGraphClient().api(`/users/${seg(userId)}/messages/${seg(messageId)}`).delete();
 }

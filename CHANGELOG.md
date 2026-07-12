@@ -2,6 +2,12 @@
 
 All notable changes to M365Mutator are documented in this file.
 
+## 0.5.0 — 2026-07-12
+
+- Add a **Deletions** tab: select users (explicit list or a random tenant sample), pick the Mail, Calendar, and/or OneDrive workloads, and delete a date-scoped range of items to test deleted-item recovery and retention.
+- Scope the deletion to everything, before a date, after a date, or between two dates (boundary dates inclusive); items match on the date they arrived — received date for mail, created date for calendar events and files.
+- Deletions are soft/recoverable (Deleted Items / recycle bin) and gated behind an explicit acknowledgement.
+
 ## 0.4.0 — 2026-07-10
 
 - Add Dutch and French localizations for the admin UI.

@@ -9,11 +9,11 @@ If you use a Microsoft CDX tenant, the data doesn't change once the tenant's ins
 Thus this tool: *m365mutator*. It's a web-based console that logs into a Microsoft 365 tenant via Microsoft Graph
 and makes changes to user account objects in Entra, sends and receives mail and calendar items, and does CRUD operations on SharePoint and OneDrive files. It can also bulk-delete a date-scoped range of mail, calendar, and OneDrive items so you can exercise deleted-item recovery and retention.
 
-## A bit of a warning
+## Three warnings
 
-This application requires write permissions on Graph. It's meant, for now, to be run locally. Be careful with it; don't host it on the Internet, for crying out loud.
-
-Note also that the OneDrive workload's "add a random image" action downloads a file from **Wikimedia Commons** and uploads it into the target tenant. It's the one operation that pulls external content in — it's bounded (a curated category, an image-mime allowlist, and a size cap) and fails gracefully, but the server needs outbound internet access for it, and you should be comfortable with third-party images landing in the tenant.
+1. This application requires write permissions on Graph. It's meant, for now, to be run locally. Be careful with it; don't host it on the Internet, for crying out loud.
+2. The new "Deletions" tab **will delete data from your tenant if you tell it to.** You should probably have a [good backup product](https://www.keepit.com).
+3. The OneDrive tab's "add a random image" action downloads an image from **Wikimedia Commons** and uploads it into the target tenant. This is the one operation that pulls external content in. I put some guardrails in (including a curated category, an image-mime allowlist, and a size cap), and it fails gracefully, but the server needs outbound internet access for it, and you should be comfortable with third-party images landing in the tenant.
 
 ## Features
 

@@ -151,6 +151,57 @@ export default function TargetPanel(
 
   const load = async () => {
     setLoading(true);
+
+    if (category === 'sharepoint') {
+      setText('');
+      setResults(null);
+      const accumulated: string[] = [];
+      try {
+        const response = await fetch('/api/targets/load-stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ category }),
+        });
+        if (!response.ok || !response.body) throw new Error(t('toast.loadFailed'));
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buf = '';
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buf += decoder.decode(value, { stream: true });
+          const lines = buf.split('\n');
+          buf = lines.pop() ?? '';
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            let parsed: unknown;
+            try { parsed = JSON.parse(line); } catch { continue; }
+            if (!parsed || typeof parsed !== 'object') continue;
+            const msg = parsed as { items?: string[]; done?: boolean; total?: number; truncated?: boolean; error?: string };
+            if (msg.error) throw new Error(msg.error);
+            if (msg.items) {
+              accumulated.push(...msg.items);
+              setText(accumulated.join('\n'));
+            }
+            if (msg.done) {
+              if (msg.truncated) {
+                showToast(t('toast.loadTruncated', { count: accumulated.length, total: msg.total }), 'warning');
+              } else if (accumulated.length === 0) {
+                showToast(t('toast.loadEmpty'), 'warning');
+              } else {
+                showToast(t('toast.loadedCount', { count: accumulated.length }), 'success');
+              }
+            }
+          }
+        }
+      } catch (e: unknown) {
+        showToast(e instanceof Error ? e.message : t('toast.loadFailed'), 'error');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     const r = await api<{ items?: string[]; total?: number; truncated?: boolean; error?: string }>(
       'POST', '/api/targets/load', { category },
     );

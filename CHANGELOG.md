@@ -2,6 +2,11 @@
 
 All notable changes to M365Mutator are documented in this file.
 
+## 0.7.0 — 2026-07-15
+
+- Add real SharePoint mutation activity to the SharePoint tab (replacing the scaffold): one weighted-random action per selected site per pass — create a text file, create a Word or PDF document, rename a file, create a folder, remove a file, create a folder and move a file into it, or add a random image from Wikimedia Commons. Identical operations and weights to the OneDrive tab; actions target the site's default document library.
+- The SharePoint Load button now streams site URLs progressively as Graph pages arrive, so the text field fills in without waiting for full pagination to complete.
+
 ## 0.6.0 — 2026-07-12
 
 - Add real OneDrive mutation activity to the OneDrive tab (replacing the scaffold): one weighted-random action per selected user per pass — create a text file, create a Word or PDF document, rename a file (keeping its extension), create a folder, remove a file, create a folder and move a file into it, or add a random image from Wikimedia Commons.

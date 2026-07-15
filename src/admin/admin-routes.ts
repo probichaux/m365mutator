@@ -11,12 +11,14 @@ import { mutateIdentities } from './identity-mutate.js';
 import { mutateMail } from './mail-mutate.js';
 import { mutateCalendar } from './calendar-mutate.js';
 import { mutateOneDrive } from './onedrive-mutate.js';
+import { mutateSharePoint } from './sharepoint-mutate.js';
 import {
   mutateDeletions, DELETION_WORKLOADS, DELETION_SCOPES,
   DeletionWorkload, DeletionScope, isValidDate,
 } from './deletion-mutate.js';
 import { sanitizeUpstreamError } from './connectivity.js';
 import { MUTABLE_ATTRIBUTES } from '../graph/user-attributes.js';
+import { listAllSitesPaged } from '../graph/sites.js';
 import { testGraph } from './connectivity.js';
 import { logger } from '../logger/logger.js';
 
@@ -137,6 +139,36 @@ router.post('/api/targets/check', async (req: Request, res: Response) => {
   res.json({ results });
 });
 
+// Streaming NDJSON load for SharePoint: writes one { items } line per Graph page
+// so the client can populate the text field progressively rather than waiting for
+// the full paginated result. Ends with a { done, total, truncated } sentinel line.
+router.post('/api/targets/load-stream', async (req: Request, res: Response) => {
+  const { category } = req.body as { category?: unknown };
+  if (category !== 'sharepoint') {
+    res.status(400).json({ error: 'Streaming load is only supported for the sharepoint category' });
+    return;
+  }
+
+  res.setHeader('Content-Type', 'application/x-ndjson');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.flushHeaders();
+
+  let streamed = 0;
+  try {
+    const all = await listAllSitesPaged((batch) => {
+      const remaining = MAX_ITEMS_PER_CATEGORY - streamed;
+      if (remaining <= 0) return;
+      const capped = batch.slice(0, remaining);
+      streamed += capped.length;
+      res.write(JSON.stringify({ items: capped }) + '\n');
+    });
+    res.write(JSON.stringify({ done: true, total: all.length, truncated: all.length > MAX_ITEMS_PER_CATEGORY }) + '\n');
+  } catch (err: unknown) {
+    res.write(JSON.stringify({ error: sanitizeUpstreamError(err) }) + '\n');
+  }
+  res.end();
+});
+
 router.post('/api/targets/load', async (req: Request, res: Response) => {
   const { category } = req.body as { category?: unknown };
   if (!TARGET_CATEGORIES.includes(category as TargetCategory)) {
@@ -240,6 +272,28 @@ router.post('/api/onedrive/mutate', async (req: Request, res: Response) => {
       return;
     }
     const run = await mutateOneDrive(resolved.items, runCount);
+    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
+  } catch (err: unknown) {
+    res.status(502).json({ error: sanitizeUpstreamError(err) });
+  }
+});
+
+// ── SharePoint: weighted random file/folder operations ──────────────
+
+router.post('/api/sharepoint/mutate', async (req: Request, res: Response) => {
+  const sharepoint = loadTargets().sharepoint;
+  const { runs } = req.body as { runs?: unknown };
+  const runCount = typeof runs === 'number' && Number.isFinite(runs) ? runs : 1;
+  try {
+    const resolved = await resolveTargetItems('sharepoint', sharepoint);
+    if (resolved.items.length === 0) {
+      const msg = resolved.runStyle === 'random'
+        ? 'No SharePoint sites were found in the tenant to sample'
+        : 'No SharePoint sites are selected';
+      res.status(400).json({ error: msg });
+      return;
+    }
+    const run = await mutateSharePoint(resolved.items, runCount);
     res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
   } catch (err: unknown) {
     res.status(502).json({ error: sanitizeUpstreamError(err) });

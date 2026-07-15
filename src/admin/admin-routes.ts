@@ -25,9 +25,8 @@ import { logger } from '../logger/logger.js';
 const certUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 1024 * 1024 } });
 
 const startedAt = Date.now();
-// Read version from package.json once at startup
-const pkgPath = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'package.json');
-const appVersion: string = JSON.parse(readFileSync(pkgPath, 'utf-8')).version;
+const rootDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const appVersion: string = JSON.parse(readFileSync(join(rootDir, 'package.json'), 'utf-8')).version;
 
 const router = Router();
 
@@ -361,6 +360,16 @@ router.get('/api/status', (_req: Request, res: Response) => {
     version: appVersion,
     uptime: Math.floor((Date.now() - startedAt) / 1000),
   });
+});
+
+router.get('/changelog', (_req: Request, res: Response) => {
+  try {
+    const content = readFileSync(join(rootDir, 'CHANGELOG.md'), 'utf-8');
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.send(content);
+  } catch {
+    res.status(404).send('Changelog not found');
+  }
 });
 
 // ── Certificate upload ──────────────────────────────────────────────

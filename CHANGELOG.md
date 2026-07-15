@@ -2,6 +2,11 @@
 
 All notable changes to M365Mutator are documented in this file.
 
+## 0.8.0 — 2026-07-15
+
+- Display the app version in the header nav bar, next to the settings icon, as a link that opens the changelog in a new tab.
+- Remove the 1,000-item hard cap on target lists; categories can now hold as many items as the tenant returns.
+
 ## 0.7.0 — 2026-07-15
 
 - Add real SharePoint mutation activity to the SharePoint tab (replacing the scaffold): one weighted-random action per selected site per pass — create a text file, create a Word or PDF document, rename a file, create a folder, remove a file, create a folder and move a file into it, or add a random image from Wikimedia Commons. Identical operations and weights to the OneDrive tab; actions target the site's default document library.

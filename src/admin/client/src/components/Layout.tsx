@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Button, TabList, Tab, tokens,
@@ -17,6 +18,13 @@ interface LayoutProps {
 
 export default function Layout({ page, onNavigate, onOpenSettings, onOpenHelp, children }: LayoutProps) {
   const { t } = useTranslation('nav');
+  const [version, setVersion] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/status').then(r => r.json()).then((d: { version?: string }) => {
+      if (d.version) setVersion(d.version);
+    }).catch(() => { /* non-fatal */ });
+  }, []);
 
   return (
     <div style={{ minHeight: '100vh', background: tokens.colorNeutralBackground3 }}>
@@ -34,7 +42,15 @@ export default function Layout({ page, onNavigate, onOpenSettings, onOpenHelp, c
           <img src="/admin/favicon.svg" alt="M365Mutator" style={{ height: 24 }} />
           <span style={{ fontSize: 18, fontWeight: 600 }}>M365Mutator</span>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {version && (
+            <a href="/changelog" target="_blank" rel="noopener noreferrer"
+              style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontFamily: 'var(--fontFamilyMonospace)' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}>
+              v{version}
+            </a>
+          )}
           <Button appearance="subtle" onClick={onOpenSettings} style={{ color: '#fff' }}
             title={t('settings')} aria-label={t('settings')} icon={<SettingsRegular />} />
           <Button appearance="subtle" onClick={onOpenHelp} style={{ color: '#fff' }}

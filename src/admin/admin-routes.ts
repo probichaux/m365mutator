@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync, chmodSync } from 'node:fs';
 import multer from 'multer';
 import { loadConfig, saveConfig, maskSecrets, applyConfig, getDataDir, sanitizeCertPath, AppConfig } from './config-store.js';
-import { loadTargets, saveTargets, saveTargetCategory, TARGET_CATEGORIES, TargetCategory, MAX_ITEMS_PER_CATEGORY } from './targets-store.js';
+import { loadTargets, saveTargets, saveTargetCategory, TARGET_CATEGORIES, TargetCategory } from './targets-store.js';
 import { checkTargets } from './target-check.js';
 import { loadCategory, resolveTargetItems } from './target-load.js';
 import { mutateIdentities } from './identity-mutate.js';
@@ -130,10 +130,6 @@ router.post('/api/targets/check', async (req: Request, res: Response) => {
     return;
   }
   const cleaned = items.map(i => i.trim()).filter(i => i !== '');
-  if (cleaned.length > MAX_ITEMS_PER_CATEGORY) {
-    res.status(400).json({ error: `Too many items (max ${MAX_ITEMS_PER_CATEGORY})` });
-    return;
-  }
   const results = await checkTargets(category as TargetCategory, cleaned);
   res.json({ results });
 });
@@ -152,16 +148,11 @@ router.post('/api/targets/load-stream', async (req: Request, res: Response) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.flushHeaders();
 
-  let streamed = 0;
   try {
     const all = await listAllSitesPaged((batch) => {
-      const remaining = MAX_ITEMS_PER_CATEGORY - streamed;
-      if (remaining <= 0) return;
-      const capped = batch.slice(0, remaining);
-      streamed += capped.length;
-      res.write(JSON.stringify({ items: capped }) + '\n');
+      res.write(JSON.stringify({ items: batch }) + '\n');
     });
-    res.write(JSON.stringify({ done: true, total: all.length, truncated: all.length > MAX_ITEMS_PER_CATEGORY }) + '\n');
+    res.write(JSON.stringify({ done: true, total: all.length, truncated: false }) + '\n');
   } catch (err: unknown) {
     res.write(JSON.stringify({ error: sanitizeUpstreamError(err) }) + '\n');
   }

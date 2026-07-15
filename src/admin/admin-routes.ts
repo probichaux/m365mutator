@@ -353,15 +353,6 @@ router.get('/api/status', (_req: Request, res: Response) => {
   });
 });
 
-router.get('/changelog', (_req: Request, res: Response) => {
-  try {
-    const content = readFileSync(join(rootDir, 'CHANGELOG.md'), 'utf-8');
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.send(content);
-  } catch {
-    res.status(404).send('Changelog not found');
-  }
-});
 
 // ── Certificate upload ──────────────────────────────────────────────
 

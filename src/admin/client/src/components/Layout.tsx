@@ -44,7 +44,7 @@ export default function Layout({ page, onNavigate, onOpenSettings, onOpenHelp, c
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {version && (
-            <a href="/changelog" target="_blank" rel="noopener noreferrer"
+            <a href="https://github.com/probichaux/m365mutator/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer"
               style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontFamily: 'var(--fontFamilyMonospace)' }}
               onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
               onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}>

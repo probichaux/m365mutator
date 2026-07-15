@@ -4,7 +4,7 @@ All notable changes to M365Mutator are documented in this file.
 
 ## 0.8.0 — 2026-07-15
 
-- Display the app version in the header nav bar, next to the settings icon, as a link that opens the changelog in a new tab.
+- Display the app version in the header nav bar, next to the settings icon, as a link to the changelog on GitHub.
 - Remove the 1,000-item hard cap on target lists; categories can now hold as many items as the tenant returns.
 
 ## 0.7.0 — 2026-07-15

@@ -32,3 +32,32 @@ export async function listAllSites(): Promise<string[]> {
   );
   return sites.map((s) => s.webUrl).filter((u): u is string => typeof u === 'string' && u !== '');
 }
+
+interface SitePage {
+  value?: { webUrl?: string }[];
+  '@odata.nextLink'?: string;
+}
+
+/**
+ * Same as listAllSites but calls `onPage` with each page's URLs as they arrive,
+ * so callers can stream results to the client without waiting for full pagination.
+ */
+export async function listAllSitesPaged(onPage: (batch: string[]) => void): Promise<string[]> {
+  const client = getGraphClient();
+  const all: string[] = [];
+
+  let page: SitePage | null = await client.api('/sites')
+    .query({ search: '*' }).select(['webUrl']).top(200).get() as SitePage;
+
+  while (page) {
+    const batch = (page.value ?? [])
+      .map(s => s.webUrl)
+      .filter((u): u is string => typeof u === 'string' && u !== '');
+    all.push(...batch);
+    if (batch.length > 0) onPage(batch);
+    const next = page['@odata.nextLink'];
+    if (!next) break;
+    page = await client.api(next).get() as SitePage;
+  }
+  return all;
+}

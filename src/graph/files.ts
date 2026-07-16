@@ -158,3 +158,86 @@ export async function updateSharePointFileMetadata(
 ): Promise<Record<string, unknown>> {
   return getGraphClient().api(`/sites/${siteId}/drive/items/${itemId}`).patch(patch);
 }
+
+/** Children endpoint for a SharePoint site folder; root uses its own path segment. */
+function siteChildrenPath(siteId: string, folderId: string): string {
+  return folderId === 'root'
+    ? `/sites/${siteId}/drive/root/children`
+    : `/sites/${siteId}/drive/items/${seg(folderId)}/children`;
+}
+
+/** Walk the site's default drive breadth-first, up to MAX_ONEDRIVE_SCAN items. */
+async function walkSiteDrive(siteId: string): Promise<DriveItemRaw[]> {
+  const client = getGraphClient();
+  const out: DriveItemRaw[] = [];
+  const queue: string[] = ['root'];
+  let scanned = 0;
+
+  while (queue.length > 0 && scanned < MAX_ONEDRIVE_SCAN) {
+    const parent = queue.shift()!;
+    const children = await collectAllPages<DriveItemRaw>(client, siteChildrenPath(siteId, parent), req =>
+      req.select('id,name,createdDateTime,file,folder').top(999));
+    for (const item of children) {
+      scanned++;
+      out.push(item);
+      if (item.folder) queue.push(item.id);
+    }
+  }
+  return out;
+}
+
+/** Every folder in the site's default drive. */
+export async function listSharePointFolders(siteId: string): Promise<DriveItemRef[]> {
+  const items = await walkSiteDrive(siteId);
+  return items.filter(i => i.folder).map(i => ({ id: i.id, name: i.name }));
+}
+
+/** Files in the site's default drive, optionally limited to one folder's immediate children. */
+export async function listSharePointFiles(siteId: string, folderId?: string): Promise<DriveItemRef[]> {
+  if (!folderId || folderId === 'root') {
+    const items = await walkSiteDrive(siteId);
+    return items.filter(i => i.file).map(i => ({ id: i.id, name: i.name }));
+  }
+  const children = await collectAllPages<DriveItemRaw>(getGraphClient(), siteChildrenPath(siteId, folderId), req =>
+    req.select('id,name,file,folder').top(999));
+  return children.filter(i => i.file).map(i => ({ id: i.id, name: i.name }));
+}
+
+/** Create a folder under `parentId` ('root' for the drive root). */
+export async function createSharePointFolder(siteId: string, parentId: string, name: string): Promise<DriveItemRef> {
+  const res = await getGraphClient().api(siteChildrenPath(siteId, parentId)).post({
+    name,
+    folder: {},
+    '@microsoft.graph.conflictBehavior': 'rename',
+  }) as DriveItemRaw;
+  return { id: res.id, name: res.name };
+}
+
+/** Upload a new file into `parentId` ('root' for the drive root). */
+export async function uploadSharePointFileToFolder(
+  siteId: string,
+  parentId: string,
+  filename: string,
+  content: Buffer | Uint8Array | string,
+  contentType?: string,
+): Promise<DriveItemRef> {
+  const path = parentId === 'root'
+    ? `/sites/${siteId}/drive/root:/${seg(filename)}:/content`
+    : `/sites/${siteId}/drive/items/${seg(parentId)}:/${seg(filename)}:/content`;
+  let req = getGraphClient().api(path);
+  if (contentType) req = req.header('Content-Type', contentType);
+  const res = await req.put(content) as DriveItemRaw;
+  return { id: res.id, name: res.name };
+}
+
+/** Rename a SharePoint drive item (metadata PATCH). */
+export async function renameSharePointItem(siteId: string, itemId: string, newName: string): Promise<void> {
+  await getGraphClient().api(`/sites/${siteId}/drive/items/${seg(itemId)}`).patch({ name: newName });
+}
+
+/** Move a SharePoint drive item under a new parent folder. */
+export async function moveSharePointItem(siteId: string, itemId: string, newParentId: string): Promise<void> {
+  await getGraphClient().api(`/sites/${siteId}/drive/items/${seg(itemId)}`).patch({
+    parentReference: { id: newParentId },
+  });
+}

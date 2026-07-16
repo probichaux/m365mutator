@@ -22,9 +22,6 @@ export interface TargetCategoryConfig {
 
 export type TargetsConfig = Record<TargetCategory, TargetCategoryConfig>;
 
-/** Upper bound on stored/checked items per category, to keep requests and Graph fan-out sane. */
-export const MAX_ITEMS_PER_CATEGORY = 1000;
-
 /** Clamp an arbitrary value to a whole percentage in [1, 100], falling back to the default. */
 function clampPercent(value: unknown): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) return DEFAULT_RANDOM_PERCENT;
@@ -58,7 +55,6 @@ function sanitizeTargets(raw: unknown): TargetsConfig {
             .filter((i): i is string => typeof i === 'string')
             .map(i => i.trim())
             .filter(i => i !== '')
-            .slice(0, MAX_ITEMS_PER_CATEGORY)
         : [],
       runStyle: runStyle === 'random' ? 'random' : 'explicit',
       randomPercent: clampPercent(randomPercent),

@@ -175,5 +175,29 @@
         "image": "Bild"
       }
     }
+  },
+  "sharepoint": {
+    "mutate": {
+      "title": "SharePoint-Aktivität randomisieren",
+      "description": "Führt für jede ausgewählte Website eine zufällige Aktion in einem zufälligen vorhandenen Ordner der Standard-Dokumentenbibliothek aus: eine Textdatei erstellen, ein Word- oder PDF-Dokument erstellen, eine Datei umbenennen, einen Ordner erstellen, eine Datei entfernen, einen Ordner erstellen und eine Datei hineinverschieben oder ein zufälliges Bild von Wikimedia Commons hinzufügen. Dokument- und Textinhalte stammen von OpenRouter, wenn ein Schlüssel konfiguriert ist.",
+      "doItNow": "Jetzt ausführen",
+      "running": "Wird geändert…",
+      "runsLabel": "Anzahl der Durchläufe",
+      "runsSuffix": "Durchlauf/Durchläufe",
+      "summary": "{{runs}}× ausgeführt — {{total}} Aktionen · {{ok}} ok · {{failed}} fehlgeschlagen",
+      "truncated": "Zeigt die ersten {{shown}} von {{total}} Aktionen.",
+      "toastOk": "{{total}} SharePoint-Aktionen abgeschlossen ({{runs}}×)",
+      "toastFailures": "{{failed}} von {{total}} SharePoint-Aktionen fehlgeschlagen ({{runs}}×)",
+      "toastFailed": "SharePoint-Änderung fehlgeschlagen",
+      "op": {
+        "createText": "Textdatei",
+        "createDoc": "Dokument",
+        "rename": "umbenennen",
+        "createFolder": "Ordner",
+        "remove": "entfernen",
+        "folderMove": "verschieben",
+        "image": "Bild"
+      }
+    }
   }
 }

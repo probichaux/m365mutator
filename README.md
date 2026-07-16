@@ -9,13 +9,19 @@ If you use a Microsoft CDX tenant, the data doesn't change once the tenant's ins
 Thus this tool: *m365mutator*. It's a web-based console that logs into a Microsoft 365 tenant via Microsoft Graph
 and makes changes to user account objects in Entra, sends and receives mail and calendar items, and does CRUD operations on SharePoint and OneDrive files. It can also bulk-delete a date-scoped range of mail, calendar, and OneDrive items so you can exercise deleted-item recovery and retention.
 
-## A bit of a warning
+## Three warnings
 
-This application requires write permissions on Graph. It's meant, for now, to be run locally. Be careful with it; don't host it on the Internet, for crying out loud.
+1. This application requires write permissions on Graph. It's meant, for now, to be run locally. Be careful with it; don't host it on the Internet, for crying out loud.
+2. The new "Deletions" tab **will delete data from your tenant if you tell it to.** You should probably have a [good backup product](https://www.keepit.com).
+3. The OneDrive tab's "add a random image" action downloads an image from **Wikimedia Commons** and uploads it into the target tenant. This is the one operation that pulls external content in. I put some guardrails in (including a curated category, an image-mime allowlist, and a size cap), and it fails gracefully, but the server needs outbound internet access for it, and you should be comfortable with third-party images landing in the tenant.
 
+<<<<<<< HEAD
 Note also that the OneDrive and SharePoint workloads' "add a random image" action downloads a file from **Wikimedia Commons** and uploads it into the target tenant. It's the one operation that pulls external content in — it's bounded (a curated category, an image-mime allowlist, and a size cap) and fails gracefully, but the server needs outbound internet access for it, and you should be comfortable with third-party images landing in the tenant.
 
 ## Screenshots
+=======
+## Features
+>>>>>>> origin/main
 
 The admin console has one tab per workload. Each tab chooses its targets
 either as an **explicit list** you paste or load, or a **random percentage**
@@ -29,20 +35,22 @@ across them:
 
 ![Identities tab: an explicit list of UPNs above the attribute randomizer](public/screenshot-identities.png)
 
-**Mail** — generate mailbox activity (send / reply / forward / move to Deleted
+**Mail** and **Calendar** — generate mailbox activity (send / reply / forward / move to Deleted
 Items), repeatable for N passes via the stepper:
 
 ![Mail tab: a mailbox list above the "Randomize mailbox activity" card with a run-count stepper](public/screenshot-mail.png)
 
-**Random run style** — instead of a list, operate on a random percentage of
-the tenant, resolved when you run:
+**OneDrive** - works the same basic way as Mail / Calendar. 
+
+**Random run style** — dealer's choice! Instead of providing a list of users, in this mode the mutator will operate on a random percentage of
+the tenant for each operation: :
 
 ![Calendar tab in Random mode: a 25% sampling control with a live count](public/screenshot-random.png)
 
 **Deletions** — select users and workloads (Mail / Calendar / OneDrive), then
 delete a date-scoped range of items — everything, or before / after / between
-dates — to test deleted-item recovery. Deletions are soft (recoverable) and
-gated behind an explicit acknowledgement:
+dates. This is great for cleaning out unwanted data or for testing date-based scenarios for retention, backup, restore, etc. 
+Deletions are soft (recoverable). Nothing will be deleted without your express approval.
 
 ![Deletions tab: a user list, Mail/Calendar/OneDrive workload cards, and the date-scope selector above a confirmation gate](public/screenshot-deletions.png)
 

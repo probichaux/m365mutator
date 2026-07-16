@@ -129,9 +129,10 @@ async function mutateOne(siteUrl: string): Promise<SharePointResult> {
         const files = await filesFor(siteId, folderId);
         if (files.length === 0) return await createTextFile(siteUrl, siteId, folderId, folderName, 'rename');
         const file = pickRandom(files);
-        const newName = renameKeepingExtension(file.name ?? `${randomBase()}.txt`, randomBase());
+        const oldName = file.name ?? file.id;
+        const newName = renameKeepingExtension(oldName, randomBase());
         await renameSharePointItem(siteId, file.id, newName);
-        return { item: siteUrl, op: 'rename', ok: true, detail: `renamed ${file.name} to ${newName}` };
+        return { item: siteUrl, op: 'rename', ok: true, detail: `renamed ${oldName} to ${newName}` };
       }
 
       case 'remove': {

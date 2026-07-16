@@ -13,15 +13,9 @@ and makes changes to user account objects in Entra, sends and receives mail and 
 
 1. This application requires write permissions on Graph. It's meant, for now, to be run locally. Be careful with it; don't host it on the Internet, for crying out loud.
 2. The new "Deletions" tab **will delete data from your tenant if you tell it to.** You should probably have a [good backup product](https://www.keepit.com).
-3. The OneDrive tab's "add a random image" action downloads an image from **Wikimedia Commons** and uploads it into the target tenant. This is the one operation that pulls external content in. I put some guardrails in (including a curated category, an image-mime allowlist, and a size cap), and it fails gracefully, but the server needs outbound internet access for it, and you should be comfortable with third-party images landing in the tenant.
+3. The OneDrive and SharePoint tabs' "add a random image" action downloads an image from **Wikimedia Commons** and uploads it into the target tenant. This is the one operation that pulls external content in. I put some guardrails in (including a curated category, an image-mime allowlist, and a size cap), and it fails gracefully, but the server needs outbound internet access for it, and you should be comfortable with third-party images landing in the tenant.
 
-<<<<<<< HEAD
-Note also that the OneDrive and SharePoint workloads' "add a random image" action downloads a file from **Wikimedia Commons** and uploads it into the target tenant. It's the one operation that pulls external content in — it's bounded (a curated category, an image-mime allowlist, and a size cap) and fails gracefully, but the server needs outbound internet access for it, and you should be comfortable with third-party images landing in the tenant.
-
-## Screenshots
-=======
 ## Features
->>>>>>> origin/main
 
 The admin console has one tab per workload. Each tab chooses its targets
 either as an **explicit list** you paste or load, or a **random percentage**

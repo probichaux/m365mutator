@@ -139,8 +139,9 @@ async function mutateOne(siteUrl: string): Promise<SharePointResult> {
         const files = await filesFor(siteId, folderId);
         if (files.length === 0) return await createTextFile(siteUrl, siteId, folderId, folderName, 'remove');
         const file = pickRandom(files);
+        const name = file.name ?? file.id;
         await deleteSharePointFile(siteId, file.id);
-        return { item: siteUrl, op: 'remove', ok: true, detail: `removed ${file.name}` };
+        return { item: siteUrl, op: 'remove', ok: true, detail: `removed ${name}` };
       }
 
       case 'folderMove': {

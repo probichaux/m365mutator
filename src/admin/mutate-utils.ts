@@ -36,7 +36,8 @@ export function pickWeightedOp<T>(
   weights: { op: T; weight: number }[],
   rand: () => number = Math.random,
 ): T {
-  let r = rand() * 100;
+  const total = weights.reduce((sum, { weight }) => sum + weight, 0);
+  let r = rand() * total;
   for (const { op, weight } of weights) {
     if (r < weight) return op;
     r -= weight;

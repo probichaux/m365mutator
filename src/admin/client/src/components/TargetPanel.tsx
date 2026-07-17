@@ -155,7 +155,7 @@ export default function TargetPanel(
     if (category === 'sharepoint') {
       setText('');
       setResults(null);
-      const accumulated: string[] = [];
+      let accumulated = 0;
       try {
         const response = await fetch('/api/targets/load-stream', {
           method: 'POST',
@@ -180,16 +180,16 @@ export default function TargetPanel(
             const msg = parsed as { items?: string[]; done?: boolean; total?: number; truncated?: boolean; error?: string };
             if (msg.error) throw new Error(msg.error);
             if (msg.items) {
-              accumulated.push(...msg.items);
-              setText(accumulated.join('\n'));
+              accumulated += msg.items.length;
+              setText(prev => prev ? prev + '\n' + msg.items!.join('\n') : msg.items!.join('\n'));
             }
             if (msg.done) {
               if (msg.truncated) {
-                showToast(t('toast.loadTruncated', { count: accumulated.length, total: msg.total }), 'warning');
-              } else if (accumulated.length === 0) {
+                showToast(t('toast.loadTruncated', { count: accumulated, total: msg.total }), 'warning');
+              } else if (accumulated === 0) {
                 showToast(t('toast.loadEmpty'), 'warning');
               } else {
-                showToast(t('toast.loadedCount', { count: accumulated.length }), 'success');
+                showToast(t('toast.loadedCount', { count: accumulated }), 'success');
               }
             }
           }

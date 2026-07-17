@@ -6,7 +6,6 @@
 // a weighted-random operation. The same fallback behaviour as OneDrive applies:
 // operations that need an existing file fall back to createText when none exist.
 
-import { randomUUID } from 'node:crypto';
 import {
   listSharePointFolders, listSharePointFiles, createSharePointFolder,
   uploadSharePointFileToFolder, renameSharePointItem, moveSharePointItem, deleteSharePointFile,
@@ -18,6 +17,10 @@ import { generateDocument, DocKind } from './doc-gen.js';
 import { fetchRandomImage } from './wikimedia.js';
 import { sanitizeUpstreamError } from './connectivity.js';
 import { logger } from '../logger/logger.js';
+import {
+  MutationRun, randomBase, pickRandom, renameKeepingExtension,
+  pickWeightedOp, runMutationPool,
+} from './mutate-utils.js';
 
 export type SharePointOp =
   | 'createText' | 'createDoc' | 'rename' | 'createFolder' | 'remove' | 'folderMove' | 'image';
@@ -32,18 +35,7 @@ export interface SharePointResult {
   error?: string;
 }
 
-export interface SharePointRun {
-  runs: number;
-  totalActions: number;
-  ok: number;
-  failed: number;
-  results: SharePointResult[];
-  truncated: boolean;
-}
-
-export const MAX_RUNS = 999;
-const RESULT_SAMPLE_CAP = 500;
-const MUTATE_CONCURRENCY = 5;
+export type SharePointRun = MutationRun<SharePointResult>;
 
 /** Probability weights; must sum to 100. */
 const OP_WEIGHTS: { op: SharePointOp; weight: number }[] = [
@@ -58,27 +50,7 @@ const OP_WEIGHTS: { op: SharePointOp; weight: number }[] = [
 
 /** Pick an operation by weight. `rand` returns [0, 1); injectable for tests. */
 export function pickSharePointOp(rand: () => number = Math.random): SharePointOp {
-  let r = rand() * 100;
-  for (const { op, weight } of OP_WEIGHTS) {
-    if (r < weight) return op;
-    r -= weight;
-  }
-  return OP_WEIGHTS.at(-1)!.op;
-}
-
-function randomBase(): string {
-  return `mutator-${randomUUID().slice(0, 8)}`;
-}
-
-function pickRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-/** Replace a filename's base while keeping its extension; no extension → just the base. */
-function renameKeepingExtension(name: string, newBase: string): string {
-  const dot = name.lastIndexOf('.');
-  if (dot <= 0) return newBase;
-  return `${newBase}${name.slice(dot)}`;
+  return pickWeightedOp(OP_WEIGHTS, rand);
 }
 
 async function createTextFile(
@@ -168,30 +140,6 @@ async function mutateOne(siteUrl: string): Promise<SharePointResult> {
  * Perform `runs` passes; each pass runs one weighted-random SharePoint operation
  * per selected site through a bounded worker pool.
  */
-export async function mutateSharePoint(items: string[], runs = 1): Promise<SharePointRun> {
-  const passes = Math.min(MAX_RUNS, Math.max(1, Math.round(runs)));
-  logger.info(`[SHAREPOINT] Mutating ${items.length} site(s) × ${passes} pass(es)`);
-
-  const actors: string[] = [];
-  for (let p = 0; p < passes; p++) actors.push(...items);
-
-  const results: SharePointResult[] = new Array(actors.length);
-  let next = 0;
-  const workers = Array.from({ length: Math.min(MUTATE_CONCURRENCY, actors.length) }, async () => {
-    while (next < actors.length) {
-      const index = next++;
-      results[index] = await mutateOne(actors[index]);
-    }
-  });
-  await Promise.all(workers);
-
-  const ok = results.filter(r => r.ok).length;
-  return {
-    runs: passes,
-    totalActions: results.length,
-    ok,
-    failed: results.length - ok,
-    results: results.slice(0, RESULT_SAMPLE_CAP),
-    truncated: results.length > RESULT_SAMPLE_CAP,
-  };
+export function mutateSharePoint(items: string[], runs = 1): Promise<SharePointRun> {
+  return runMutationPool(items, runs, mutateOne, 'SHAREPOINT');
 }

@@ -168,8 +168,9 @@ export default function TargetPanel(
         let buf = '';
         for (;;) {
           const { done, value } = await reader.read();
-          if (done) break;
-          buf += decoder.decode(value, { stream: true });
+          // Decode with stream:false on the final chunk to flush any pending bytes,
+          // then process whatever is left in buf before breaking.
+          buf += decoder.decode(done ? undefined : value, { stream: !done });
           const lines = buf.split('\n');
           buf = lines.pop() ?? '';
           for (const line of lines) {
@@ -193,6 +194,7 @@ export default function TargetPanel(
               }
             }
           }
+          if (done) break;
         }
       } catch (e: unknown) {
         showToast(e instanceof Error ? e.message : t('toast.loadFailed'), 'error');

@@ -16,7 +16,7 @@ import { fetchRandomImage } from './wikimedia.js';
 import { sanitizeUpstreamError } from './connectivity.js';
 import { logger } from '../logger/logger.js';
 import {
-  MAX_RUNS, MutationRun, randomBase, pickRandom, renameKeepingExtension,
+  MutationRun, randomBase, pickRandom, renameKeepingExtension,
   pickWeightedOp, runMutationPool,
 } from './mutate-utils.js';
 

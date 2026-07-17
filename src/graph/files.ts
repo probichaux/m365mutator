@@ -123,7 +123,7 @@ async function moveDriveItem(drivePrefix: string, itemId: string, newParentId: s
 // ── OneDrive (a user's personal drive) ──────────────────────────────
 
 export async function uploadOneDriveFile(userId: string, path: string, content: Buffer | string): Promise<Record<string, unknown>> {
-  return getGraphClient().api(`/users/${userId}/drive/root:/${path}:/content`).put(content);
+  return getGraphClient().api(`/users/${seg(userId)}/drive/root:/${path}:/content`).put(content);
 }
 
 export async function deleteOneDriveFile(userId: string, itemId: string): Promise<void> {
@@ -172,13 +172,13 @@ export async function uploadSharePointFile(siteId: string, path: string, content
 }
 
 export async function deleteSharePointFile(siteId: string, itemId: string): Promise<void> {
-  await getGraphClient().api(`/sites/${siteId}/drive/items/${itemId}`).delete();
+  await getGraphClient().api(`/sites/${siteId}/drive/items/${seg(itemId)}`).delete();
 }
 
 export async function updateSharePointFileMetadata(
   siteId: string, itemId: string, patch: Record<string, unknown>,
 ): Promise<Record<string, unknown>> {
-  return getGraphClient().api(`/sites/${siteId}/drive/items/${itemId}`).patch(patch);
+  return getGraphClient().api(`/sites/${siteId}/drive/items/${seg(itemId)}`).patch(patch);
 }
 
 export function listSharePointFolders(siteId: string): Promise<DriveItemRef[]> {

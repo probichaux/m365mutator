@@ -155,7 +155,7 @@ export default function TargetPanel(
     if (category === 'sharepoint') {
       setText('');
       setResults(null);
-      const accumulated: string[] = [];
+      let accumulated = 0;
       try {
         const response = await fetch('/api/targets/load-stream', {
           method: 'POST',
@@ -168,8 +168,9 @@ export default function TargetPanel(
         let buf = '';
         for (;;) {
           const { done, value } = await reader.read();
-          if (done) break;
-          buf += decoder.decode(value, { stream: true });
+          // Decode with stream:false on the final chunk to flush any pending bytes,
+          // then process whatever is left in buf before breaking.
+          buf += decoder.decode(done ? undefined : value, { stream: !done });
           const lines = buf.split('\n');
           buf = lines.pop() ?? '';
           for (const line of lines) {
@@ -180,19 +181,20 @@ export default function TargetPanel(
             const msg = parsed as { items?: string[]; done?: boolean; total?: number; truncated?: boolean; error?: string };
             if (msg.error) throw new Error(msg.error);
             if (msg.items) {
-              accumulated.push(...msg.items);
-              setText(accumulated.join('\n'));
+              accumulated += msg.items.length;
+              setText(prev => prev ? prev + '\n' + msg.items!.join('\n') : msg.items!.join('\n'));
             }
             if (msg.done) {
               if (msg.truncated) {
-                showToast(t('toast.loadTruncated', { count: accumulated.length, total: msg.total }), 'warning');
-              } else if (accumulated.length === 0) {
+                showToast(t('toast.loadTruncated', { count: accumulated, total: msg.total }), 'warning');
+              } else if (accumulated === 0) {
                 showToast(t('toast.loadEmpty'), 'warning');
               } else {
-                showToast(t('toast.loadedCount', { count: accumulated.length }), 'success');
+                showToast(t('toast.loadedCount', { count: accumulated }), 'success');
               }
             }
           }
+          if (done) break;
         }
       } catch (e: unknown) {
         showToast(e instanceof Error ? e.message : t('toast.loadFailed'), 'error');

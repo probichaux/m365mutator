@@ -1,4 +1,4 @@
-// Random text for mail mutations: OpenRouter when a key is configured, GUID otherwise.
+// Random text generation: OpenRouter when a key is configured, GUID otherwise.
 
 import { randomUUID } from 'node:crypto';
 import { loadConfig, DEFAULT_SUBJECT_PROMPT, DEFAULT_BODY_PROMPT } from './config-store.js';

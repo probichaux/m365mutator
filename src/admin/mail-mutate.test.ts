@@ -10,8 +10,8 @@ vi.mock('../graph/mail.js', () => ({
 }));
 vi.mock('./random-text.js', () => ({
   generateText: vi.fn().mockResolvedValue('text'),
-  SUBJECT_PROMPT: 's',
-  BODY_PROMPT: 'b',
+  subjectPrompt: () => 's',
+  bodyPrompt: () => 'b',
 }));
 
 import { pickMailOp, mutateMail, MailOp } from './mail-mutate.js';

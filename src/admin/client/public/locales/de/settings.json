@@ -20,11 +20,15 @@
   },
   "openRouter": {
     "sectionTitle": "OpenRouter",
-    "description": "Optional. Wenn gesetzt, verwenden E-Mail-Mutationen OpenRouter, um zufällige Betreffzeilen und Nachrichtentexte zu generieren. Ohne Schlüssel wird stattdessen eine zufällige GUID verwendet.",
+    "description": "Optional. Wenn gesetzt, verwenden Mutationen OpenRouter, um Betreffzeilen und Nachrichtentexte zu generieren. Ohne Schlüssel wird stattdessen eine zufällige GUID verwendet.",
     "apiKey": "API-Schlüssel",
     "apiKeyHint": "Wird wie das Graph-Geheimnis als Klartext im Datenverzeichnis gespeichert.",
     "model": "Modell",
-    "modelHint": "OpenRouter-Modell-ID. Standard ist openai/gpt-4o-mini."
+    "modelHint": "OpenRouter-Modell-ID. Standard ist openai/gpt-4o-mini.",
+    "subjectPrompt": "Betreff-Prompt",
+    "subjectPromptHint": "Prompt zur Generierung von Betreffzeilen und Dokumenttiteln. Leer lassen, um den Standard zu verwenden.",
+    "bodyPrompt": "Text-Prompt",
+    "bodyPromptHint": "Prompt zur Generierung von Nachrichten- und Dateitexten. Leer lassen, um den Standard zu verwenden."
   },
   "saveConfiguration": "Konfiguration speichern",
   "savingConfiguration": "Wird gespeichert...",

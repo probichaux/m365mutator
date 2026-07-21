@@ -3,7 +3,7 @@
 import {
   sendMail, replyToMail, forwardMail, moveMessage, listInboxMessages,
 } from '../graph/mail.js';
-import { generateText, SUBJECT_PROMPT, BODY_PROMPT } from './random-text.js';
+import { generateText, subjectPrompt, bodyPrompt } from './random-text.js';
 import { sanitizeUpstreamError } from './connectivity.js';
 import { logger } from '../logger/logger.js';
 
@@ -79,8 +79,8 @@ function pickCounterpart(actor: string, others: string[]): string {
 
 async function runSend(actor: string, others: string[], fellBackFrom?: MailOp): Promise<MailResult> {
   const to = pickCounterpart(actor, others);
-  const subject = await generateText(SUBJECT_PROMPT);
-  const content = await generateText(BODY_PROMPT);
+  const subject = await generateText(subjectPrompt());
+  const content = await generateText(bodyPrompt());
   await sendMail(actor, {
     subject,
     body: { contentType: 'Text', content },
@@ -101,7 +101,7 @@ async function mutateOne(actor: string, others: string[], allowDeletions: boolea
       }
       const msg = messages[Math.floor(Math.random() * messages.length)];
       if (chosen === 'reply') {
-        await replyToMail(actor, msg.id, await generateText(BODY_PROMPT));
+        await replyToMail(actor, msg.id, await generateText(bodyPrompt()));
         return { item: actor, op: 'reply', ok: true, detail: 'replied to an inbox message' };
       }
       if (chosen === 'forward') {

@@ -12,8 +12,8 @@ vi.mock('../graph/files.js', () => ({
 }));
 vi.mock('./random-text.js', () => ({
   generateText: vi.fn().mockResolvedValue('text'),
-  SUBJECT_PROMPT: 's',
-  BODY_PROMPT: 'b',
+  subjectPrompt: () => 's',
+  bodyPrompt: () => 'b',
 }));
 vi.mock('./doc-gen.js', () => ({
   generateDocument: vi.fn().mockResolvedValue({ content: new Uint8Array([1, 2]), extension: 'pdf', contentType: 'application/pdf' }),

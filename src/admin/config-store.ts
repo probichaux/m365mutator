@@ -5,6 +5,16 @@ import { graphConfig } from '../helpers/graph-config.helper.js';
 import { atomicWriteJson, safeReadJson } from '../helpers/file.helper.js';
 import { resetGraphClient } from '../graph/graph-client.js';
 
+/**
+ * Default text-generation prompts. Used both to seed config defaults and as the
+ * fallback when the user leaves a custom prompt blank. Kept here (rather than in
+ * random-text.ts) so config-store has no import cycle with its consumer.
+ */
+export const DEFAULT_SUBJECT_PROMPT =
+  'Generate a one-sentence subject line in English related to software-as-a-service applications, OR airline travel, OR the World Cup.';
+export const DEFAULT_BODY_PROMPT =
+  'Generate a one-paragraph text summary of a little-known scientific fact about physics, chemistry, biology, geology, or astronomy.';
+
 export interface AppConfig {
   graphClientId: string;
   graphTenantId: string;
@@ -16,6 +26,10 @@ export interface AppConfig {
   openRouterApiKey: string;
   /** OpenRouter model id used for that text generation. */
   openRouterModel: string;
+  /** Prompt sent to the model to generate subject lines and document titles; blank falls back to the default. */
+  subjectPrompt: string;
+  /** Prompt sent to the model to generate message and file bodies; blank falls back to the default. */
+  bodyPrompt: string;
   port: number;
   logPath: string;
 }
@@ -52,6 +66,8 @@ export function loadConfig(): AppConfig {
     graphSendCertificateChain: process.env.GRAPH_SEND_CERTIFICATE_CHAIN === 'true',
     openRouterApiKey: process.env.OPENROUTER_API_KEY || '',
     openRouterModel: process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini',
+    subjectPrompt: process.env.SUBJECT_PROMPT || DEFAULT_SUBJECT_PROMPT,
+    bodyPrompt: process.env.BODY_PROMPT || DEFAULT_BODY_PROMPT,
     port: parseInt(process.env.PORT || '3700', 10),
     logPath: process.env.M365MUTATOR_LOG_PATH || './m365mutator.log',
   };

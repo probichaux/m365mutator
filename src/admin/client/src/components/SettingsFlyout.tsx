@@ -1,6 +1,6 @@
 import {
   OverlayDrawer, DrawerHeader, DrawerHeaderTitle, DrawerBody,
-  Button, Text, Label, Input,
+  Button, Text, Label, Input, Textarea,
   RadioGroup, Radio, Spinner, tokens,
 } from '@fluentui/react-components';
 import { Dismiss24Regular } from '@fluentui/react-icons';
@@ -22,6 +22,8 @@ interface ConfigData {
   graphCertificatePassword: string;
   openRouterApiKey: string;
   openRouterModel: string;
+  subjectPrompt: string;
+  bodyPrompt: string;
 }
 
 export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
@@ -36,6 +38,8 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
   const [graphCertPassword, setGraphCertPassword] = useState('');
   const [openRouterApiKey, setOpenRouterApiKey] = useState('');
   const [openRouterModel, setOpenRouterModel] = useState('');
+  const [subjectPrompt, setSubjectPrompt] = useState('');
+  const [bodyPrompt, setBodyPrompt] = useState('');
 
   const [testing, setTesting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -54,6 +58,8 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
     if (c.graphCertificatePassword) setGraphCertPassword(c.graphCertificatePassword);
     if (c.openRouterApiKey) setOpenRouterApiKey(c.openRouterApiKey);
     if (c.openRouterModel) setOpenRouterModel(c.openRouterModel);
+    if (c.subjectPrompt) setSubjectPrompt(c.subjectPrompt);
+    if (c.bodyPrompt) setBodyPrompt(c.bodyPrompt);
   }, []);
 
   useEffect(() => {
@@ -98,6 +104,8 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
 
     if (openRouterApiKey && openRouterApiKey !== '********') payload.openRouterApiKey = openRouterApiKey;
     if (openRouterModel) payload.openRouterModel = openRouterModel;
+    if (subjectPrompt) payload.subjectPrompt = subjectPrompt;
+    if (bodyPrompt) payload.bodyPrompt = bodyPrompt;
 
     const result = await api<{ success: boolean; error?: string }>('PUT', '/api/config', payload);
     setSaving(false);
@@ -226,6 +234,18 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
                 placeholder="openai/gpt-4o-mini"
                 style={{ width: '100%', fontFamily: 'var(--fontFamilyMonospace)' }} />
               <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>{t('openRouter.modelHint')}</Text>
+            </div>
+            <div style={fieldStyle}>
+              <Label size="small">{t('openRouter.subjectPrompt')}</Label>
+              <Textarea value={subjectPrompt} onChange={(_, d) => setSubjectPrompt(d.value)}
+                resize="vertical" rows={2} style={{ width: '100%' }} />
+              <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>{t('openRouter.subjectPromptHint')}</Text>
+            </div>
+            <div style={fieldStyle}>
+              <Label size="small">{t('openRouter.bodyPrompt')}</Label>
+              <Textarea value={bodyPrompt} onChange={(_, d) => setBodyPrompt(d.value)}
+                resize="vertical" rows={3} style={{ width: '100%' }} />
+              <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>{t('openRouter.bodyPromptHint')}</Text>
             </div>
           </div>
 

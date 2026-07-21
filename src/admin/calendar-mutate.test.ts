@@ -7,7 +7,7 @@ vi.mock('../graph/calendar.js', () => ({
 }));
 vi.mock('./random-text.js', () => ({
   generateText: vi.fn().mockResolvedValue('subject text'),
-  SUBJECT_PROMPT: 's',
+  subjectPrompt: () => 's',
 }));
 
 import {

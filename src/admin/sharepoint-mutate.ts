@@ -12,7 +12,7 @@ import {
   DriveItemRef,
 } from '../graph/files.js';
 import { getSiteByUrl } from '../graph/sites.js';
-import { generateText, SUBJECT_PROMPT, BODY_PROMPT } from './random-text.js';
+import { generateText, subjectPrompt, bodyPrompt } from './random-text.js';
 import { generateDocument, DocKind } from './doc-gen.js';
 import { fetchRandomImage } from './wikimedia.js';
 import { sanitizeUpstreamError } from './connectivity.js';
@@ -57,7 +57,7 @@ async function createTextFile(
   siteUrl: string, siteId: string, folderId: string, folderName: string, fellBackFrom?: SharePointOp,
 ): Promise<SharePointResult> {
   const filename = `${randomBase()}.txt`;
-  await uploadSharePointFileToFolder(siteId, folderId, filename, await generateText(BODY_PROMPT), 'text/plain');
+  await uploadSharePointFileToFolder(siteId, folderId, filename, await generateText(bodyPrompt()), 'text/plain');
   const detail = fellBackFrom
     ? `no item to ${fellBackFrom}; created ${filename} in ${folderName}`
     : `created ${filename} in ${folderName}`;
@@ -85,7 +85,7 @@ async function mutateOne(siteUrl: string): Promise<SharePointResult> {
 
       case 'createDoc': {
         const kind: DocKind = Math.random() < 0.5 ? 'pdf' : 'docx';
-        const [title, body] = await Promise.all([generateText(SUBJECT_PROMPT), generateText(BODY_PROMPT)]);
+        const [title, body] = await Promise.all([generateText(subjectPrompt()), generateText(bodyPrompt())]);
         const doc = await generateDocument(kind, title, body);
         const filename = `${randomBase()}.${doc.extension}`;
         await uploadSharePointFileToFolder(siteId, folderId, filename, doc.content, doc.contentType);

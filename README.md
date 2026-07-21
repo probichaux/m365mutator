@@ -214,7 +214,7 @@ GRAPH_CLIENT_SECRET=<client secret value>   # or set GRAPH_CERTIFICATE_PATH
   - `admin-routes.ts` — REST endpoints for config, the Graph connectivity test,
     targets, and the per-workload mutations.
   - `config-store.ts` — persisted app config (Graph credentials, OpenRouter
-    key/model).
+    key/model, and the customizable subject/body generation prompts).
   - `targets-store.ts` — each workload's target list and explicit/random run
     style.
   - `target-load.ts` / `target-check.ts` — load matching objects from the
@@ -225,8 +225,8 @@ GRAPH_CLIENT_SECRET=<client secret value>   # or set GRAPH_CERTIFICATE_PATH
     mutation operations for the Identities, Mail, Calendar, OneDrive, and
     SharePoint workloads, and the date-scoped Deletions across
     Mail/Calendar/OneDrive.
-  - `random-text.ts` — random subject/body text via OpenRouter, with a GUID
-    fallback when no key is set.
+  - `random-text.ts` — subject/body text via OpenRouter using the configured
+    (default or user-customized) prompts, with a GUID fallback when no key is set.
   - `doc-gen.ts` / `wikimedia.ts` — generate Word/PDF documents and fetch a
     random Wikimedia Commons image for the OneDrive workload.
 - `src/admin/client/` — the React admin console (Fluent UI, i18n en/de/fr/nl/uk):

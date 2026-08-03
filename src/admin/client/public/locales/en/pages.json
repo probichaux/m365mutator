@@ -1,6 +1,9 @@
 {
   "run": {
-    "needTargets": "Load or enter targets, then click Save targets to enable this."
+    "needTargets": "Load or enter targets, then click Save targets to enable this.",
+    "preview": "This will perform {{total}} action(s) against {{count}} target(s).",
+    "previewRuns": "{{runs}} pass(es) × {{count}} target(s) = {{total}} action(s).",
+    "previewUnknown": "Target count unknown until the tenant pool loads."
   },
   "scaffold": {
     "calendarTitle": "Randomize calendar activity",
@@ -142,6 +145,7 @@
     "runSummary": "Deleted {{deleted}} of {{matched}} matched items across {{users}} user(s)",
     "resultLine": "{{deleted}}/{{matched}} deleted",
     "truncated": "Showing the first {{shown}} of {{total}} results.",
+    "scanPreview": "Will scan {{count}} user(s) across {{workloads}} workload(s).",
     "toastNone": "No matching items were found to delete",
     "toastOk": "Deleted {{deleted}} items across {{users}} user(s)",
     "toastFailures": "Deleted {{deleted}} items; {{failed}} failed",

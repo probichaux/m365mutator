@@ -1,6 +1,9 @@
 {
   "run": {
-    "needTargets": "Ziele laden oder eingeben und auf „Ziele speichern“ klicken, um dies zu aktivieren."
+    "needTargets": "Ziele laden oder eingeben und auf „Ziele speichern“ klicken, um dies zu aktivieren.",
+    "preview": "Dies führt {{total}} Aktion(en) für {{count}} Ziel(e) aus.",
+    "previewRuns": "{{runs}} Durchgang/Durchgänge × {{count}} Ziel(e) = {{total}} Aktion(en).",
+    "previewUnknown": "Zielanzahl unbekannt, bis der Mandanten-Pool geladen ist."
   },
   "scaffold": {
     "calendarTitle": "Kalenderaktivität zufällig erzeugen",
@@ -142,6 +145,7 @@
     "runSummary": "{{deleted}} von {{matched}} passenden Elementen bei {{users}} Benutzer(n) gelöscht",
     "resultLine": "{{deleted}}/{{matched}} gelöscht",
     "truncated": "Die ersten {{shown}} von {{total}} Ergebnissen werden angezeigt.",
+    "scanPreview": "Durchsucht {{count}} Benutzer über {{workloads}} Workload(s).",
     "toastNone": "Keine passenden Elemente zum Löschen gefunden",
     "toastOk": "{{deleted}} Elemente bei {{users}} Benutzer(n) gelöscht",
     "toastFailures": "{{deleted}} Elemente gelöscht; {{failed}} fehlgeschlagen",

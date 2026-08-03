@@ -53,9 +53,18 @@ function sampleSize(pool: number, percent: number): number {
  * `onReadyChange` reports whether the category has runnable saved targets, so the
  * page can gate its "Do it now" action: explicit needs saved items, random is
  * always ready (it samples the tenant live).
+ *
+ * `onTargetCountChange` reports how many items an actual run would resolve to
+ * right now — the saved count in explicit mode, or the live sample size once the
+ * tenant pool has loaded in random mode (`null` while that's still unknown) — so
+ * the page can preview the total action count before the user fires a run.
  */
 export default function TargetPanel(
-  { category, onReadyChange }: { category: TargetCategory; onReadyChange?: (ready: boolean) => void },
+  { category, onReadyChange, onTargetCountChange }: {
+    category: TargetCategory;
+    onReadyChange?: (ready: boolean) => void;
+    onTargetCountChange?: (count: number | null) => void;
+  },
 ) {
   const { t } = useTranslation('targets');
   const showToast = useToast();
@@ -94,6 +103,14 @@ export default function TargetPanel(
   useEffect(() => {
     onReadyChange?.(runStyle === 'random' ? true : savedCount > 0);
   }, [runStyle, savedCount, onReadyChange]);
+
+  useEffect(() => {
+    if (runStyle === 'explicit') {
+      onTargetCountChange?.(savedCount);
+    } else {
+      onTargetCountChange?.(pool ? sampleSize(pool.pool, percent) : null);
+    }
+  }, [runStyle, savedCount, pool, percent, onTargetCountChange]);
 
   // In random mode, fetch the tenant pool size once so the live count is real.
   useEffect(() => {
@@ -212,16 +229,12 @@ export default function TargetPanel(
       const items = r.data.items;
       setText(items.join('\n'));
       setResults(null);
-      if (category === 'mail') await persist('calendar', { items });
       if (r.data.truncated) {
         showToast(t('toast.loadTruncated', { count: items.length, total: r.data.total ?? items.length }), 'warning');
       } else if (items.length === 0) {
         showToast(t('toast.loadEmpty'), 'warning');
       } else {
-        showToast(
-          category === 'mail' ? t('toast.loadedMirrored', { count: items.length }) : t('toast.loadedCount', { count: items.length }),
-          'success',
-        );
+        showToast(t('toast.loadedCount', { count: items.length }), 'success');
       }
     } else {
       showToast(r.data.error || t('toast.loadFailed'), 'error');

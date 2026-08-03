@@ -40,6 +40,7 @@ export default function IdentitiesPage() {
   const [run, setRun] = useState<MutationRun | null>(null);
   const [attributes, setAttributes] = useState<string[]>([]);
   const [ready, setReady] = useState(false);
+  const [targetCount, setTargetCount] = useState<number | null>(null);
 
   useEffect(() => {
     api<{ attributes?: string[] }>('GET', '/api/identities/attributes').then(r => {
@@ -79,7 +80,7 @@ export default function IdentitiesPage() {
     <div>
       <Title2 block style={{ marginBottom: 16 }}>{tt('categories.identities.label')}</Title2>
 
-      <TargetPanel category="identities" onReadyChange={setReady} />
+      <TargetPanel category="identities" onReadyChange={setReady} onTargetCountChange={setTargetCount} />
 
       <Card style={{ marginTop: 16 }}>
         <Text weight="semibold" size={400} block style={{ marginBottom: 4 }}>{t('users.mutate.title')}</Text>
@@ -98,6 +99,12 @@ export default function IdentitiesPage() {
             {running ? t('users.mutate.running') : t('users.mutate.doItNow')}
           </Button>
         </Tooltip>
+
+        <Text size={200} block style={{ color: tokens.colorNeutralForeground3, marginTop: 8 }}>
+          {targetCount === null
+            ? t('run.previewUnknown')
+            : t('run.preview', { count: targetCount, total: targetCount })}
+        </Text>
 
         {run && (
           <div style={{ marginTop: 20 }}>

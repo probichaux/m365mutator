@@ -1,6 +1,9 @@
 {
   "run": {
-    "needTargets": "Laad of voer doelen in en klik op Doelen opslaan om dit in te schakelen."
+    "needTargets": "Laad of voer doelen in en klik op Doelen opslaan om dit in te schakelen.",
+    "preview": "Dit voert {{total}} actie(s) uit op {{count}} doel(en).",
+    "previewRuns": "{{runs}} ronde(s) × {{count}} doel(en) = {{total}} actie(s).",
+    "previewUnknown": "Aantal doelen onbekend totdat de tenantpool is geladen."
   },
   "scaffold": {
     "calendarTitle": "Agenda-activiteit willekeurig genereren",
@@ -142,6 +145,7 @@
     "runSummary": "{{deleted}} van {{matched}} overeenkomende items verwijderd voor {{users}} gebruiker(s)",
     "resultLine": "{{deleted}}/{{matched}} verwijderd",
     "truncated": "De eerste {{shown}} van {{total}} resultaten worden weergegeven.",
+    "scanPreview": "Doorzoekt {{count}} gebruiker(s) over {{workloads}} workload(s).",
     "toastNone": "Geen overeenkomende items gevonden om te verwijderen",
     "toastOk": "{{deleted}} items verwijderd voor {{users}} gebruiker(s)",
     "toastFailures": "{{deleted}} items verwijderd; {{failed}} mislukt",

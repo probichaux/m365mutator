@@ -2,6 +2,11 @@
 
 All notable changes to M365Mutator are documented in this file.
 
+## 0.6.6 — 2026-08-03
+
+- Fix Mail's "Load" button silently overwriting the Calendar tab's saved target list. Each workload's targets are now fully independent — loading Mail's mailboxes from the tenant no longer touches Calendar's saved list.
+- Show a live action-count preview (e.g. "3 passes × 6 targets = 18 actions") under each workload's Run button, so the actual scope of a run is visible before it fires.
+
 ## 0.6.5 — 2026-07-15
 
 - Add real SharePoint mutation activity to the SharePoint tab (replacing the scaffold): one weighted-random action per selected site per pass — create a text file, create a Word or PDF document, rename a file, create a folder, remove a file, create a folder and move a file into it, or add a random image from Wikimedia Commons. Identical operations and weights to the OneDrive tab; actions target the site's default document library.

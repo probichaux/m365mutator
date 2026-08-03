@@ -61,7 +61,6 @@
     "checkFailures": "{{failed}} von {{total}} Zielen konnten nicht aufgelöst werden",
     "checkFailed": "Prüfung fehlgeschlagen",
     "loadedCount": "{{count}} aus dem Mandanten geladen",
-    "loadedMirrored": "{{count}} aus dem Mandanten geladen (auch für Kalender gesetzt)",
     "loadTruncated": "{{count}} von {{total}} aus dem Mandanten geladen (begrenzt)",
     "loadEmpty": "Keine passenden Objekte im Mandanten gefunden",
     "loadFailed": "Laden fehlgeschlagen",

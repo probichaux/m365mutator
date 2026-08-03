@@ -42,6 +42,7 @@ export default function MailPage() {
   const [allowDeletions, setAllowDeletions] = useState(false);
   const [run, setRun] = useState<MailRun | null>(null);
   const [ready, setReady] = useState(false);
+  const [targetCount, setTargetCount] = useState<number | null>(null);
 
   const doItNow = async () => {
     setRunning(true);
@@ -66,7 +67,7 @@ export default function MailPage() {
     <div>
       <Title2 block style={{ marginBottom: 16 }}>{t('categories.mail.label')}</Title2>
 
-      <TargetPanel category="mail" onReadyChange={setReady} />
+      <TargetPanel category="mail" onReadyChange={setReady} onTargetCountChange={setTargetCount} />
 
       <Card style={{ marginTop: 16 }}>
         <Text weight="semibold" size={400} block style={{ marginBottom: 4 }}>{tp('mail.mutate.title')}</Text>
@@ -110,6 +111,12 @@ export default function MailPage() {
             </Button>
           </Tooltip>
         </div>
+
+        <Text size={200} block style={{ color: tokens.colorNeutralForeground3, marginTop: 8 }}>
+          {targetCount === null
+            ? tp('run.previewUnknown')
+            : tp('run.previewRuns', { runs, count: targetCount, total: runs * targetCount })}
+        </Text>
 
         {run && (
           <div style={{ marginTop: 20 }}>

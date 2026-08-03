@@ -61,7 +61,6 @@
     "checkFailures": "{{failed}} of {{total}} targets failed to resolve",
     "checkFailed": "Check failed",
     "loadedCount": "Loaded {{count}} from the tenant",
-    "loadedMirrored": "Loaded {{count}} from the tenant (also set on Calendar)",
     "loadTruncated": "Loaded {{count}} of {{total}} from the tenant (capped)",
     "loadEmpty": "No matching objects found in the tenant",
     "loadFailed": "Load failed",

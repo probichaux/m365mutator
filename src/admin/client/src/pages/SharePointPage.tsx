@@ -41,6 +41,7 @@ export default function SharePointPage() {
   const [runs, setRuns] = useState(1);
   const [run, setRun] = useState<SharePointRun | null>(null);
   const [ready, setReady] = useState(false);
+  const [targetCount, setTargetCount] = useState<number | null>(null);
 
   const doItNow = async () => {
     setRunning(true);
@@ -65,7 +66,7 @@ export default function SharePointPage() {
     <div>
       <Title2 block style={{ marginBottom: 16 }}>{t('categories.sharepoint.label')}</Title2>
 
-      <TargetPanel category="sharepoint" onReadyChange={setReady} />
+      <TargetPanel category="sharepoint" onReadyChange={setReady} onTargetCountChange={setTargetCount} />
 
       <Card style={{ marginTop: 16 }}>
         <Text weight="semibold" size={400} block style={{ marginBottom: 4 }}>{tp('sharepoint.mutate.title')}</Text>
@@ -97,6 +98,12 @@ export default function SharePointPage() {
             </Button>
           </Tooltip>
         </div>
+
+        <Text size={200} block style={{ color: tokens.colorNeutralForeground3, marginTop: 8 }}>
+          {targetCount === null
+            ? tp('run.previewUnknown')
+            : tp('run.previewRuns', { runs, count: targetCount, total: runs * targetCount })}
+        </Text>
 
         {run && (
           <div style={{ marginTop: 20 }}>

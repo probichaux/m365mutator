@@ -1,6 +1,9 @@
 {
   "run": {
-    "needTargets": "Chargez ou saisissez des cibles, puis cliquez sur Enregistrer les cibles pour activer cette fonction."
+    "needTargets": "Chargez ou saisissez des cibles, puis cliquez sur Enregistrer les cibles pour activer cette fonction.",
+    "preview": "Ceci effectuera {{total}} action(s) sur {{count}} cible(s).",
+    "previewRuns": "{{runs}} passage(s) × {{count}} cible(s) = {{total}} action(s).",
+    "previewUnknown": "Nombre de cibles inconnu jusqu'au chargement du pool du locataire."
   },
   "scaffold": {
     "calendarTitle": "Générer une activité de calendrier aléatoire",
@@ -142,6 +145,7 @@
     "runSummary": "{{deleted}} éléments supprimés sur {{matched}} correspondants pour {{users}} utilisateur(s)",
     "resultLine": "{{deleted}}/{{matched}} supprimés",
     "truncated": "Affichage des {{shown}} premiers résultats sur {{total}}.",
+    "scanPreview": "Analysera {{count}} utilisateur(s) sur {{workloads}} charge(s) de travail.",
     "toastNone": "Aucun élément correspondant à supprimer",
     "toastOk": "{{deleted}} éléments supprimés pour {{users}} utilisateur(s)",
     "toastFailures": "{{deleted}} éléments supprimés ; {{failed}} en échec",

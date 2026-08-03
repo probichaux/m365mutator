@@ -68,6 +68,7 @@ export default function DeletionsPage() {
   const [ready, setReady] = useState(false);
   const [running, setRunning] = useState(false);
   const [run, setRun] = useState<DeletionRun | null>(null);
+  const [targetCount, setTargetCount] = useState<number | null>(null);
 
   const workloads = WORKLOADS.filter(w => selected[w.id]).map(w => w.id);
   const needsAfter = scope === 'after' || scope === 'between';
@@ -137,7 +138,7 @@ export default function DeletionsPage() {
       </Text>
 
       {/* Users */}
-      <TargetPanel category="deletions" onReadyChange={setReady} />
+      <TargetPanel category="deletions" onReadyChange={setReady} onTargetCountChange={setTargetCount} />
 
       {/* Workloads */}
       <Card style={cardStyle}>
@@ -248,6 +249,12 @@ export default function DeletionsPage() {
           <WarningRegular style={{ color: tokens.colorPaletteRedForeground1, fontSize: 20, flexShrink: 0 }} />
           <Text block style={{ lineHeight: 1.5 }}>{summary}</Text>
         </div>
+
+        <Text size={200} block style={{ color: tokens.colorNeutralForeground3, marginTop: 10 }}>
+          {targetCount === null
+            ? t('run.previewUnknown')
+            : t('deletions.scanPreview', { count: targetCount, workloads: workloads.length })}
+        </Text>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
           <Checkbox

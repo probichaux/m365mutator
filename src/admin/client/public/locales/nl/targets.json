@@ -61,7 +61,6 @@
     "checkFailures": "{{failed}} van {{total}} doelen konden niet worden omgezet",
     "checkFailed": "Controle mislukt",
     "loadedCount": "{{count}} geladen uit de tenant",
-    "loadedMirrored": "{{count}} geladen uit de tenant (ook ingesteld voor Agenda)",
     "loadTruncated": "{{count}} van {{total}} geladen uit de tenant (begrensd)",
     "loadEmpty": "Geen overeenkomende objecten gevonden in de tenant",
     "loadFailed": "Laden mislukt",

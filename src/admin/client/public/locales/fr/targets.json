@@ -61,7 +61,6 @@
     "checkFailures": "Échec de la résolution de {{failed}} cibles sur {{total}}",
     "checkFailed": "Échec de la vérification",
     "loadedCount": "{{count}} chargés depuis le locataire",
-    "loadedMirrored": "{{count}} chargés depuis le locataire (également définis pour Calendrier)",
     "loadTruncated": "{{count}} sur {{total}} chargés depuis le locataire (plafonné)",
     "loadEmpty": "Aucun objet correspondant trouvé dans le locataire",
     "loadFailed": "Échec du chargement",

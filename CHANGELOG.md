@@ -2,6 +2,10 @@
 
 All notable changes to M365Mutator are documented in this file.
 
+## 0.6.7 — 2026-08-03
+
+- Disable "Do it now" on every workload tab while the target list has unsaved edits (typed, loaded, or CSV-imported), with a warning explaining why. Previously a run would silently use the last saved list, not whatever was showing in the box, if you forgot to click Save targets.
+
 ## 0.6.6 — 2026-08-03
 
 - Fix Mail's "Load" button silently overwriting the Calendar tab's saved target list. Each workload's targets are now fully independent — loading Mail's mailboxes from the tenant no longer touches Calendar's saved list.

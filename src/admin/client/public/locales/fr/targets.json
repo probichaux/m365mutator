@@ -48,6 +48,7 @@
   "checking": "Vérification…",
   "save": "Enregistrer les cibles",
   "saving": "Enregistrement…",
+  "unsavedChanges": "Modifications non enregistrées — une exécution utiliserait encore la dernière liste enregistrée, pas celle affichée ici. Cliquez sur Enregistrer les cibles pour appliquer cette liste.",
   "errors": {
     "notFound": "introuvable",
     "invalidUpn": "UPN non valide",

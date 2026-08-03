@@ -48,6 +48,7 @@
   "checking": "Bezig met controleren…",
   "save": "Doelen opslaan",
   "saving": "Bezig met opslaan…",
+  "unsavedChanges": "Niet-opgeslagen wijzigingen — een run zou nu nog steeds de laatst opgeslagen lijst gebruiken, niet wat hier wordt weergegeven. Klik op Doelen opslaan om deze lijst toe te passen.",
   "errors": {
     "notFound": "niet gevonden",
     "invalidUpn": "geen geldige UPN",

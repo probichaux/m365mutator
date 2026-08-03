@@ -48,6 +48,7 @@
   "checking": "Checking…",
   "save": "Save targets",
   "saving": "Saving…",
+  "unsavedChanges": "Unsaved changes — a run right now would still use the last saved list, not what's shown here. Click Save targets to apply this list.",
   "errors": {
     "notFound": "not found",
     "invalidUpn": "not a valid UPN",

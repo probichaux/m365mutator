@@ -72,7 +72,7 @@ export default function TargetPanel(
   const [runStyle, setRunStyle] = useState<RunStyle>('explicit');
   const [percent, setPercent] = useState(10);
   const [text, setText] = useState('');
-  const [savedCount, setSavedCount] = useState(0);
+  const [savedItems, setSavedItems] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -88,7 +88,7 @@ export default function TargetPanel(
       if (slice) {
         const items = slice.items ?? [];
         setText(items.join('\n'));
-        setSavedCount(items.length);
+        setSavedItems(items);
         if (slice.runStyle === 'random') setRunStyle('random');
         if (typeof slice.randomPercent === 'number') setPercent(slice.randomPercent);
       }
@@ -98,11 +98,20 @@ export default function TargetPanel(
   const persist = (cat: TargetCategory, partial: Record<string, unknown>) =>
     api<{ success: boolean; error?: string }>('PUT', `/api/targets/${cat}`, partial);
 
+  const savedCount = savedItems.length;
+  // True when the textarea (in explicit mode) has edits — typed, loaded, or
+  // imported — that haven't been saved yet. A run right now would still act on
+  // the older saved list below, not on what's shown, so this gates "Do it now"
+  // the same way an empty list does: the visible list must be saved before it's
+  // trusted to be what actually runs.
+  const dirty = runStyle === 'explicit'
+    && JSON.stringify(textToItems(text)) !== JSON.stringify(savedItems);
+
   // Tell the page whether "Do it now" should be enabled: random samples the
-  // tenant live (always ready); explicit needs saved targets to run against.
+  // tenant live (always ready); explicit needs saved, unedited targets to run against.
   useEffect(() => {
-    onReadyChange?.(runStyle === 'random' ? true : savedCount > 0);
-  }, [runStyle, savedCount, onReadyChange]);
+    onReadyChange?.(runStyle === 'random' ? true : (savedCount > 0 && !dirty));
+  }, [runStyle, savedCount, dirty, onReadyChange]);
 
   useEffect(() => {
     if (runStyle === 'explicit') {
@@ -144,7 +153,7 @@ export default function TargetPanel(
     const items = textToItems(text);
     const r = await persist(category, { items });
     setSaving(false);
-    if (r.data.success) setSavedCount(items.length);
+    if (r.data.success) setSavedItems(items);
     showToast(
       r.data.success ? t('toast.saved') : (r.data.error || t('toast.saveFailed')),
       r.data.success ? 'success' : 'error',
@@ -306,6 +315,12 @@ export default function TargetPanel(
             textarea={{ style: { minHeight: 180, fontFamily: 'var(--fontFamilyMonospace)' } }}
             style={{ width: '100%' }}
           />
+
+          {dirty && (
+            <Text size={200} block style={{ color: tokens.colorPaletteRedForeground1, marginTop: 8 }}>
+              {t('unsavedChanges')}
+            </Text>
+          )}
 
           <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
             <Tooltip content={t('loadFromTenant')} relationship="label">

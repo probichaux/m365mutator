@@ -48,6 +48,7 @@
   "checking": "Wird geprüft…",
   "save": "Ziele speichern",
   "saving": "Wird gespeichert…",
+  "unsavedChanges": "Ungespeicherte Änderungen — ein Lauf würde jetzt noch die zuletzt gespeicherte Liste verwenden, nicht die hier angezeigte. Klicken Sie auf „Ziele speichern“, um diese Liste zu übernehmen.",
   "errors": {
     "notFound": "nicht gefunden",
     "invalidUpn": "kein gültiger UPN",

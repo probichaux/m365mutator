@@ -59,6 +59,41 @@
         "reply": "geantwortet",
         "forward": "weitergeleitet",
         "move": "verschoben"
+      },
+      "size": {
+        "title": "Nachrichtengröße",
+        "description": "Neue Nachrichten vergrößern, um den Postfachspeicher wachsen zu lassen. Microsoft unterstützt automatisch erweiterbare Archive nur für Postfächer, die um höchstens 1 GB pro Tag wachsen. Halten Sie das Tageslimit daher für dieses Szenario bei 1 GB oder weniger. Größen sind Schätzwerte.",
+        "bodyKb": "Textgröße (KB)",
+        "bodyKbHint": "0 behält den kurzen Standardtext bei. Antworten verwenden ebenfalls diese Größe.",
+        "attachmentMb": "Anhang (MB)",
+        "attachmentMbHint": "Zufallsdaten an jeder neuen Nachricht. 0 bedeutet keiner. Maximal 25.",
+        "dailyCapGb": "Tageslimit (GB)",
+        "dailyCapGbHint": "Beendet den Lauf bei diesem Zuwachs heute. 0 bedeutet kein Limit.",
+        "today": "Heute hinzugefügt: etwa {{used}} GB von {{cap}} GB.",
+        "todayNoCap": "Heute hinzugefügt: etwa {{used}} GB (kein Limit).",
+        "added": "Dieser Lauf hat etwa {{added}} GB hinzugefügt. Heutige Summe: etwa {{today}} GB.",
+        "capReached": "Tageslimit erreicht; {{skipped}} Aktion(en) übersprungen."
+      },
+      "job": {
+        "stop": "Stoppen",
+        "stopping": "Wird gestoppt…",
+        "progress": "{{completed}} von {{planned}} Aktionen · {{ok}} ok · {{failed}} fehlgeschlagen · etwa {{added}} GB hinzugefügt",
+        "leaveHint": "Der Lauf wird auf dem Server fortgesetzt, wenn Sie diese Seite verlassen. Sie können jederzeit zurückkehren, um ihn zu prüfen.",
+        "alreadyRunning": "Es läuft bereits ein Mail-Lauf.",
+        "toastStopped": "Nach {{total}} Mail-Aktionen gestoppt",
+        "stoppedNote": "Auf Anforderung gestoppt; {{skipped}} Aktion(en) übersprungen.",
+        "recentNote": "Die letzten {{shown}} von {{total}} Aktionen werden angezeigt.",
+        "continuous": "Fortlaufend ausführen",
+        "continuousHint": "Läuft, bis Sie ihn stoppen. Mit Tageslimit pausiert er beim Limit und setzt nach Mitternacht fort; setzen Sie das Limit auf 0, um ohne Pause zu laufen. Er endet von selbst nach 25 Fehlern in Folge, zum Beispiel wenn das Postfach voll ist.",
+        "startContinuous": "Fortlaufenden Lauf starten",
+        "progressContinuous": "{{completed}} Aktionen · {{ok}} ok · {{failed}} fehlgeschlagen · etwa {{added}} GB hinzugefügt · läuft seit {{elapsed}}",
+        "paused": "Tageslimit erreicht. Pausiert bis {{time}}.",
+        "throttledNow": "Outlook drosselt dieses Postfach gerade ({{count}}-mal in den letzten 5 Minuten). Der Lauf wird langsamer und wiederholt automatisch.",
+        "throttleNone": "Bisher keine Drosselung.",
+        "throttleSummary": "{{events}}-mal gedrosselt ({{tooMany}}× 429, {{busy}}× 503/504), insgesamt etwa {{wait}} Wartezeit. Zuletzt um {{time}}.",
+        "summaryContinuous": "Fortlaufender Lauf: {{total}} Aktionen · {{ok}} ok · {{failed}} fehlgeschlagen · Laufzeit {{elapsed}}",
+        "failuresNote": "Nach 25 Fehlern in Folge beendet. Letzter Fehler: {{error}}",
+        "toastFailures": "Mail-Lauf nach 25 Fehlern in Folge beendet"
       }
     }
   },

@@ -59,6 +59,41 @@
         "reply": "replied",
         "forward": "forwarded",
         "move": "moved"
+      },
+      "size": {
+        "title": "Message size",
+        "description": "Make new messages larger to grow mailbox storage. Microsoft supports auto-expanding archives only for mailboxes that grow by no more than 1 GB per day, so keep the daily cap at 1 GB or less for that scenario. Sizes are estimates.",
+        "bodyKb": "Body size (KB)",
+        "bodyKbHint": "0 keeps the short default text. Replies use this size too.",
+        "attachmentMb": "Attachment (MB)",
+        "attachmentMbHint": "Random data on each new message. 0 means none. Max 25.",
+        "dailyCapGb": "Daily cap (GB)",
+        "dailyCapGbHint": "Stops the run at this much growth today. 0 means no cap.",
+        "today": "Added today: about {{used}} GB of {{cap}} GB.",
+        "todayNoCap": "Added today: about {{used}} GB (no cap).",
+        "added": "This run added about {{added}} GB. Today's total is about {{today}} GB.",
+        "capReached": "Daily cap reached; skipped {{skipped}} action(s)."
+      },
+      "job": {
+        "stop": "Stop",
+        "stopping": "Stopping…",
+        "progress": "{{completed}} of {{planned}} actions · {{ok}} ok · {{failed}} failed · about {{added}} GB added",
+        "leaveHint": "The run continues on the server if you leave this page. Come back any time to check on it.",
+        "alreadyRunning": "A mail run is already in progress.",
+        "toastStopped": "Stopped after {{total}} mail actions",
+        "stoppedNote": "Stopped on request; skipped {{skipped}} action(s).",
+        "recentNote": "Showing the most recent {{shown}} of {{total}} actions.",
+        "continuous": "Run continuously",
+        "continuousHint": "Runs until you stop it. With a daily cap, it pauses at the cap and resumes after midnight; set the cap to 0 to run without pausing. It ends on its own after 25 failures in a row, for example when the mailbox is full.",
+        "startContinuous": "Start continuous run",
+        "progressContinuous": "{{completed}} actions · {{ok}} ok · {{failed}} failed · about {{added}} GB added · running for {{elapsed}}",
+        "paused": "Daily cap reached. Paused until {{time}}.",
+        "throttledNow": "Outlook is throttling this mailbox right now ({{count}} times in the last 5 minutes). The run slows down and retries automatically.",
+        "throttleNone": "No throttling so far.",
+        "throttleSummary": "Throttled {{events}} times ({{tooMany}}× 429, {{busy}}× 503/504), about {{wait}} of waiting in total. Last at {{time}}.",
+        "summaryContinuous": "Continuous run: {{total}} actions · {{ok}} ok · {{failed}} failed · ran for {{elapsed}}",
+        "failuresNote": "Ended after 25 failures in a row. Last error: {{error}}",
+        "toastFailures": "Mail run ended after 25 failures in a row"
       }
     }
   },

@@ -59,6 +59,41 @@
         "reply": "répondu",
         "forward": "transféré",
         "move": "déplacé"
+      },
+      "size": {
+        "title": "Taille des messages",
+        "description": "Agrandissez les nouveaux messages pour faire croître le stockage de la boîte aux lettres. Microsoft ne prend en charge l'archivage à extension automatique que pour les boîtes qui croissent d'au plus 1 Go par jour ; gardez donc la limite quotidienne à 1 Go ou moins pour ce scénario. Les tailles sont des estimations.",
+        "bodyKb": "Taille du corps (Ko)",
+        "bodyKbHint": "0 conserve le texte court par défaut. Les réponses utilisent aussi cette taille.",
+        "attachmentMb": "Pièce jointe (Mo)",
+        "attachmentMbHint": "Données aléatoires sur chaque nouveau message. 0 signifie aucune. Maximum 25.",
+        "dailyCapGb": "Limite quotidienne (Go)",
+        "dailyCapGbHint": "Arrête l'exécution à cette croissance aujourd'hui. 0 signifie aucune limite.",
+        "today": "Ajouté aujourd'hui : environ {{used}} Go sur {{cap}} Go.",
+        "todayNoCap": "Ajouté aujourd'hui : environ {{used}} Go (sans limite).",
+        "added": "Cette exécution a ajouté environ {{added}} Go. Total du jour : environ {{today}} Go.",
+        "capReached": "Limite quotidienne atteinte ; {{skipped}} action(s) ignorée(s)."
+      },
+      "job": {
+        "stop": "Arrêter",
+        "stopping": "Arrêt en cours…",
+        "progress": "{{completed}} actions sur {{planned}} · {{ok}} réussies · {{failed}} en échec · environ {{added}} Go ajoutés",
+        "leaveHint": "L'exécution se poursuit sur le serveur si vous quittez cette page. Revenez à tout moment pour la suivre.",
+        "alreadyRunning": "Une exécution de messagerie est déjà en cours.",
+        "toastStopped": "Arrêté après {{total}} actions de messagerie",
+        "stoppedNote": "Arrêté à la demande ; {{skipped}} action(s) ignorée(s).",
+        "recentNote": "Affichage des {{shown}} dernières actions sur {{total}}.",
+        "continuous": "Exécuter en continu",
+        "continuousHint": "S'exécute jusqu'à ce que vous l'arrêtiez. Avec une limite quotidienne, il se met en pause à la limite et reprend après minuit ; réglez la limite sur 0 pour ne jamais faire de pause. Il s'arrête de lui-même après 25 échecs consécutifs, par exemple lorsque la boîte aux lettres est pleine.",
+        "startContinuous": "Démarrer l'exécution continue",
+        "progressContinuous": "{{completed}} actions · {{ok}} réussies · {{failed}} en échec · environ {{added}} Go ajoutés · en cours depuis {{elapsed}}",
+        "paused": "Limite quotidienne atteinte. En pause jusqu'à {{time}}.",
+        "throttledNow": "Outlook limite actuellement cette boîte aux lettres ({{count}} fois au cours des 5 dernières minutes). L'exécution ralentit et réessaie automatiquement.",
+        "throttleNone": "Aucune limitation pour l'instant.",
+        "throttleSummary": "Limité {{events}} fois ({{tooMany}}× 429, {{busy}}× 503/504), environ {{wait}} d'attente au total. Dernière fois à {{time}}.",
+        "summaryContinuous": "Exécution continue : {{total}} actions · {{ok}} réussies · {{failed}} en échec · durée {{elapsed}}",
+        "failuresNote": "Arrêtée après 25 échecs consécutifs. Dernière erreur : {{error}}",
+        "toastFailures": "Exécution de messagerie arrêtée après 25 échecs consécutifs"
       }
     }
   },

@@ -8,7 +8,9 @@ import { loadTargets, saveTargets, saveTargetCategory, TARGET_CATEGORIES, Target
 import { checkTargets } from './target-check.js';
 import { loadCategory, resolveTargetItems } from './target-load.js';
 import { mutateIdentities } from './identity-mutate.js';
-import { mutateMail } from './mail-mutate.js';
+import { normalizeSizeOptions } from './mail-mutate.js';
+import { getMailJob, isMailJobActive, startMailJob, stopMailJob } from './mail-jobs.js';
+import { bytesAddedToday } from './seed-usage.js';
 import { mutateCalendar } from './calendar-mutate.js';
 import { sanitizeUpstreamError } from './connectivity.js';
 import { MUTABLE_ATTRIBUTES } from '../graph/user-attributes.js';
@@ -174,10 +176,18 @@ router.post('/api/identities/mutate', async (_req: Request, res: Response) => {
 // ── Mail: weighted random mailbox operations ────────────────────────
 
 router.post('/api/mail/mutate', async (req: Request, res: Response) => {
+  if (isMailJobActive()) {
+    res.status(409).json({ error: 'A mail run is already in progress', job: getMailJob() });
+    return;
+  }
   const mail = loadTargets().mail;
-  const { runs, allowDeletions } = req.body as { runs?: unknown; allowDeletions?: unknown };
+  const { runs, allowDeletions, bodyKb, attachmentMb, dailyCapGb, continuous } = req.body as {
+    runs?: unknown; allowDeletions?: unknown; bodyKb?: unknown; attachmentMb?: unknown; dailyCapGb?: unknown;
+    continuous?: unknown;
+  };
   const runCount = typeof runs === 'number' && Number.isFinite(runs) ? runs : 1;
   const allowDel = allowDeletions === true;
+  const size = normalizeSizeOptions({ bodyKb, attachmentMb, dailyCapGb });
   try {
     // Explicit → the saved list; random → a fresh random % of the tenant's mailboxes.
     const resolved = await resolveTargetItems('mail', mail);
@@ -188,11 +198,31 @@ router.post('/api/mail/mutate', async (req: Request, res: Response) => {
       res.status(400).json({ error: msg });
       return;
     }
-    const run = await mutateMail(resolved.items, runCount, allowDel);
-    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
+    // Re-check: target resolution awaits Graph, so another start could have slipped in.
+    if (isMailJobActive()) {
+      res.status(409).json({ error: 'A mail run is already in progress', job: getMailJob() });
+      return;
+    }
+    // The run continues in the background; the page polls /api/mail/job for progress.
+    const job = startMailJob(
+      resolved.items, runCount, allowDel, size, resolved.runStyle, bytesAddedToday(), continuous === true,
+    );
+    res.status(202).json({ job });
   } catch (err: unknown) {
     res.status(502).json({ error: sanitizeUpstreamError(err) });
   }
+});
+
+router.get('/api/mail/job', (_req: Request, res: Response) => {
+  res.json({ job: getMailJob() });
+});
+
+router.post('/api/mail/job/stop', (_req: Request, res: Response) => {
+  res.json({ job: stopMailJob() });
+});
+
+router.get('/api/mail/usage', (_req: Request, res: Response) => {
+  res.json({ bytesToday: bytesAddedToday() });
 });
 
 // ── Calendar: 50/50 random meeting-or-appointment creation ──────────

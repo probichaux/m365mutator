@@ -59,6 +59,41 @@
         "reply": "beantwoord",
         "forward": "doorgestuurd",
         "move": "verplaatst"
+      },
+      "size": {
+        "title": "Berichtgrootte",
+        "description": "Maak nieuwe berichten groter om de postvakopslag te laten groeien. Microsoft ondersteunt automatisch uitbreidende archieven alleen voor postvakken die met maximaal 1 GB per dag groeien, dus houd de daglimiet voor dit scenario op 1 GB of minder. Groottes zijn schattingen.",
+        "bodyKb": "Tekstgrootte (KB)",
+        "bodyKbHint": "0 behoudt de korte standaardtekst. Antwoorden gebruiken deze grootte ook.",
+        "attachmentMb": "Bijlage (MB)",
+        "attachmentMbHint": "Willekeurige gegevens bij elk nieuw bericht. 0 betekent geen. Maximaal 25.",
+        "dailyCapGb": "Daglimiet (GB)",
+        "dailyCapGbHint": "Stopt de uitvoering bij deze groei vandaag. 0 betekent geen limiet.",
+        "today": "Vandaag toegevoegd: ongeveer {{used}} GB van {{cap}} GB.",
+        "todayNoCap": "Vandaag toegevoegd: ongeveer {{used}} GB (geen limiet).",
+        "added": "Deze uitvoering heeft ongeveer {{added}} GB toegevoegd. Totaal vandaag: ongeveer {{today}} GB.",
+        "capReached": "Daglimiet bereikt; {{skipped}} actie(s) overgeslagen."
+      },
+      "job": {
+        "stop": "Stoppen",
+        "stopping": "Bezig met stoppen…",
+        "progress": "{{completed}} van {{planned}} acties · {{ok}} ok · {{failed}} mislukt · ongeveer {{added}} GB toegevoegd",
+        "leaveHint": "De uitvoering gaat door op de server als u deze pagina verlaat. Kom op elk moment terug om de voortgang te bekijken.",
+        "alreadyRunning": "Er wordt al een mailuitvoering uitgevoerd.",
+        "toastStopped": "Gestopt na {{total}} mailacties",
+        "stoppedNote": "Op verzoek gestopt; {{skipped}} actie(s) overgeslagen.",
+        "recentNote": "De meest recente {{shown}} van {{total}} acties worden weergegeven.",
+        "continuous": "Doorlopend uitvoeren",
+        "continuousHint": "Loopt tot u hem stopt. Met een daglimiet pauzeert hij bij de limiet en gaat hij na middernacht verder; zet de limiet op 0 om zonder pauze te lopen. Hij stopt vanzelf na 25 mislukkingen op rij, bijvoorbeeld als het postvak vol is.",
+        "startContinuous": "Doorlopende uitvoering starten",
+        "progressContinuous": "{{completed}} acties · {{ok}} ok · {{failed}} mislukt · ongeveer {{added}} GB toegevoegd · actief sinds {{elapsed}}",
+        "paused": "Daglimiet bereikt. Gepauzeerd tot {{time}}.",
+        "throttledNow": "Outlook beperkt dit postvak op dit moment ({{count}} keer in de afgelopen 5 minuten). De uitvoering vertraagt en probeert het automatisch opnieuw.",
+        "throttleNone": "Nog geen beperking.",
+        "throttleSummary": "{{events}} keer beperkt ({{tooMany}}× 429, {{busy}}× 503/504), in totaal ongeveer {{wait}} wachttijd. Laatst om {{time}}.",
+        "summaryContinuous": "Doorlopende uitvoering: {{total}} acties · {{ok}} ok · {{failed}} mislukt · duur {{elapsed}}",
+        "failuresNote": "Gestopt na 25 mislukkingen op rij. Laatste fout: {{error}}",
+        "toastFailures": "Mailuitvoering gestopt na 25 mislukkingen op rij"
       }
     }
   },

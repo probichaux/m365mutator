@@ -2,7 +2,7 @@
 
 import { listAllUsers, DirectoryUser } from '../graph/users.js';
 import { listAllSites } from '../graph/sites.js';
-import { TargetCategory, TargetCategoryConfig, RunStyle, MAX_ITEMS_PER_CATEGORY } from './targets-store.js';
+import { TargetCategory, TargetCategoryConfig, RunStyle } from './targets-store.js';
 
 export interface LoadResult {
   items: string[];
@@ -70,13 +70,17 @@ export async function loadCategory(category: TargetCategory): Promise<LoadResult
     case 'onedrive':
       all = await loadUpns(hasOneDrive);
       break;
+    case 'deletions':
+      // Deletions can touch mail, calendar, or OneDrive, so the pool is any user
+      // with a mailbox or OneDrive provisioned.
+      all = await loadUpns(u => isMailbox(u) || hasOneDrive(u));
+      break;
     case 'sharepoint':
       all = dedupe(await listAllSites());
       break;
   }
 
-  const items = all.slice(0, MAX_ITEMS_PER_CATEGORY);
-  return { items, total: all.length, truncated: all.length > items.length };
+  return { items: all, total: all.length, truncated: false };
 }
 
 /** How many items a percentage selects from a pool of `poolSize`, at least 1 (0 if the pool is empty). */

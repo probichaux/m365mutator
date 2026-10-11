@@ -21,6 +21,10 @@
     "sharepoint": {
       "label": "SharePoint",
       "hint": "Site-URL's waarvan de inhoud mag worden gewijzigd (het voorvoegsel https:// is optioneel)"
+    },
+    "deletions": {
+      "label": "Verwijderingen",
+      "hint": "Vermeld de gebruikers van wie e-mail-, agenda- of OneDrive-items mogen worden verwijderd, als UPN's. Gebruik de knop Laden om een lijst met UPN's in te lezen of om alle betreffende gebruikers uit de tenant te laden."
     }
   },
   "enabled": "Ingeschakeld",
@@ -44,6 +48,7 @@
   "checking": "Bezig met controleren…",
   "save": "Doelen opslaan",
   "saving": "Bezig met opslaan…",
+  "unsavedChanges": "Niet-opgeslagen wijzigingen — een run zou nu nog steeds de laatst opgeslagen lijst gebruiken, niet wat hier wordt weergegeven. Klik op Doelen opslaan om deze lijst toe te passen.",
   "errors": {
     "notFound": "niet gevonden",
     "invalidUpn": "geen geldige UPN",
@@ -57,7 +62,6 @@
     "checkFailures": "{{failed}} van {{total}} doelen konden niet worden omgezet",
     "checkFailed": "Controle mislukt",
     "loadedCount": "{{count}} geladen uit de tenant",
-    "loadedMirrored": "{{count}} geladen uit de tenant (ook ingesteld voor Agenda)",
     "loadTruncated": "{{count}} van {{total}} geladen uit de tenant (begrensd)",
     "loadEmpty": "Geen overeenkomende objecten gevonden in de tenant",
     "loadFailed": "Laden mislukt",

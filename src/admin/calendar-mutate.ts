@@ -3,7 +3,7 @@
 import {
   createEvent, getWorkingHours, CalendarEvent, WorkingHours,
 } from '../graph/calendar.js';
-import { generateText, SUBJECT_PROMPT } from './random-text.js';
+import { generateText, subjectPrompt } from './random-text.js';
 import { sanitizeUpstreamError } from './connectivity.js';
 import { logger } from '../logger/logger.js';
 
@@ -130,7 +130,7 @@ async function mutateOne(actor: string, others: string[]): Promise<CalendarResul
   try {
     const wh = (await getWorkingHours(actor)) ?? DEFAULT_WORKING_HOURS;
     const when = pickEventWindow(wh);
-    const subject = await generateText(SUBJECT_PROMPT);
+    const subject = await generateText(subjectPrompt());
     const event: CalendarEvent = {
       subject,
       start: { dateTime: when.start, timeZone: when.timeZone },

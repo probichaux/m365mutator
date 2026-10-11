@@ -1,16 +1,28 @@
-// Random text for mail mutations: OpenRouter when a key is configured, GUID otherwise.
+// Random text generation: OpenRouter when a key is configured, GUID otherwise.
 
 import { randomUUID } from 'node:crypto';
-import { loadConfig } from './config-store.js';
+import { loadConfig, DEFAULT_SUBJECT_PROMPT, DEFAULT_BODY_PROMPT } from './config-store.js';
 import { logger } from '../logger/logger.js';
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-/** Prompts specified by the mod03-mail plan. */
-export const SUBJECT_PROMPT =
-  'Generate a one-sentence subject line in English related to software-as-a-service applications, OR airline travel, OR the World Cup.';
-export const BODY_PROMPT =
-  'Generate a one-paragraph text summary of a little-known scientific fact about physics, chemistry, biology, geology, or astronomy.';
+/**
+ * Default prompts. The effective prompt is resolved at call time from config
+ * (see subjectPrompt/bodyPrompt), so users can override these via the settings
+ * UI or the SUBJECT_PROMPT/BODY_PROMPT env vars when model routing is enabled.
+ */
+export const SUBJECT_PROMPT = DEFAULT_SUBJECT_PROMPT;
+export const BODY_PROMPT = DEFAULT_BODY_PROMPT;
+
+/** The user's custom subject prompt, or the default when none is configured. */
+export function subjectPrompt(): string {
+  return loadConfig().subjectPrompt || DEFAULT_SUBJECT_PROMPT;
+}
+
+/** The user's custom body prompt, or the default when none is configured. */
+export function bodyPrompt(): string {
+  return loadConfig().bodyPrompt || DEFAULT_BODY_PROMPT;
+}
 
 /**
  * Generate text for `prompt`. If an OpenRouter API key is configured, ask the

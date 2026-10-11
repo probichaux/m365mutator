@@ -20,11 +20,15 @@
   },
   "openRouter": {
     "sectionTitle": "OpenRouter",
-    "description": "Facultatif. Lorsqu'une clé est définie, les mutations de courrier utilisent OpenRouter pour générer des objets et des corps de message aléatoires. Sans clé, un GUID aléatoire est utilisé à la place.",
+    "description": "Facultatif. Lorsqu'une clé est définie, les mutations utilisent OpenRouter pour générer des objets et des corps de message. Sans clé, un GUID aléatoire est utilisé à la place.",
     "apiKey": "Clé API",
     "apiKeyHint": "Stockée en texte clair dans le répertoire de données, comme le secret Graph.",
     "model": "Modèle",
-    "modelHint": "ID de modèle OpenRouter. Par défaut : openai/gpt-4o-mini."
+    "modelHint": "ID de modèle OpenRouter. Par défaut : openai/gpt-4o-mini.",
+    "subjectPrompt": "Invite d'objet",
+    "subjectPromptHint": "Invite utilisée pour générer les objets et les titres de documents. Laisser vide pour utiliser la valeur par défaut.",
+    "bodyPrompt": "Invite de corps",
+    "bodyPromptHint": "Invite utilisée pour générer les corps de message et de fichier. Laisser vide pour utiliser la valeur par défaut."
   },
   "saveConfiguration": "Enregistrer la configuration",
   "savingConfiguration": "Enregistrement...",

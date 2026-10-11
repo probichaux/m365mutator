@@ -18,8 +18,8 @@ vi.mock('./seed-usage.js', () => ({
 }));
 vi.mock('./random-text.js', () => ({
   generateText: vi.fn().mockResolvedValue('text'),
-  SUBJECT_PROMPT: 's',
-  BODY_PROMPT: 'b',
+  subjectPrompt: () => 's',
+  bodyPrompt: () => 'b',
 }));
 
 import { beforeEach } from 'vitest';

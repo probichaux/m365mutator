@@ -133,6 +133,7 @@ export default function MailPage() {
   const [continuous, setContinuous] = useState(loadContinuous);
   const [job, setJob] = useState<MailJob | null>(null);
   const [ready, setReady] = useState(false);
+  const [targetCount, setTargetCount] = useState<number | null>(null);
   // The job id this page started or found running, so finishing it raises a toast once.
   const watchedJob = useRef<string | null>(null);
   const running = starting || isActive(job);
@@ -218,7 +219,7 @@ export default function MailPage() {
     <div>
       <Title2 block style={{ marginBottom: 16 }}>{t('categories.mail.label')}</Title2>
 
-      <TargetPanel category="mail" onReadyChange={setReady} />
+      <TargetPanel category="mail" onReadyChange={setReady} onTargetCountChange={setTargetCount} />
 
       <Card style={{ marginTop: 16 }}>
         <Text weight="semibold" size={400} block style={{ marginBottom: 4 }}>{tp('mail.mutate.title')}</Text>
@@ -312,6 +313,14 @@ export default function MailPage() {
             </Button>
           )}
         </div>
+
+        <Text size={200} block style={{ color: tokens.colorNeutralForeground3, marginTop: 8 }}>
+          {targetCount === null
+            ? tp('run.previewUnknown')
+            : continuous
+              ? tp('run.previewContinuous', { count: targetCount })
+              : tp('run.previewRuns', { runs, count: targetCount, total: runs * targetCount })}
+        </Text>
 
         {job && active && (
           <div style={{ marginTop: 16 }}>

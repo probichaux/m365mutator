@@ -1,6 +1,10 @@
 {
   "run": {
-    "needTargets": "Load or enter targets, then click Save targets to enable this."
+    "needTargets": "Load or enter targets, then click Save targets to enable this.",
+    "preview": "This will perform {{total}} action(s) against {{count}} target(s).",
+    "previewRuns": "{{runs}} pass(es) × {{count}} target(s) = {{total}} action(s).",
+    "previewUnknown": "Target count unknown until the tenant pool loads.",
+    "previewContinuous": "Continuous run against {{count}} target(s), until you stop it."
   },
   "scaffold": {
     "calendarTitle": "Randomize calendar activity",
@@ -132,5 +136,108 @@
       "Modify document metadata",
       "Remove a document from OneDrive or SharePoint"
     ]
+  },
+  "deletions": {
+    "title": "Deletions",
+    "lede": "Delete a range of items across a user's workloads to test deleted-item recovery and retention. Choose the users, pick which workloads to touch, then scope the deletion by date.",
+    "workloads": {
+      "title": "Workloads",
+      "subtitle": "Which data to delete from. Select one or more.",
+      "mail": "Mail",
+      "mailSub": "messages",
+      "calendar": "Calendar",
+      "calendarSub": "events",
+      "onedrive": "OneDrive",
+      "onedriveSub": "files"
+    },
+    "scope": {
+      "title": "What to delete",
+      "subtitle": "Items are matched by the date they arrived — received date for mail, created date for calendar events and files. Boundary dates are included.",
+      "all": "Everything",
+      "allDesc": "Delete every item, regardless of date",
+      "after": "After a date",
+      "afterDesc": "Only items dated on or after the date",
+      "before": "Before a date",
+      "beforeDesc": "Only items dated on or before the date",
+      "between": "Between two dates",
+      "betweenDesc": "Only items inside a date range",
+      "afterLabel": "After",
+      "beforeLabel": "Before",
+      "fromLabel": "From",
+      "toLabel": "To",
+      "orderError": "The start date must not be after the end date."
+    },
+    "summary": {
+      "all": "Delete every item from {{workloads}} for the selected users.",
+      "after": "Delete items dated on or after {{date}} from {{workloads}} for the selected users.",
+      "before": "Delete items dated on or before {{date}} from {{workloads}} for the selected users.",
+      "between": "Delete items dated between {{from}} and {{to}} from {{workloads}} for the selected users."
+    },
+    "noWorkloads": "no workloads",
+    "acknowledge": "I understand this deletes items for the selected users",
+    "needConfirm": "Select workloads, confirm the acknowledgement, and save targets to enable this.",
+    "deleteButton": "Delete items",
+    "deleting": "Deleting…",
+    "runSummary": "Deleted {{deleted}} of {{matched}} matched items across {{users}} user(s)",
+    "resultLine": "{{deleted}}/{{matched}} deleted",
+    "truncated": "Showing the first {{shown}} of {{total}} results.",
+    "scanPreview": "Will scan {{count}} user(s) across {{workloads}} workload(s).",
+    "toastNone": "No matching items were found to delete",
+    "toastOk": "Deleted {{deleted}} items across {{users}} user(s)",
+    "toastFailures": "Deleted {{deleted}} items; {{failed}} failed",
+    "toastFailed": "Deletion failed",
+    "workloadName": {
+      "mail": "mail",
+      "calendar": "calendar",
+      "onedrive": "OneDrive"
+    }
+  },
+  "onedrive": {
+    "mutate": {
+      "title": "Randomize OneDrive activity",
+      "description": "For each selected user, performs one random action in a random existing folder: create a text file, create a Word or PDF document, rename a file, create a folder, remove a file, create a folder and move a file into it, or add a random image from Wikimedia Commons. Document and text content come from OpenRouter when a key is configured.",
+      "doItNow": "Do it now",
+      "running": "Mutating…",
+      "runsLabel": "Number of passes",
+      "runsSuffix": "pass(es)",
+      "summary": "Ran {{runs}}× — {{total}} actions · {{ok}} ok · {{failed}} failed",
+      "truncated": "Showing the first {{shown}} of {{total}} actions.",
+      "toastOk": "Completed {{total}} OneDrive actions ({{runs}}×)",
+      "toastFailures": "{{failed}} of {{total}} OneDrive actions failed ({{runs}}×)",
+      "toastFailed": "OneDrive mutation failed",
+      "op": {
+        "createText": "text file",
+        "createDoc": "document",
+        "rename": "rename",
+        "createFolder": "folder",
+        "remove": "remove",
+        "folderMove": "move",
+        "image": "image"
+      }
+    }
+  },
+  "sharepoint": {
+    "mutate": {
+      "title": "Randomize SharePoint activity",
+      "description": "For each selected site, performs one random action in a random existing folder in the site's default document library: create a text file, create a Word or PDF document, rename a file, create a folder, remove a file, create a folder and move a file into it, or add a random image from Wikimedia Commons. Document and text content come from OpenRouter when a key is configured.",
+      "doItNow": "Do it now",
+      "running": "Mutating…",
+      "runsLabel": "Number of passes",
+      "runsSuffix": "pass(es)",
+      "summary": "Ran {{runs}}× — {{total}} actions · {{ok}} ok · {{failed}} failed",
+      "truncated": "Showing the first {{shown}} of {{total}} actions.",
+      "toastOk": "Completed {{total}} SharePoint actions ({{runs}}×)",
+      "toastFailures": "{{failed}} of {{total}} SharePoint actions failed ({{runs}}×)",
+      "toastFailed": "SharePoint mutation failed",
+      "op": {
+        "createText": "text file",
+        "createDoc": "document",
+        "rename": "rename",
+        "createFolder": "folder",
+        "remove": "remove",
+        "folderMove": "move",
+        "image": "image"
+      }
+    }
   }
 }

@@ -4,7 +4,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import {
   sendMail, sendMailWithAttachment, replyToMail, forwardMail, moveMessage, listInboxMessages, MailRef,
 } from '../graph/mail.js';
-import { generateText, SUBJECT_PROMPT, BODY_PROMPT } from './random-text.js';
+import { generateText, subjectPrompt, bodyPrompt } from './random-text.js';
 import { fillerText } from './filler-text.js';
 import { bytesAddedToday, recordBytesAdded, today } from './seed-usage.js';
 import { sanitizeUpstreamError } from './connectivity.js';
@@ -135,7 +135,7 @@ export function normalizeSizeOptions(raw: Partial<Record<keyof MailSizeOptions, 
 }
 
 async function bodyText(size: MailSizeOptions): Promise<string> {
-  return size.bodyKb > 0 ? fillerText(size.bodyKb * 1024) : generateText(BODY_PROMPT);
+  return size.bodyKb > 0 ? fillerText(size.bodyKb * 1024) : generateText(bodyPrompt());
 }
 
 const formatMb = (bytes: number) => `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -174,7 +174,7 @@ function pickCounterpart(actor: string, others: string[]): string {
 
 async function runSend(actor: string, others: string[], size: MailSizeOptions, fellBackFrom?: MailOp): Promise<MailResult> {
   const to = pickCounterpart(actor, others);
-  const subject = await generateText(SUBJECT_PROMPT);
+  const subject = await generateText(subjectPrompt());
   const content = await bodyText(size);
   const message = {
     subject,

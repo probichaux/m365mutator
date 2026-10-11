@@ -10,6 +10,33 @@ All notable changes to M365Mutator are documented in this file.
 - Add a continuous mode to the Mail tab: it runs until stopped, pauses at the daily cap until midnight, and ends on its own after 25 failures in a row.
 - Track throttling (429, 503, and 504 responses) from Graph and attachment uploads, retry up to 10 times, and show throttling on the Mail tab and in a status line written to the log every 10 minutes.
 
+## 0.6.7 — 2026-08-03
+
+- Disable "Do it now" on every workload tab while the target list has unsaved edits (typed, loaded, or CSV-imported), with a warning explaining why. Previously a run would silently use the last saved list, not whatever was showing in the box, if you forgot to click Save targets.
+
+## 0.6.6 — 2026-08-03
+
+- Fix Mail's "Load" button silently overwriting the Calendar tab's saved target list. Each workload's targets are now fully independent — loading Mail's mailboxes from the tenant no longer touches Calendar's saved list.
+- Show a live action-count preview (e.g. "3 passes × 6 targets = 18 actions") under each workload's Run button, so the actual scope of a run is visible before it fires.
+
+## 0.6.5 — 2026-07-15
+
+- Add real SharePoint mutation activity to the SharePoint tab (replacing the scaffold): one weighted-random action per selected site per pass — create a text file, create a Word or PDF document, rename a file, create a folder, remove a file, create a folder and move a file into it, or add a random image from Wikimedia Commons. Identical operations and weights to the OneDrive tab; actions target the site's default document library.
+- The SharePoint Load button now streams site URLs progressively as Graph pages arrive, so the text field fills in without waiting for full pagination to complete.
+- Display the app version in the header nav bar, next to the settings icon, as a link to the changelog on GitHub.
+- Remove the 1,000-item hard cap on target lists; categories can now hold as many items as the tenant returns.
+
+## 0.6.0 — 2026-07-12
+
+- Add real OneDrive mutation activity to the OneDrive tab (replacing the scaffold): one weighted-random action per selected user per pass — create a text file, create a Word or PDF document, rename a file (keeping its extension), create a folder, remove a file, create a folder and move a file into it, or add a random image from Wikimedia Commons.
+- Each action targets a random existing folder in the user's drive (the root when there are none); document and text content come from OpenRouter when a key is configured.
+
+## 0.5.0 — 2026-07-12
+
+- Add a **Deletions** tab: select users (explicit list or a random tenant sample), pick the Mail, Calendar, and/or OneDrive workloads, and delete a date-scoped range of items to test deleted-item recovery and retention.
+- Scope the deletion to everything, before a date, after a date, or between two dates (boundary dates inclusive); items match on the date they arrived — received date for mail, created date for calendar events and files.
+- Deletions are soft/recoverable (Deleted Items / recycle bin) and gated behind an explicit acknowledgement.
+
 ## 0.4.0 — 2026-07-10
 
 - Add Dutch and French localizations for the admin UI.

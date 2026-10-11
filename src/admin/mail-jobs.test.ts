@@ -10,8 +10,8 @@ vi.mock('../graph/mail.js', () => ({
 }));
 vi.mock('./random-text.js', () => ({
   generateText: vi.fn().mockResolvedValue('text'),
-  SUBJECT_PROMPT: 's',
-  BODY_PROMPT: 'b',
+  subjectPrompt: () => 's',
+  bodyPrompt: () => 'b',
 }));
 const usage = vi.hoisted(() => ({ bytes: 0 }));
 vi.mock('./seed-usage.js', () => ({

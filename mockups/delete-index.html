@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M365Mutator — Deletions page mockups</title>
+<style>
+  body { margin:0; font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:#f3f2f1; color:#242424; }
+  header { background:#241d78; color:#fff; padding:16px 24px; font-size:18px; font-weight:600; }
+  main { max-width:720px; margin:40px auto; padding:0 24px; }
+  h1 { font-size:22px; }
+  p { color:#616161; line-height:1.6; }
+  ul { list-style:none; padding:0; display:grid; gap:12px; }
+  a.card { display:block; text-decoration:none; color:inherit; background:#fff; border:1px solid #e1dfdd; border-radius:8px; padding:18px 20px; }
+  a.card:hover { border-color:#5b5fc7; }
+  a.card b { color:#5b5fc7; }
+  a.card span { display:block; color:#616161; font-size:13px; margin-top:4px; }
+  .note { background:#fff; border:1px solid #e1dfdd; border-radius:8px; padding:16px 20px; font-size:13px; color:#616161; margin-top:24px; }
+  .note b { color:#242424; }
+</style>
+</head>
+<body>
+<header>M365Mutator — Deletions page mockups</header>
+<main>
+  <h1>The Deletions page (mod05)</h1>
+  <p>Three directions for the new <b>Deletions</b> tab. All three share the same three-part layout — <b>Users</b> (the standard Explicit/Random target panel, reused unchanged), <b>Workloads</b> (Mail / Calendar / OneDrive), and a date <b>scope</b> (everything · after · before · between). They differ only in how the workload picker and date scope are presented. Every variant ends with a live plain-English summary and an explicit acknowledgement gating the destructive Delete action.</p>
+  <ul>
+    <li><a class="card" href="delete-1-inline.html"><b>1 — Inline scope</b><span>Workload checkboxes in a row; scope is a pill row with date fields that appear inline only when needed. The most compact.</span></a></li>
+    <li><a class="card" href="delete-2-cards.html"><b>2 — Choice cards</b><span>Workloads as toggle cards; scope as descriptive radio cards that explain each option in words before you enter a date. The most explanatory.</span></a></li>
+    <li><a class="card" href="delete-3-sentence.html"><b>3 — Sentence builder</b><span>Workloads as toggle chips; scope reads as one editable sentence ("Delete everything after [date]…") so the rule is unambiguous. The most novel.</span></a></li>
+  </ul>
+  <div class="note"><b>Chosen direction: 2 — Choice cards.</b> Scope semantics are settled: items match on the date they arrived (received date for mail, created date for calendar events and files), and the boundary dates are <b>included</b> (on-or-after / on-or-before).</div>
+</main>
+</body>
+</html>

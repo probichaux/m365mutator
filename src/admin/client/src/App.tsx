@@ -10,10 +10,11 @@ import MailPage from './pages/MailPage';
 import CalendarPage from './pages/CalendarPage';
 import OneDrivePage from './pages/OneDrivePage';
 import SharePointPage from './pages/SharePointPage';
+import DeletionsPage from './pages/DeletionsPage';
 
-export type PageId = 'identities' | 'mail' | 'calendar' | 'onedrive' | 'sharepoint';
+export type PageId = 'identities' | 'mail' | 'calendar' | 'onedrive' | 'sharepoint' | 'deletions';
 
-export const PAGE_IDS: PageId[] = ['identities', 'mail', 'calendar', 'onedrive', 'sharepoint'];
+export const PAGE_IDS: PageId[] = ['identities', 'mail', 'calendar', 'onedrive', 'sharepoint', 'deletions'];
 
 function pageFromHash(hash: string): PageId {
   const id = hash.replace(/^#/, '');
@@ -43,6 +44,7 @@ function AppShell() {
       case 'calendar': return <CalendarPage />;
       case 'onedrive': return <OneDrivePage />;
       case 'sharepoint': return <SharePointPage />;
+      case 'deletions': return <DeletionsPage />;
     }
   };
 

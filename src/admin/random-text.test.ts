@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { generateText } from './random-text.js';
+import { generateText, subjectPrompt, bodyPrompt } from './random-text.js';
+import { DEFAULT_SUBJECT_PROMPT, DEFAULT_BODY_PROMPT, loadConfig, saveConfig } from './config-store.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 let dataDir: string;
@@ -12,6 +13,8 @@ beforeEach(() => {
   process.env.M365MUTATOR_DATA_DIR = dataDir;
   delete process.env.OPENROUTER_API_KEY;
   delete process.env.OPENROUTER_MODEL;
+  delete process.env.SUBJECT_PROMPT;
+  delete process.env.BODY_PROMPT;
 });
 
 afterEach(() => {
@@ -19,6 +22,8 @@ afterEach(() => {
   delete process.env.M365MUTATOR_DATA_DIR;
   delete process.env.OPENROUTER_API_KEY;
   delete process.env.OPENROUTER_MODEL;
+  delete process.env.SUBJECT_PROMPT;
+  delete process.env.BODY_PROMPT;
   rmSync(dataDir, { recursive: true, force: true });
 });
 
@@ -56,5 +61,31 @@ describe('generateText', () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network down')));
     const text = await generateText('subject please');
     expect(text).toMatch(UUID_RE);
+  });
+});
+
+describe('prompt resolution', () => {
+  it('returns the built-in defaults when nothing is configured', () => {
+    expect(subjectPrompt()).toBe(DEFAULT_SUBJECT_PROMPT);
+    expect(bodyPrompt()).toBe(DEFAULT_BODY_PROMPT);
+  });
+
+  it('uses env-var overrides for the config defaults', () => {
+    process.env.SUBJECT_PROMPT = 'env subject';
+    process.env.BODY_PROMPT = 'env body';
+    expect(subjectPrompt()).toBe('env subject');
+    expect(bodyPrompt()).toBe('env body');
+  });
+
+  it('prefers saved custom prompts over the defaults', () => {
+    saveConfig({ ...loadConfig(), subjectPrompt: 'custom subject', bodyPrompt: 'custom body' });
+    expect(subjectPrompt()).toBe('custom subject');
+    expect(bodyPrompt()).toBe('custom body');
+  });
+
+  it('falls back to the default when a saved prompt is blank', () => {
+    saveConfig({ ...loadConfig(), subjectPrompt: '', bodyPrompt: '' });
+    expect(subjectPrompt()).toBe(DEFAULT_SUBJECT_PROMPT);
+    expect(bodyPrompt()).toBe(DEFAULT_BODY_PROMPT);
   });
 });

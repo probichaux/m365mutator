@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { getDataDir } from './config-store.js';
 import { atomicWriteJson, safeReadJson } from '../helpers/file.helper.js';
 
-export const TARGET_CATEGORIES = ['identities', 'mail', 'calendar', 'onedrive', 'sharepoint'] as const;
+export const TARGET_CATEGORIES = ['identities', 'mail', 'calendar', 'onedrive', 'sharepoint', 'deletions'] as const;
 export type TargetCategory = (typeof TARGET_CATEGORIES)[number];
 
 /** How an operation chooses its targets: the edited list, or a random % of the tenant. */
@@ -21,9 +21,6 @@ export interface TargetCategoryConfig {
 }
 
 export type TargetsConfig = Record<TargetCategory, TargetCategoryConfig>;
-
-/** Upper bound on stored/checked items per category, to keep requests and Graph fan-out sane. */
-export const MAX_ITEMS_PER_CATEGORY = 1000;
 
 /** Clamp an arbitrary value to a whole percentage in [1, 100], falling back to the default. */
 function clampPercent(value: unknown): number {
@@ -58,7 +55,6 @@ function sanitizeTargets(raw: unknown): TargetsConfig {
             .filter((i): i is string => typeof i === 'string')
             .map(i => i.trim())
             .filter(i => i !== '')
-            .slice(0, MAX_ITEMS_PER_CATEGORY)
         : [],
       runStyle: runStyle === 'random' ? 'random' : 'explicit',
       randomPercent: clampPercent(randomPercent),

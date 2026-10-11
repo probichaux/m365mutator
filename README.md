@@ -7,13 +7,15 @@ If you use your own paid tenant, refreshing data means a) that maybe you're test
 If you use a Microsoft CDX tenant, the data doesn't change once the tenant's instantiated so if you want to do anything that depends on tenant activity, you can't unless you go in and add files, send email, etc. by hand. Sad!
 
 Thus this tool: *m365mutator*. It's a web-based console that logs into a Microsoft 365 tenant via Microsoft Graph
-and makes changes to user account objects in Entra, sends and receives mail and calendar items, and does CRUD operations on SharePoint and OneDrive files.
+and makes changes to user account objects in Entra, sends and receives mail and calendar items, and does CRUD operations on SharePoint and OneDrive files. It can also bulk-delete a date-scoped range of mail, calendar, and OneDrive items so you can exercise deleted-item recovery and retention.
 
-## A bit of a warning
+## Three warnings
 
-This application requires write permissions on Graph. It's meant, for now, to be run locally. Be careful with it; don't host it on the Internet, for crying out loud.
+1. This application requires write permissions on Graph. It's meant, for now, to be run locally. Be careful with it; don't host it on the Internet, for crying out loud.
+2. The new "Deletions" tab **will delete data from your tenant if you tell it to.** You should probably have a [good backup product](https://www.keepit.com).
+3. The OneDrive and SharePoint tabs' "add a random image" action downloads an image from **Wikimedia Commons** and uploads it into the target tenant. This is the one operation that pulls external content in. I put some guardrails in (including a curated category, an image-mime allowlist, and a size cap), and it fails gracefully, but the server needs outbound internet access for it, and you should be comfortable with third-party images landing in the tenant.
 
-## Screenshots
+## Features
 
 The admin console has one tab per workload. Each tab chooses its targets
 either as an **explicit list** you paste or load, or a **random percentage**
@@ -27,15 +29,24 @@ across them:
 
 ![Identities tab: an explicit list of UPNs above the attribute randomizer](public/screenshot-identities.png)
 
-**Mail** — generate mailbox activity (send / reply / forward / move to Deleted
+**Mail** and **Calendar** — generate mailbox activity (send / reply / forward / move to Deleted
 Items), repeatable for N passes via the stepper:
 
 ![Mail tab: a mailbox list above the "Randomize mailbox activity" card with a run-count stepper](public/screenshot-mail.png)
 
-**Random run style** — instead of a list, operate on a random percentage of
-the tenant, resolved when you run:
+**OneDrive** - works the same basic way as Mail / Calendar. 
+
+**Random run style** — dealer's choice! Instead of providing a list of users, in this mode the mutator will operate on a random percentage of
+the tenant for each operation: :
 
 ![Calendar tab in Random mode: a 25% sampling control with a live count](public/screenshot-random.png)
+
+**Deletions** — select users and workloads (Mail / Calendar / OneDrive), then
+delete a date-scoped range of items — everything, or before / after / between
+dates. This is great for cleaning out unwanted data or for testing date-based scenarios for retention, backup, restore, etc. 
+Deletions are soft (recoverable). Nothing will be deleted without your express approval.
+
+![Deletions tab: a user list, Mail/Calendar/OneDrive workload cards, and the date-scope selector above a confirmation gate](public/screenshot-deletions.png)
 
 ## Setup
 
@@ -146,6 +157,10 @@ permissions** and add the permissions for the workloads you plan to use:
 | OneDrive       | `Files.ReadWrite.All`                         |
 | SharePoint     | `Sites.ReadWrite.All`                         |
 
+The **Deletions** tab reuses these same permissions — `Mail.ReadWrite`,
+`Calendars.ReadWrite`, and/or `Files.ReadWrite.All` — for whichever of Mail,
+Calendar, and OneDrive you delete from.
+
 Each `*.ReadWrite.*` permission includes read access, so the **Load** and
 **Check** buttons work without adding the read-only variants separately.
 
@@ -199,19 +214,25 @@ GRAPH_CLIENT_SECRET=<client secret value>   # or set GRAPH_CERTIFICATE_PATH
   - `admin-routes.ts` — REST endpoints for config, the Graph connectivity test,
     targets, and the per-workload mutations.
   - `config-store.ts` — persisted app config (Graph credentials, OpenRouter
-    key/model).
+    key/model, and the customizable subject/body generation prompts).
   - `targets-store.ts` — each workload's target list and explicit/random run
     style.
   - `target-load.ts` / `target-check.ts` — load matching objects from the
     tenant, validate targets, and resolve the effective set (the explicit list,
     or a random sample).
-  - `identity-mutate.ts` / `mail-mutate.ts` / `calendar-mutate.ts` — the
-    mutation operations for the Identities, Mail, and Calendar workloads.
-  - `random-text.ts` — random subject/body text via OpenRouter, with a GUID
-    fallback when no key is set.
-- `src/admin/client/` — the React admin console (Fluent UI, i18n en/de/uk):
-  one page per workload (Identities, Mail, Calendar, OneDrive, SharePoint), a
-  shared `TargetPanel`, the run-count `RunStepper`, and Settings/Help flyouts.
+  - `identity-mutate.ts` / `mail-mutate.ts` / `calendar-mutate.ts` /
+    `onedrive-mutate.ts` / `sharepoint-mutate.ts` / `deletion-mutate.ts` — the
+    mutation operations for the Identities, Mail, Calendar, OneDrive, and
+    SharePoint workloads, and the date-scoped Deletions across
+    Mail/Calendar/OneDrive.
+  - `random-text.ts` — subject/body text via OpenRouter using the configured
+    (default or user-customized) prompts, with a GUID fallback when no key is set.
+  - `doc-gen.ts` / `wikimedia.ts` — generate Word/PDF documents and fetch a
+    random Wikimedia Commons image for the OneDrive workload.
+- `src/admin/client/` — the React admin console (Fluent UI, i18n en/de/fr/nl/uk):
+  one page per workload (Identities, Mail, Calendar, OneDrive, SharePoint) plus
+  Deletions, a shared `TargetPanel`, the run-count `RunStepper`, and Settings/Help
+  flyouts.
 - `src/graph/` — Microsoft Graph authentication (`graph-auth.ts`, client secret
   or certificate) and per-area helpers (`users.ts`, `mail.ts`, `calendar.ts`,
   `files.ts`, `sites.ts`) plus pagination.

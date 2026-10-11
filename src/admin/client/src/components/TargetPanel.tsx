@@ -9,7 +9,7 @@ import {
 import { api } from '../api';
 import { useToast } from './ToastProvider';
 
-export type TargetCategory = 'identities' | 'mail' | 'calendar' | 'onedrive' | 'sharepoint';
+export type TargetCategory = 'identities' | 'mail' | 'calendar' | 'onedrive' | 'sharepoint' | 'deletions';
 type RunStyle = 'explicit' | 'random';
 
 interface CheckResult {
@@ -53,9 +53,18 @@ function sampleSize(pool: number, percent: number): number {
  * `onReadyChange` reports whether the category has runnable saved targets, so the
  * page can gate its "Do it now" action: explicit needs saved items, random is
  * always ready (it samples the tenant live).
+ *
+ * `onTargetCountChange` reports how many items an actual run would resolve to
+ * right now — the saved count in explicit mode, or the live sample size once the
+ * tenant pool has loaded in random mode (`null` while that's still unknown) — so
+ * the page can preview the total action count before the user fires a run.
  */
 export default function TargetPanel(
-  { category, onReadyChange }: { category: TargetCategory; onReadyChange?: (ready: boolean) => void },
+  { category, onReadyChange, onTargetCountChange }: {
+    category: TargetCategory;
+    onReadyChange?: (ready: boolean) => void;
+    onTargetCountChange?: (count: number | null) => void;
+  },
 ) {
   const { t } = useTranslation('targets');
   const showToast = useToast();
@@ -63,7 +72,7 @@ export default function TargetPanel(
   const [runStyle, setRunStyle] = useState<RunStyle>('explicit');
   const [percent, setPercent] = useState(10);
   const [text, setText] = useState('');
-  const [savedCount, setSavedCount] = useState(0);
+  const [savedItems, setSavedItems] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -79,7 +88,7 @@ export default function TargetPanel(
       if (slice) {
         const items = slice.items ?? [];
         setText(items.join('\n'));
-        setSavedCount(items.length);
+        setSavedItems(items);
         if (slice.runStyle === 'random') setRunStyle('random');
         if (typeof slice.randomPercent === 'number') setPercent(slice.randomPercent);
       }
@@ -89,11 +98,28 @@ export default function TargetPanel(
   const persist = (cat: TargetCategory, partial: Record<string, unknown>) =>
     api<{ success: boolean; error?: string }>('PUT', `/api/targets/${cat}`, partial);
 
+  const savedCount = savedItems.length;
+  // True when the textarea (in explicit mode) has edits — typed, loaded, or
+  // imported — that haven't been saved yet. A run right now would still act on
+  // the older saved list below, not on what's shown, so this gates "Do it now"
+  // the same way an empty list does: the visible list must be saved before it's
+  // trusted to be what actually runs.
+  const dirty = runStyle === 'explicit'
+    && JSON.stringify(textToItems(text)) !== JSON.stringify(savedItems);
+
   // Tell the page whether "Do it now" should be enabled: random samples the
-  // tenant live (always ready); explicit needs saved targets to run against.
+  // tenant live (always ready); explicit needs saved, unedited targets to run against.
   useEffect(() => {
-    onReadyChange?.(runStyle === 'random' ? true : savedCount > 0);
-  }, [runStyle, savedCount, onReadyChange]);
+    onReadyChange?.(runStyle === 'random' ? true : (savedCount > 0 && !dirty));
+  }, [runStyle, savedCount, dirty, onReadyChange]);
+
+  useEffect(() => {
+    if (runStyle === 'explicit') {
+      onTargetCountChange?.(savedCount);
+    } else {
+      onTargetCountChange?.(pool ? sampleSize(pool.pool, percent) : null);
+    }
+  }, [runStyle, savedCount, pool, percent, onTargetCountChange]);
 
   // In random mode, fetch the tenant pool size once so the live count is real.
   useEffect(() => {
@@ -127,7 +153,7 @@ export default function TargetPanel(
     const items = textToItems(text);
     const r = await persist(category, { items });
     setSaving(false);
-    if (r.data.success) setSavedCount(items.length);
+    if (r.data.success) setSavedItems(items);
     showToast(
       r.data.success ? t('toast.saved') : (r.data.error || t('toast.saveFailed')),
       r.data.success ? 'success' : 'error',
@@ -151,6 +177,59 @@ export default function TargetPanel(
 
   const load = async () => {
     setLoading(true);
+
+    if (category === 'sharepoint') {
+      setText('');
+      setResults(null);
+      let accumulated = 0;
+      try {
+        const response = await fetch('/api/targets/load-stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ category }),
+        });
+        if (!response.ok || !response.body) throw new Error(t('toast.loadFailed'));
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buf = '';
+        for (;;) {
+          const { done, value } = await reader.read();
+          // Decode with stream:false on the final chunk to flush any pending bytes,
+          // then process whatever is left in buf before breaking.
+          buf += decoder.decode(done ? undefined : value, { stream: !done });
+          const lines = buf.split('\n');
+          buf = lines.pop() ?? '';
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            let parsed: unknown;
+            try { parsed = JSON.parse(line); } catch { continue; }
+            if (!parsed || typeof parsed !== 'object') continue;
+            const msg = parsed as { items?: string[]; done?: boolean; total?: number; truncated?: boolean; error?: string };
+            if (msg.error) throw new Error(msg.error);
+            if (msg.items) {
+              accumulated += msg.items.length;
+              setText(prev => prev ? prev + '\n' + msg.items!.join('\n') : msg.items!.join('\n'));
+            }
+            if (msg.done) {
+              if (msg.truncated) {
+                showToast(t('toast.loadTruncated', { count: accumulated, total: msg.total }), 'warning');
+              } else if (accumulated === 0) {
+                showToast(t('toast.loadEmpty'), 'warning');
+              } else {
+                showToast(t('toast.loadedCount', { count: accumulated }), 'success');
+              }
+            }
+          }
+          if (done) break;
+        }
+      } catch (e: unknown) {
+        showToast(e instanceof Error ? e.message : t('toast.loadFailed'), 'error');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     const r = await api<{ items?: string[]; total?: number; truncated?: boolean; error?: string }>(
       'POST', '/api/targets/load', { category },
     );
@@ -159,16 +238,12 @@ export default function TargetPanel(
       const items = r.data.items;
       setText(items.join('\n'));
       setResults(null);
-      if (category === 'mail') await persist('calendar', { items });
       if (r.data.truncated) {
         showToast(t('toast.loadTruncated', { count: items.length, total: r.data.total ?? items.length }), 'warning');
       } else if (items.length === 0) {
         showToast(t('toast.loadEmpty'), 'warning');
       } else {
-        showToast(
-          category === 'mail' ? t('toast.loadedMirrored', { count: items.length }) : t('toast.loadedCount', { count: items.length }),
-          'success',
-        );
+        showToast(t('toast.loadedCount', { count: items.length }), 'success');
       }
     } else {
       showToast(r.data.error || t('toast.loadFailed'), 'error');
@@ -240,6 +315,12 @@ export default function TargetPanel(
             textarea={{ style: { minHeight: 180, fontFamily: 'var(--fontFamilyMonospace)' } }}
             style={{ width: '100%' }}
           />
+
+          {dirty && (
+            <Text size={200} block style={{ color: tokens.colorPaletteRedForeground1, marginTop: 8 }}>
+              {t('unsavedChanges')}
+            </Text>
+          )}
 
           <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
             <Tooltip content={t('loadFromTenant')} relationship="label">

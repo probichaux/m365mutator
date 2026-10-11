@@ -1,6 +1,10 @@
 {
   "run": {
-    "needTargets": "Chargez ou saisissez des cibles, puis cliquez sur Enregistrer les cibles pour activer cette fonction."
+    "needTargets": "Chargez ou saisissez des cibles, puis cliquez sur Enregistrer les cibles pour activer cette fonction.",
+    "preview": "Ceci effectuera {{total}} action(s) sur {{count}} cible(s).",
+    "previewRuns": "{{runs}} passage(s) × {{count}} cible(s) = {{total}} action(s).",
+    "previewUnknown": "Nombre de cibles inconnu jusqu'au chargement du pool du locataire.",
+    "previewContinuous": "Exécution continue sur {{count}} cible(s), jusqu'à ce que vous l'arrêtiez."
   },
   "scaffold": {
     "calendarTitle": "Générer une activité de calendrier aléatoire",
@@ -132,5 +136,108 @@
       "Modifier les métadonnées d'un document",
       "Supprimer un document de OneDrive ou de SharePoint"
     ]
+  },
+  "deletions": {
+    "title": "Suppressions",
+    "lede": "Supprimez une plage d'éléments dans les charges de travail d'un utilisateur pour tester la récupération et la gestion des éléments supprimés. Choisissez les utilisateurs, indiquez les charges de travail concernées, puis délimitez la suppression par date.",
+    "workloads": {
+      "title": "Charges de travail",
+      "subtitle": "Quelles données supprimer. Sélectionnez-en une ou plusieurs.",
+      "mail": "Courrier",
+      "mailSub": "messages",
+      "calendar": "Calendrier",
+      "calendarSub": "événements",
+      "onedrive": "OneDrive",
+      "onedriveSub": "fichiers"
+    },
+    "scope": {
+      "title": "Éléments à supprimer",
+      "subtitle": "Les éléments sont filtrés selon leur date d'arrivée — date de réception pour le courrier, date de création pour les événements de calendrier et les fichiers. Les dates limites sont incluses.",
+      "all": "Tout",
+      "allDesc": "Supprimer tous les éléments, quelle que soit la date",
+      "after": "Après une date",
+      "afterDesc": "Uniquement les éléments datés à partir de cette date (incluse)",
+      "before": "Avant une date",
+      "beforeDesc": "Uniquement les éléments datés jusqu'à cette date (incluse)",
+      "between": "Entre deux dates",
+      "betweenDesc": "Uniquement les éléments compris dans une plage de dates",
+      "afterLabel": "Après",
+      "beforeLabel": "Avant",
+      "fromLabel": "Du",
+      "toLabel": "Au",
+      "orderError": "La date de début ne doit pas être postérieure à la date de fin."
+    },
+    "summary": {
+      "all": "Supprimer tous les éléments de {{workloads}} pour les utilisateurs sélectionnés.",
+      "after": "Supprimer les éléments datés du {{date}} ou après de {{workloads}} pour les utilisateurs sélectionnés.",
+      "before": "Supprimer les éléments datés du {{date}} ou avant de {{workloads}} pour les utilisateurs sélectionnés.",
+      "between": "Supprimer les éléments datés entre le {{from}} et le {{to}} de {{workloads}} pour les utilisateurs sélectionnés."
+    },
+    "noWorkloads": "aucune charge de travail",
+    "acknowledge": "Je comprends que cela supprime des éléments des utilisateurs sélectionnés",
+    "needConfirm": "Sélectionnez des charges de travail, confirmez l'avertissement et enregistrez les cibles pour activer cette action.",
+    "deleteButton": "Supprimer les éléments",
+    "deleting": "Suppression…",
+    "runSummary": "{{deleted}} éléments supprimés sur {{matched}} correspondants pour {{users}} utilisateur(s)",
+    "resultLine": "{{deleted}}/{{matched}} supprimés",
+    "truncated": "Affichage des {{shown}} premiers résultats sur {{total}}.",
+    "scanPreview": "Analysera {{count}} utilisateur(s) sur {{workloads}} charge(s) de travail.",
+    "toastNone": "Aucun élément correspondant à supprimer",
+    "toastOk": "{{deleted}} éléments supprimés pour {{users}} utilisateur(s)",
+    "toastFailures": "{{deleted}} éléments supprimés ; {{failed}} en échec",
+    "toastFailed": "Échec de la suppression",
+    "workloadName": {
+      "mail": "courrier",
+      "calendar": "calendrier",
+      "onedrive": "OneDrive"
+    }
+  },
+  "onedrive": {
+    "mutate": {
+      "title": "Randomiser l'activité OneDrive",
+      "description": "Pour chaque utilisateur sélectionné, effectue une action aléatoire dans un dossier existant choisi au hasard : créer un fichier texte, créer un document Word ou PDF, renommer un fichier, créer un dossier, supprimer un fichier, créer un dossier et y déplacer un fichier, ou ajouter une image aléatoire de Wikimedia Commons. Le contenu des documents et du texte provient d'OpenRouter lorsqu'une clé est configurée.",
+      "doItNow": "Exécuter maintenant",
+      "running": "Mutation en cours…",
+      "runsLabel": "Nombre de passes",
+      "runsSuffix": "passe(s)",
+      "summary": "Exécuté {{runs}}× — {{total}} actions · {{ok}} ok · {{failed}} en échec",
+      "truncated": "Affichage des {{shown}} premières actions sur {{total}}.",
+      "toastOk": "{{total}} actions OneDrive terminées ({{runs}}×)",
+      "toastFailures": "{{failed}} action(s) OneDrive sur {{total}} en échec ({{runs}}×)",
+      "toastFailed": "Échec de la mutation OneDrive",
+      "op": {
+        "createText": "fichier texte",
+        "createDoc": "document",
+        "rename": "renommer",
+        "createFolder": "dossier",
+        "remove": "supprimer",
+        "folderMove": "déplacer",
+        "image": "image"
+      }
+    }
+  },
+  "sharepoint": {
+    "mutate": {
+      "title": "Randomiser l'activité SharePoint",
+      "description": "Pour chaque site sélectionné, effectue une action aléatoire dans un dossier existant choisi au hasard dans la bibliothèque de documents par défaut du site : créer un fichier texte, créer un document Word ou PDF, renommer un fichier, créer un dossier, supprimer un fichier, créer un dossier et y déplacer un fichier, ou ajouter une image aléatoire de Wikimedia Commons. Le contenu des documents et du texte provient d'OpenRouter lorsqu'une clé est configurée.",
+      "doItNow": "Exécuter maintenant",
+      "running": "Mutation en cours…",
+      "runsLabel": "Nombre de passes",
+      "runsSuffix": "passe(s)",
+      "summary": "Exécuté {{runs}}× — {{total}} actions · {{ok}} ok · {{failed}} en échec",
+      "truncated": "Affichage des {{shown}} premières actions sur {{total}}.",
+      "toastOk": "{{total}} actions SharePoint terminées ({{runs}}×)",
+      "toastFailures": "{{failed}} action(s) SharePoint sur {{total}} en échec ({{runs}}×)",
+      "toastFailed": "Échec de la mutation SharePoint",
+      "op": {
+        "createText": "fichier texte",
+        "createDoc": "document",
+        "rename": "renommer",
+        "createFolder": "dossier",
+        "remove": "supprimer",
+        "folderMove": "déplacer",
+        "image": "image"
+      }
+    }
   }
 }

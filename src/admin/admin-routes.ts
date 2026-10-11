@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync, chmodSync } from 'node:fs';
 import multer from 'multer';
 import { loadConfig, saveConfig, maskSecrets, applyConfig, getDataDir, sanitizeCertPath, AppConfig } from './config-store.js';
-import { loadTargets, saveTargets, saveTargetCategory, TARGET_CATEGORIES, TargetCategory, MAX_ITEMS_PER_CATEGORY } from './targets-store.js';
+import { loadTargets, saveTargets, saveTargetCategory, TARGET_CATEGORIES, TargetCategory } from './targets-store.js';
 import { checkTargets } from './target-check.js';
 import { loadCategory, resolveTargetItems } from './target-load.js';
 import { mutateIdentities } from './identity-mutate.js';
@@ -12,17 +12,23 @@ import { normalizeSizeOptions } from './mail-mutate.js';
 import { getMailJob, isMailJobActive, startMailJob, stopMailJob } from './mail-jobs.js';
 import { bytesAddedToday } from './seed-usage.js';
 import { mutateCalendar } from './calendar-mutate.js';
+import { mutateOneDrive } from './onedrive-mutate.js';
+import { mutateSharePoint } from './sharepoint-mutate.js';
+import {
+  mutateDeletions, DELETION_WORKLOADS, DELETION_SCOPES,
+  DeletionWorkload, DeletionScope, isValidDate,
+} from './deletion-mutate.js';
 import { sanitizeUpstreamError } from './connectivity.js';
 import { MUTABLE_ATTRIBUTES } from '../graph/user-attributes.js';
+import { listAllSitesPaged } from '../graph/sites.js';
 import { testGraph } from './connectivity.js';
 import { logger } from '../logger/logger.js';
 
 const certUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 1024 * 1024 } });
 
 const startedAt = Date.now();
-// Read version from package.json once at startup
-const pkgPath = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'package.json');
-const appVersion: string = JSON.parse(readFileSync(pkgPath, 'utf-8')).version;
+const rootDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const appVersion: string = JSON.parse(readFileSync(join(rootDir, 'package.json'), 'utf-8')).version;
 
 const router = Router();
 
@@ -126,12 +132,33 @@ router.post('/api/targets/check', async (req: Request, res: Response) => {
     return;
   }
   const cleaned = items.map(i => i.trim()).filter(i => i !== '');
-  if (cleaned.length > MAX_ITEMS_PER_CATEGORY) {
-    res.status(400).json({ error: `Too many items (max ${MAX_ITEMS_PER_CATEGORY})` });
-    return;
-  }
   const results = await checkTargets(category as TargetCategory, cleaned);
   res.json({ results });
+});
+
+// Streaming NDJSON load for SharePoint: writes one { items } line per Graph page
+// so the client can populate the text field progressively rather than waiting for
+// the full paginated result. Ends with a { done, total, truncated } sentinel line.
+router.post('/api/targets/load-stream', async (req: Request, res: Response) => {
+  const { category } = req.body as { category?: unknown };
+  if (category !== 'sharepoint') {
+    res.status(400).json({ error: 'Streaming load is only supported for the sharepoint category' });
+    return;
+  }
+
+  res.setHeader('Content-Type', 'application/x-ndjson');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.flushHeaders();
+
+  try {
+    const all = await listAllSitesPaged((batch) => {
+      res.write(JSON.stringify({ items: batch }) + '\n');
+    });
+    res.write(JSON.stringify({ done: true, total: all.length, truncated: false }) + '\n');
+  } catch (err: unknown) {
+    res.write(JSON.stringify({ error: sanitizeUpstreamError(err) }) + '\n');
+  }
+  res.end();
 });
 
 router.post('/api/targets/load', async (req: Request, res: Response) => {
@@ -248,12 +275,114 @@ router.post('/api/calendar/mutate', async (req: Request, res: Response) => {
   }
 });
 
+// ── OneDrive: weighted random file/folder operations ────────────────
+
+router.post('/api/onedrive/mutate', async (req: Request, res: Response) => {
+  const onedrive = loadTargets().onedrive;
+  const { runs } = req.body as { runs?: unknown };
+  const runCount = typeof runs === 'number' && Number.isFinite(runs) ? runs : 1;
+  try {
+    // Explicit → the saved list; random → a fresh random % of the tenant's OneDrive users.
+    const resolved = await resolveTargetItems('onedrive', onedrive);
+    if (resolved.items.length === 0) {
+      const msg = resolved.runStyle === 'random'
+        ? 'No OneDrive users were found in the tenant to sample'
+        : 'No OneDrive users are selected';
+      res.status(400).json({ error: msg });
+      return;
+    }
+    const run = await mutateOneDrive(resolved.items, runCount);
+    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
+  } catch (err: unknown) {
+    res.status(502).json({ error: sanitizeUpstreamError(err) });
+  }
+});
+
+// ── SharePoint: weighted random file/folder operations ──────────────
+
+router.post('/api/sharepoint/mutate', async (req: Request, res: Response) => {
+  const sharepoint = loadTargets().sharepoint;
+  const { runs } = req.body as { runs?: unknown };
+  const runCount = typeof runs === 'number' && Number.isFinite(runs) ? runs : 1;
+  try {
+    const resolved = await resolveTargetItems('sharepoint', sharepoint);
+    if (resolved.items.length === 0) {
+      const msg = resolved.runStyle === 'random'
+        ? 'No SharePoint sites were found in the tenant to sample'
+        : 'No SharePoint sites are selected';
+      res.status(400).json({ error: msg });
+      return;
+    }
+    const run = await mutateSharePoint(resolved.items, runCount);
+    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
+  } catch (err: unknown) {
+    res.status(502).json({ error: sanitizeUpstreamError(err) });
+  }
+});
+
+// ── Deletions: date-scoped deletion across mail / calendar / OneDrive ──
+
+router.post('/api/deletions/mutate', async (req: Request, res: Response) => {
+  const { workloads, scope, after, before } = req.body as {
+    workloads?: unknown; scope?: unknown; after?: unknown; before?: unknown;
+  };
+
+  const selected = Array.isArray(workloads)
+    ? DELETION_WORKLOADS.filter(w => (workloads as unknown[]).includes(w))
+    : [];
+  if (selected.length === 0) {
+    res.status(400).json({ error: 'Select at least one workload' });
+    return;
+  }
+  if (!DELETION_SCOPES.includes(scope as DeletionScope)) {
+    res.status(400).json({ error: 'Invalid deletion scope' });
+    return;
+  }
+  const scopeVal = scope as DeletionScope;
+  const needsAfter = scopeVal === 'after' || scopeVal === 'between';
+  const needsBefore = scopeVal === 'before' || scopeVal === 'between';
+  if (needsAfter && !isValidDate(after)) {
+    res.status(400).json({ error: 'A valid start date is required' });
+    return;
+  }
+  if (needsBefore && !isValidDate(before)) {
+    res.status(400).json({ error: 'A valid end date is required' });
+    return;
+  }
+  if (scopeVal === 'between' && String(after) > String(before)) {
+    res.status(400).json({ error: 'The start date must not be after the end date' });
+    return;
+  }
+
+  try {
+    const resolved = await resolveTargetItems('deletions', loadTargets().deletions);
+    if (resolved.items.length === 0) {
+      const msg = resolved.runStyle === 'random'
+        ? 'No users were found in the tenant to sample'
+        : 'No users are selected';
+      res.status(400).json({ error: msg });
+      return;
+    }
+    const run = await mutateDeletions(
+      resolved.items,
+      selected as DeletionWorkload[],
+      scopeVal,
+      needsAfter ? String(after) : undefined,
+      needsBefore ? String(before) : undefined,
+    );
+    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
+  } catch (err: unknown) {
+    res.status(502).json({ error: sanitizeUpstreamError(err) });
+  }
+});
+
 router.get('/api/status', (_req: Request, res: Response) => {
   res.json({
     version: appVersion,
     uptime: Math.floor((Date.now() - startedAt) / 1000),
   });
 });
+
 
 // ── Certificate upload ──────────────────────────────────────────────
 

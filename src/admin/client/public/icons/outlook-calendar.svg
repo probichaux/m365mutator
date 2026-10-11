@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Calendar">
+  <defs>
+    <linearGradient id="calHeader" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#32b3f2"/>
+      <stop offset="1" stop-color="#0f78d4"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="10" width="36" height="32" rx="4" fill="#ffffff"/>
+  <rect x="6" y="10" width="36" height="32" rx="4" fill="none" stroke="#e1dfdd" stroke-width="0.75"/>
+  <path d="M6 14a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4v5H6z" fill="url(#calHeader)"/>
+  <rect x="13" y="7" width="3.2" height="7.5" rx="1.6" fill="#0a4a8a"/>
+  <rect x="31.6" y="7" width="3.2" height="7.5" rx="1.6" fill="#0a4a8a"/>
+  <text x="24" y="37" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="15.5" font-weight="700" fill="#0f78d4">31</text>
+</svg>

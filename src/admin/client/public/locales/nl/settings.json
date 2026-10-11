@@ -20,11 +20,15 @@
   },
   "openRouter": {
     "sectionTitle": "OpenRouter",
-    "description": "Optioneel. Indien ingesteld gebruiken e-mailmutaties OpenRouter om willekeurige onderwerpregels en berichtteksten te genereren. Zonder sleutel wordt in plaats daarvan een willekeurige GUID gebruikt.",
+    "description": "Optioneel. Indien ingesteld gebruiken mutaties OpenRouter om onderwerpregels en berichtteksten te genereren. Zonder sleutel wordt in plaats daarvan een willekeurige GUID gebruikt.",
     "apiKey": "API-sleutel",
     "apiKeyHint": "Wordt als platte tekst opgeslagen in de gegevensmap, net als het Graph-geheim.",
     "model": "Model",
-    "modelHint": "OpenRouter-model-id. Standaard openai/gpt-4o-mini."
+    "modelHint": "OpenRouter-model-id. Standaard openai/gpt-4o-mini.",
+    "subjectPrompt": "Onderwerpprompt",
+    "subjectPromptHint": "Prompt voor het genereren van onderwerpregels en documenttitels. Laat leeg om de standaard te gebruiken.",
+    "bodyPrompt": "Tekstprompt",
+    "bodyPromptHint": "Prompt voor het genereren van bericht- en bestandsteksten. Laat leeg om de standaard te gebruiken."
   },
   "saveConfiguration": "Configuratie opslaan",
   "savingConfiguration": "Bezig met opslaan...",

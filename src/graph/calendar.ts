@@ -1,4 +1,10 @@
 import { getGraphClient } from './graph-client.js';
+import { collectAllPages } from './graph-paginate.js';
+
+export interface EventRef {
+  id: string;
+  subject?: string;
+}
 
 export interface CalendarEvent {
   subject: string;
@@ -53,4 +59,17 @@ export async function updateEvent(
 /** Requires the Calendars.ReadWrite application permission. */
 export async function deleteEvent(userId: string, eventId: string): Promise<void> {
   await getGraphClient().api(`/users/${userId}/events/${eventId}`).delete();
+}
+
+/**
+ * List a user's events matching an optional OData `$filter` (e.g. on
+ * createdDateTime), following pagination. Selects id + subject only.
+ * Requires the Calendars.ReadWrite (or Calendars.Read) application permission.
+ */
+export async function listEventsByFilter(userId: string, filter?: string): Promise<EventRef[]> {
+  return collectAllPages<EventRef>(getGraphClient(), `/users/${encodeURIComponent(userId)}/events`, req => {
+    let r = req.select('id,subject').top(999);
+    if (filter) r = r.filter(filter);
+    return r;
+  });
 }

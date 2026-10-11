@@ -20,11 +20,15 @@
   },
   "openRouter": {
     "sectionTitle": "OpenRouter",
-    "description": "Optional. When set, mail mutations use OpenRouter to generate random subject lines and message bodies. Without a key, a random GUID is used instead.",
+    "description": "Optional. When set, mutations use OpenRouter to generate subject lines and message bodies. Without a key, a random GUID is used instead.",
     "apiKey": "API key",
     "apiKeyHint": "Stored as plaintext under the data directory, like the Graph secret.",
     "model": "Model",
-    "modelHint": "OpenRouter model id. Defaults to openai/gpt-4o-mini."
+    "modelHint": "OpenRouter model id. Defaults to openai/gpt-4o-mini.",
+    "subjectPrompt": "Subject prompt",
+    "subjectPromptHint": "Prompt used to generate subject lines and document titles. Leave blank to use the default.",
+    "bodyPrompt": "Body prompt",
+    "bodyPromptHint": "Prompt used to generate message and file bodies. Leave blank to use the default."
   },
   "saveConfiguration": "Save Configuration",
   "savingConfiguration": "Saving...",

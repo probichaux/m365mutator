@@ -18,6 +18,11 @@ const MAX_RUNS = 999;
 const MAX_BODY_KB = 2048;
 const MAX_ATTACHMENT_MB = 25;
 const MAX_DAILY_CAP_GB = 100;
+// Keep in sync with maxAttachmentMbFor in mail-mutate.ts: Exchange Online's 35 MB
+// send limit applies to the encoded message, and base64 grows the attachment by a third.
+const MAX_MESSAGE_MB = 35;
+const MESSAGE_OVERHEAD_MB = 1;
+const BASE64_GROWTH = 4 / 3;
 const SIZE_STORAGE_KEY = 'm365mutator.mail.size';
 const CONTINUOUS_STORAGE_KEY = 'm365mutator.mail.continuous';
 
@@ -29,11 +34,22 @@ interface SizeOptions {
 
 const DEFAULT_SIZE: SizeOptions = { bodyKb: 0, attachmentMb: 0, dailyCapGb: 1 };
 
+/** The largest attachment that still sends beside a body of `bodyKb`. */
+function maxAttachmentMbFor(bodyKb: number): number {
+  const room = MAX_MESSAGE_MB - MESSAGE_OVERHEAD_MB - bodyKb / 1024;
+  return Math.max(0, Math.min(MAX_ATTACHMENT_MB, Math.floor(room / BASE64_GROWTH)));
+}
+
+/** Clamp the attachment so the pair always fits. */
+function fitSize(size: SizeOptions): SizeOptions {
+  return { ...size, attachmentMb: Math.min(size.attachmentMb, maxAttachmentMbFor(size.bodyKb)) };
+}
+
 // Remembered per browser as a convenience; the page works the same without it.
 function loadSize(): SizeOptions {
   try {
     const saved = JSON.parse(localStorage.getItem(SIZE_STORAGE_KEY) ?? '{}') as Partial<SizeOptions>;
-    return { ...DEFAULT_SIZE, ...saved };
+    return fitSize({ ...DEFAULT_SIZE, ...saved });
   } catch {
     return DEFAULT_SIZE;
   }
@@ -114,6 +130,8 @@ interface MailJob {
   skipped: number;
   bytesAdded: number;
   bytesToday: number;
+  /** The daily cap this job runs under, in bytes; 0 for no cap. */
+  capBytes: number;
   recent: MailResult[];
   error?: string;
 }
@@ -188,10 +206,14 @@ export default function MailPage() {
     (_: unknown, d: { value?: number | null; displayValue?: string }) => {
       const raw = d.value ?? (d.displayValue !== undefined ? Number(d.displayValue) : NaN);
       if (!Number.isFinite(raw)) return;
-      const next = { ...size, [key]: Math.min(max, Math.max(0, raw)) };
+      const next = fitSize({ ...size, [key]: Math.min(max, Math.max(0, raw)) });
       setSize(next);
       saveSize(next);
     };
+
+  const maxAttachmentMb = maxAttachmentMbFor(size.bodyKb);
+  // While a job runs, show the cap it was started with, not the cap saved in this browser.
+  const capGb = active && job ? Number((job.capBytes / 1024 ** 3).toFixed(2)) : size.dailyCapGb;
 
   const doItNow = async () => {
     setStarting(true);
@@ -261,10 +283,14 @@ export default function MailPage() {
               disabled={running} onChange={updateSize('bodyKb', MAX_BODY_KB)}
             />
           </Field>
-          <Field label={tp('mail.mutate.size.attachmentMb')} hint={tp('mail.mutate.size.attachmentMbHint')} style={{ width: 200 }}>
+          <Field
+            label={tp('mail.mutate.size.attachmentMb')}
+            hint={tp('mail.mutate.size.attachmentMbHint', { max: maxAttachmentMb })}
+            style={{ width: 200 }}
+          >
             <SpinButton
-              value={size.attachmentMb} min={0} max={MAX_ATTACHMENT_MB} step={1}
-              disabled={running} onChange={updateSize('attachmentMb', MAX_ATTACHMENT_MB)}
+              value={size.attachmentMb} min={0} max={maxAttachmentMb} step={1}
+              disabled={running} onChange={updateSize('attachmentMb', maxAttachmentMb)}
             />
           </Field>
           <Field label={tp('mail.mutate.size.dailyCapGb')} hint={tp('mail.mutate.size.dailyCapGbHint')} style={{ width: 200 }}>
@@ -276,8 +302,8 @@ export default function MailPage() {
         </div>
         {bytesToday !== null && (
           <Text size={200} block style={{ color: tokens.colorNeutralForeground2, marginBottom: 16 }}>
-            {size.dailyCapGb > 0
-              ? tp('mail.mutate.size.today', { used: formatGb(bytesToday), cap: size.dailyCapGb })
+            {capGb > 0
+              ? tp('mail.mutate.size.today', { used: formatGb(bytesToday), cap: capGb })
               : tp('mail.mutate.size.todayNoCap', { used: formatGb(bytesToday) })}
           </Text>
         )}

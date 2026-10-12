@@ -61,10 +61,27 @@ function nextLocalMidnight(now = new Date()): Date {
 }
 
 export const MAX_BODY_KB = 2048;
-/** Keeps an encoded message under Exchange Online's default 35 MB send limit. */
+/** The largest attachment the UI offers; see maxAttachmentMbFor for what actually fits beside a body. */
 export const MAX_ATTACHMENT_MB = 25;
 export const MAX_DAILY_CAP_GB = 100;
 export const DEFAULT_SIZE_OPTIONS: MailSizeOptions = { bodyKb: 0, attachmentMb: 0, dailyCapGb: 1 };
+
+/** Exchange Online's default limit on the encoded (MIME) size of a sent message. */
+const MAX_MESSAGE_MB = 35;
+/** Headroom inside that limit for headers and MIME framing. */
+const MESSAGE_OVERHEAD_MB = 1;
+/** Base64 grows an attachment by a third on the wire. */
+const BASE64_GROWTH = 4 / 3;
+
+/**
+ * The largest attachment (whole MB) that still sends beside a body of `bodyKb`,
+ * once the attachment is base64-encoded: 25 MB with no body, 24 MB with the
+ * largest body. Keep in sync with the copy in MailPage.tsx.
+ */
+export function maxAttachmentMbFor(bodyKb: number): number {
+  const room = MAX_MESSAGE_MB - MESSAGE_OVERHEAD_MB - bodyKb / 1024;
+  return Math.max(0, Math.min(MAX_ATTACHMENT_MB, Math.floor(room / BASE64_GROWTH)));
+}
 
 /** Why a run ended. */
 export type MailStopReason = 'completed' | 'cap' | 'stopped' | 'failures';
@@ -125,11 +142,12 @@ const ATTACHMENT_NAMES = ['forecast', 'contract', 'itinerary', 'capacity-plan', 
 const clamp = (value: unknown, max: number, fallback: number): number =>
   typeof value === 'number' && Number.isFinite(value) ? Math.min(max, Math.max(0, value)) : fallback;
 
-/** Coerce untrusted request input into valid size options. */
+/** Coerce untrusted request input into valid size options; the attachment is shrunk to fit beside the body. */
 export function normalizeSizeOptions(raw: Partial<Record<keyof MailSizeOptions, unknown>> = {}): MailSizeOptions {
+  const bodyKb = Math.round(clamp(raw.bodyKb, MAX_BODY_KB, DEFAULT_SIZE_OPTIONS.bodyKb));
   return {
-    bodyKb: Math.round(clamp(raw.bodyKb, MAX_BODY_KB, DEFAULT_SIZE_OPTIONS.bodyKb)),
-    attachmentMb: Math.round(clamp(raw.attachmentMb, MAX_ATTACHMENT_MB, DEFAULT_SIZE_OPTIONS.attachmentMb)),
+    bodyKb,
+    attachmentMb: Math.round(clamp(raw.attachmentMb, maxAttachmentMbFor(bodyKb), DEFAULT_SIZE_OPTIONS.attachmentMb)),
     dailyCapGb: clamp(raw.dailyCapGb, MAX_DAILY_CAP_GB, DEFAULT_SIZE_OPTIONS.dailyCapGb),
   };
 }
@@ -332,6 +350,8 @@ export async function mutateMail(
       }
       const actor = items[next++ % items.length];
       const result = await mutateOne(actor, othersByActor.get(actor) ?? [], allowDeletions, size);
+      // The action may have straddled midnight: close out the old day before its bytes land on the new one.
+      rollDay();
       finished++;
       if (result.ok) {
         ok++;

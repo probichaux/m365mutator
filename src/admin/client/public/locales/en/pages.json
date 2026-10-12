@@ -70,7 +70,7 @@
         "bodyKb": "Body size (KB)",
         "bodyKbHint": "0 keeps the short default text. Replies use this size too.",
         "attachmentMb": "Attachment (MB)",
-        "attachmentMbHint": "Random data on each new message. 0 means none. Max 25.",
+        "attachmentMbHint": "Random data on each new message. 0 means none. Max {{max}}.",
         "dailyCapGb": "Daily cap (GB)",
         "dailyCapGbHint": "Stops the run at this much growth today. 0 means no cap.",
         "today": "Added today: about {{used}} GB of {{cap}} GB.",

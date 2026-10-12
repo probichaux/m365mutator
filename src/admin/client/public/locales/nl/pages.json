@@ -70,7 +70,7 @@
         "bodyKb": "Tekstgrootte (KB)",
         "bodyKbHint": "0 behoudt de korte standaardtekst. Antwoorden gebruiken deze grootte ook.",
         "attachmentMb": "Bijlage (MB)",
-        "attachmentMbHint": "Willekeurige gegevens bij elk nieuw bericht. 0 betekent geen. Maximaal 25.",
+        "attachmentMbHint": "Willekeurige gegevens bij elk nieuw bericht. 0 betekent geen. Maximaal {{max}}.",
         "dailyCapGb": "Daglimiet (GB)",
         "dailyCapGbHint": "Stopt de uitvoering bij deze groei vandaag. 0 betekent geen limiet.",
         "today": "Vandaag toegevoegd: ongeveer {{used}} GB van {{cap}} GB.",

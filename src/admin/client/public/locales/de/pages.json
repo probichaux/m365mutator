@@ -70,7 +70,7 @@
         "bodyKb": "Textgröße (KB)",
         "bodyKbHint": "0 behält den kurzen Standardtext bei. Antworten verwenden ebenfalls diese Größe.",
         "attachmentMb": "Anhang (MB)",
-        "attachmentMbHint": "Zufallsdaten an jeder neuen Nachricht. 0 bedeutet keiner. Maximal 25.",
+        "attachmentMbHint": "Zufallsdaten an jeder neuen Nachricht. 0 bedeutet keiner. Maximal {{max}}.",
         "dailyCapGb": "Tageslimit (GB)",
         "dailyCapGbHint": "Beendet den Lauf bei diesem Zuwachs heute. 0 bedeutet kein Limit.",
         "today": "Heute hinzugefügt: etwa {{used}} GB von {{cap}} GB.",

@@ -70,7 +70,7 @@
         "bodyKb": "Taille du corps (Ko)",
         "bodyKbHint": "0 conserve le texte court par défaut. Les réponses utilisent aussi cette taille.",
         "attachmentMb": "Pièce jointe (Mo)",
-        "attachmentMbHint": "Données aléatoires sur chaque nouveau message. 0 signifie aucune. Maximum 25.",
+        "attachmentMbHint": "Données aléatoires sur chaque nouveau message. 0 signifie aucune. Maximum {{max}}.",
         "dailyCapGb": "Limite quotidienne (Go)",
         "dailyCapGbHint": "Arrête l'exécution à cette croissance aujourd'hui. 0 signifie aucune limite.",
         "today": "Ajouté aujourd'hui : environ {{used}} Go sur {{cap}} Go.",

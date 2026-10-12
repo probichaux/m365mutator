@@ -125,9 +125,6 @@ export function startMailJob(
   };
   current = job;
   stopRequested = false;
-  // Bytes added on earlier days of a continuous run, so the total survives midnight.
-  let earlierDays = 0;
-  let dayBaseline = startingBytesToday;
 
   const statusTimer = setInterval(() => logStatus(getMailJob() ?? job), STATUS_LOG_MS);
   statusTimer.unref();
@@ -137,6 +134,7 @@ export function startMailJob(
     onResult: (result, bytesToday) => {
       job.completed++;
       if (result.ok) job.ok++; else job.failed++;
+      // Summing each action keeps the total right across midnight; the run's final figure reconciles it.
       job.bytesAdded += result.bytes ?? 0;
       job.bytesToday = bytesToday;
       job.recent.push(result);
@@ -147,8 +145,6 @@ export function startMailJob(
       job.resumeAt = resumeAt.toISOString();
     },
     onResume: () => {
-      earlierDays += job.bytesToday - dayBaseline;
-      dayBaseline = 0;
       job.bytesToday = 0;
       if (job.status === 'paused') job.status = 'running';
       delete job.resumeAt;

@@ -9,12 +9,16 @@ vi.mock('../graph/mail.js', () => ({
   moveMessage: vi.fn().mockResolvedValue(undefined),
   listInboxMessages: vi.fn().mockResolvedValue([{ id: 'm1', size: 1000, hasAttachments: false }]),
 }));
-// Keep daily usage in memory instead of the data directory.
-const usage = vi.hoisted(() => ({ bytes: 0 }));
+// Keep daily usage in memory instead of the data directory. `day` is the
+// clock's date; `date` is the date the stored count belongs to, as in the file.
+const usage = vi.hoisted(() => ({ bytes: 0, date: '2026-09-22', day: '2026-09-22' }));
 vi.mock('./seed-usage.js', () => ({
-  bytesAddedToday: () => usage.bytes,
-  recordBytesAdded: (b: number) => (usage.bytes += b),
-  today: () => '2026-09-22',
+  bytesAddedToday: () => (usage.date === usage.day ? usage.bytes : 0),
+  recordBytesAdded: (b: number) => {
+    if (usage.date !== usage.day) { usage.date = usage.day; usage.bytes = 0; }
+    return (usage.bytes += b);
+  },
+  today: () => usage.day,
 }));
 vi.mock('./random-text.js', () => ({
   generateText: vi.fn().mockResolvedValue('text'),
@@ -24,12 +28,13 @@ vi.mock('./random-text.js', () => ({
 
 import { beforeEach } from 'vitest';
 import {
-  pickMailOp, mutateMail, normalizeSizeOptions, isReplyable, MailOp, MAX_CONSECUTIVE_FAILURES,
+  pickMailOp, mutateMail, normalizeSizeOptions, maxAttachmentMbFor, isReplyable, MailOp, MAX_CONSECUTIVE_FAILURES,
 } from './mail-mutate.js';
 import { sendMail, sendMailWithAttachment, replyToMail, listInboxMessages } from '../graph/mail.js';
 
 beforeEach(() => {
   usage.bytes = 0;
+  usage.date = usage.day = '2026-09-22';
   vi.mocked(sendMail).mockReset().mockResolvedValue(undefined);
   vi.mocked(sendMailWithAttachment).mockClear();
 });
@@ -116,10 +121,27 @@ const NO_CAP = { bodyKb: 0, attachmentMb: 0, dailyCapGb: 0 };
 describe('normalizeSizeOptions', () => {
   it('clamps to the allowed ranges and falls back to defaults', () => {
     expect(normalizeSizeOptions({})).toEqual({ bodyKb: 0, attachmentMb: 0, dailyCapGb: 1 });
-    expect(normalizeSizeOptions({ bodyKb: 99999, attachmentMb: 500, dailyCapGb: 1000 }))
-      .toEqual({ bodyKb: 2048, attachmentMb: 25, dailyCapGb: 100 });
+    expect(normalizeSizeOptions({ bodyKb: 0, attachmentMb: 500, dailyCapGb: 1000 }))
+      .toEqual({ bodyKb: 0, attachmentMb: 25, dailyCapGb: 100 });
     expect(normalizeSizeOptions({ bodyKb: -5, attachmentMb: 'x', dailyCapGb: 0 }))
       .toEqual({ bodyKb: 0, attachmentMb: 0, dailyCapGb: 0 });
+  });
+
+  it('shrinks the attachment so the encoded message stays under the 35 MB send limit', () => {
+    // 25 MB base64-encodes to about 33.3 MB; with a 2 MB body that would exceed the limit.
+    expect(normalizeSizeOptions({ bodyKb: 99999, attachmentMb: 500 })).toMatchObject({ bodyKb: 2048, attachmentMb: 24 });
+    expect(normalizeSizeOptions({ bodyKb: 2048, attachmentMb: 10 }).attachmentMb).toBe(10);
+  });
+});
+
+describe('maxAttachmentMbFor', () => {
+  it('keeps body plus base64 attachment plus headroom under 35 MB', () => {
+    expect(maxAttachmentMbFor(0)).toBe(25);
+    expect(maxAttachmentMbFor(2048)).toBe(24);
+    for (const bodyKb of [0, 512, 1024, 2048]) {
+      const encodedMb = maxAttachmentMbFor(bodyKb) * (4 / 3) + bodyKb / 1024;
+      expect(encodedMb).toBeLessThanOrEqual(34);
+    }
   });
 });
 
@@ -154,6 +176,21 @@ describe('mutateMail sizing', () => {
     expect(run.bytesAdded).toBeGreaterThan(0);
     expect(run.bytesToday).toBe(usage.bytes);
     expect(run.skipped).toBe(0);
+  });
+
+  it('keeps the run total right when an action straddles midnight', async () => {
+    usage.bytes = 500; // some growth already recorded yesterday
+    vi.mocked(listInboxMessages).mockResolvedValue([]); // every action is a send
+    // The first send finishes after the date has changed.
+    vi.mocked(sendMail).mockImplementationOnce(async () => { usage.day = '2026-09-23'; });
+    const run = await mutateMail(['a@x.com'], 3, false, NO_CAP);
+    const fromResults = run.results.reduce((sum, r) => sum + (r.bytes ?? 0), 0);
+    expect(run.ok).toBe(3);
+    expect(run.bytesAdded).toBe(fromResults);
+    // Today's total is the new day's count only, with nothing carried over from yesterday.
+    expect(run.bytesToday).toBe(fromResults);
+    expect(usage.date).toBe('2026-09-23');
+    vi.mocked(listInboxMessages).mockResolvedValue([{ id: 'm1', size: 1000, hasAttachments: false }]);
   });
 });
 

@@ -1,6 +1,6 @@
 import { getGraphClient } from './graph-client.js';
 import { collectAllPages } from './graph-paginate.js';
-import { recordThrottle, retryAfterSeconds } from './throttle-stats.js';
+import { isThrottleStatus, recordThrottle, retryAfterSeconds } from './throttle-stats.js';
 
 export interface MailMessage {
   subject: string;
@@ -78,9 +78,12 @@ export async function listInboxMessages(userId: string, top = 50): Promise<MailR
 
 /** Graph accepts a file attachment inline only below 3 MB; larger ones need an upload session. */
 const INLINE_ATTACHMENT_LIMIT = 3 * 1024 * 1024;
-/** Graph recommends upload ranges under 4 MB. */
-const UPLOAD_CHUNK = 3 * 1024 * 1024;
+/** Every range but the last must be a multiple of 320 KiB; Graph also wants ranges under 4 MB. */
+const UPLOAD_RANGE_UNIT = 320 * 1024;
+const UPLOAD_CHUNK = 12 * UPLOAD_RANGE_UNIT; // 3.75 MiB
 const MAX_UPLOAD_RETRIES = 10;
+/** Wait when a throttled upload response carries no Retry-After. */
+const DEFAULT_UPLOAD_WAIT_SECONDS = 30;
 
 export interface MailAttachment {
   name: string;
@@ -91,7 +94,8 @@ export interface MailAttachment {
 /**
  * Send a message that carries a file attachment of any size up to Graph's 150 MB
  * limit: create a draft, attach the file (inline or via an upload session), then
- * send it. The draft is deleted if any step before the send fails. Requires
+ * send it. If attaching or sending fails, the draft is deleted on a best-effort
+ * basis so a failed action does not leave its bytes in the mailbox. Requires
  * Mail.ReadWrite + Mail.Send.
  */
 export async function sendMailWithAttachment(userId: string, message: MailMessage, attachment: MailAttachment): Promise<void> {
@@ -112,17 +116,18 @@ export async function sendMailWithAttachment(userId: string, message: MailMessag
       }) as { uploadUrl: string };
       await uploadInChunks(session.uploadUrl, attachment.bytes);
     }
+    await client.api(`${draftPath}/send`).post({});
   } catch (err) {
     await client.api(draftPath).delete().catch(() => undefined);
     throw err;
   }
-  await client.api(`${draftPath}/send`).post({});
 }
 
 /**
  * PUT the bytes to a pre-authenticated upload URL in ordered ranges. Honors
  * Retry-After on 429/503/504, which Outlook returns once a mailbox passes its
- * upload budget (150 MB per 5 minutes), and records each one as throttling.
+ * upload budget (150 MB per 5 minutes), and records each one as throttling,
+ * including the one that exhausts the retries.
  */
 async function uploadInChunks(uploadUrl: string, bytes: Buffer): Promise<void> {
   const total = bytes.length;
@@ -138,12 +143,18 @@ async function uploadInChunks(uploadUrl: string, bytes: Buffer): Promise<void> {
         },
         body: bytes.subarray(start, end + 1),
       });
+      // The body is small (next expected ranges, or the attachment on the last
+      // range). Read it whatever the status so Node can reuse the connection.
+      await res.arrayBuffer().catch(() => undefined);
       if (res.ok) break;
-      if ((res.status === 429 || res.status === 503 || res.status === 504) && attempt < MAX_UPLOAD_RETRIES) {
-        const waitSec = retryAfterSeconds(res.headers.get('Retry-After')) ?? 30;
-        recordThrottle(res.status, waitSec, 'upload');
-        await new Promise(r => setTimeout(r, waitSec * 1000));
-        continue;
+      if (isThrottleStatus(res.status)) {
+        const retrying = attempt < MAX_UPLOAD_RETRIES;
+        const waitSec = retryAfterSeconds(res.headers.get('Retry-After')) ?? DEFAULT_UPLOAD_WAIT_SECONDS;
+        recordThrottle(res.status, retrying ? waitSec : 0, 'upload', retrying);
+        if (retrying) {
+          await new Promise(r => setTimeout(r, waitSec * 1000));
+          continue;
+        }
       }
       throw Object.assign(new Error(`Attachment upload failed: HTTP ${res.status}`), { statusCode: res.status });
     }

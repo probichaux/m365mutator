@@ -6,13 +6,18 @@ import { logger } from '../logger/logger.js';
 
 export type ThrottleSource = 'graph' | 'upload';
 
+/** Status codes that mean "slow down": 429 Too Many Requests, 503 Service Unavailable, 504 Gateway Timeout. */
+export function isThrottleStatus(status: number): boolean {
+  return status === 429 || status === 503 || status === 504;
+}
+
 export interface ThrottleSnapshot {
   events: number;
   /** 429 Too Many Requests. */
   tooMany: number;
   /** 503 or 504: the service is busy. */
   busy: number;
-  /** Seconds the service asked us to wait (Retry-After), summed; approximate. */
+  /** Seconds spent waiting before retrying (Retry-After or backoff), summed; approximate. */
   waitSeconds: number;
   lastAt?: string;
   lastStatus?: number;
@@ -25,7 +30,11 @@ export const RECENT_WINDOW_MS = 5 * 60 * 1000;
 const totals: ThrottleSnapshot = { events: 0, tooMany: 0, busy: 0, waitSeconds: 0 };
 const recent: number[] = [];
 
-export function recordThrottle(status: number, waitSeconds: number, source: ThrottleSource): void {
+/**
+ * Count one throttling response. `retrying` is false for the response that
+ * exhausts the retry budget, which fails the request instead of waiting.
+ */
+export function recordThrottle(status: number, waitSeconds: number, source: ThrottleSource, retrying = true): void {
   const now = Date.now();
   totals.events++;
   if (status === 429) totals.tooMany++; else totals.busy++;
@@ -35,7 +44,9 @@ export function recordThrottle(status: number, waitSeconds: number, source: Thro
   totals.lastSource = source;
   recent.push(now);
   while (recent.length > 0 && now - recent[0] > RECENT_WINDOW_MS) recent.shift();
-  logger.warn(`[THROTTLE] ${source} returned ${status}; retrying in about ${Math.round(waitSeconds)}s`);
+  logger.warn(retrying
+    ? `[THROTTLE] ${source} returned ${status}; retrying in about ${Math.round(waitSeconds)}s`
+    : `[THROTTLE] ${source} returned ${status}; no retries left, failing the request`);
 }
 
 export function throttleSnapshot(): ThrottleSnapshot {

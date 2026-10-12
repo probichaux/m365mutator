@@ -1,9 +1,12 @@
 // Perform one weighted-random mail operation per selected user.
 
+import { randomBytes, randomUUID } from 'node:crypto';
 import {
-  sendMail, replyToMail, forwardMail, moveMessage, listInboxMessages,
+  sendMail, sendMailWithAttachment, replyToMail, forwardMail, moveMessage, listInboxMessages, MailRef,
 } from '../graph/mail.js';
 import { generateText, subjectPrompt, bodyPrompt } from './random-text.js';
+import { fillerText } from './filler-text.js';
+import { bytesAddedToday, recordBytesAdded, today } from './seed-usage.js';
 import { sanitizeUpstreamError } from './connectivity.js';
 import { logger } from '../logger/logger.js';
 
@@ -18,11 +21,76 @@ export interface MailResult {
   /** Human-readable summary of what happened, e.g. "sent to bob@…". */
   detail?: string;
   error?: string;
+  /** Estimated bytes this action added across mailboxes (sender's copy + recipient's copy). */
+  bytes?: number;
 }
 
+/** Message sizing for seeding mailbox storage. Zero means "off" for each field. */
+export interface MailSizeOptions {
+  /** Body size in KB of locally generated text; 0 keeps the short OpenRouter/GUID body. */
+  bodyKb: number;
+  /** Size in MB of a random-data attachment on each new message; 0 sends no attachment. */
+  attachmentMb: number;
+  /** Stop once today's estimated growth reaches this many GB; 0 disables the cap. */
+  dailyCapGb: number;
+}
+
+/** Lets a caller watch a run as it goes and ask it to stop early. */
+export interface MailRunHooks {
+  /** Called once per finished action, with today's running total. */
+  onResult?: (result: MailResult, bytesToday: number) => void;
+  /** Checked before each action; returning true stops scheduling new actions. */
+  shouldStop?: () => boolean;
+  /** A continuous run hit the daily cap and is waiting for the next local day. */
+  onPause?: (resumeAt: Date) => void;
+  onResume?: () => void;
+}
+
+export interface MailRunOptions {
+  /** Keep going until stopped (or until failures pile up), pausing at the daily cap until midnight. */
+  continuous?: boolean;
+}
+
+/** Give up after this many failures in a row: the mailbox is likely full or access was revoked. */
+export const MAX_CONSECUTIVE_FAILURES = 25;
+/** How often a paused continuous run checks for a stop request or a new day. */
+const PAUSE_POLL_MS = 5000;
+
+function nextLocalMidnight(now = new Date()): Date {
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 5);
+}
+
+export const MAX_BODY_KB = 2048;
+/** The largest attachment the UI offers; see maxAttachmentMbFor for what actually fits beside a body. */
+export const MAX_ATTACHMENT_MB = 25;
+export const MAX_DAILY_CAP_GB = 100;
+export const DEFAULT_SIZE_OPTIONS: MailSizeOptions = { bodyKb: 0, attachmentMb: 0, dailyCapGb: 1 };
+
+/** Exchange Online's default limit on the encoded (MIME) size of a sent message. */
+const MAX_MESSAGE_MB = 35;
+/** Headroom inside that limit for headers and MIME framing. */
+const MESSAGE_OVERHEAD_MB = 1;
+/** Base64 grows an attachment by a third on the wire. */
+const BASE64_GROWTH = 4 / 3;
+
+/**
+ * The largest attachment (whole MB) that still sends beside a body of `bodyKb`,
+ * once the attachment is base64-encoded: 25 MB with no body, 24 MB with the
+ * largest body. Keep in sync with the copy in MailPage.tsx.
+ */
+export function maxAttachmentMbFor(bodyKb: number): number {
+  const room = MAX_MESSAGE_MB - MESSAGE_OVERHEAD_MB - bodyKb / 1024;
+  return Math.max(0, Math.min(MAX_ATTACHMENT_MB, Math.floor(room / BASE64_GROWTH)));
+}
+
+/** Why a run ended. */
+export type MailStopReason = 'completed' | 'cap' | 'stopped' | 'failures';
+
 export interface MailRun {
-  /** Number of passes performed (one weighted action per mailbox per pass). */
+  /** Number of passes requested (one weighted action per mailbox per pass); 0 for a continuous run. */
   runs: number;
+  continuous: boolean;
+  stopReason: MailStopReason;
   /** runs × mailboxes — the total actions attempted. */
   totalActions: number;
   ok: number;
@@ -31,6 +99,14 @@ export interface MailRun {
   results: MailResult[];
   /** True when more actions ran than are included in `results`. */
   truncated: boolean;
+  /** Actions not attempted because the daily cap was reached. */
+  skipped: number;
+  /** Estimated bytes this run added. */
+  bytesAdded: number;
+  /** Estimated bytes added today, this run included. */
+  bytesToday: number;
+  /** The daily cap in bytes; 0 when there is no cap. */
+  capBytes: number;
 }
 
 export const MAX_RUNS = 999;
@@ -55,6 +131,43 @@ const OP_WEIGHTS_NO_DELETE: { op: MailOp; weight: number }[] = [
 
 const DELETED_ITEMS = 'deleteditems';
 const MUTATE_CONCURRENCY = 5;
+// Large uploads share one mailbox's budget (4 concurrent requests, 150 MB per
+// 5 minutes), so more parallelism only earns throttling.
+const ATTACHMENT_CONCURRENCY = 2;
+// A self-addressed message is stored twice: Sent Items and the Inbox. A message
+// to another selected mailbox is also stored twice, once in each mailbox.
+const STORED_COPIES = 2;
+const ATTACHMENT_NAMES = ['forecast', 'contract', 'itinerary', 'capacity-plan', 'backup-report', 'release-notes'];
+
+const clamp = (value: unknown, max: number, fallback: number): number =>
+  typeof value === 'number' && Number.isFinite(value) ? Math.min(max, Math.max(0, value)) : fallback;
+
+/** Coerce untrusted request input into valid size options; the attachment is shrunk to fit beside the body. */
+export function normalizeSizeOptions(raw: Partial<Record<keyof MailSizeOptions, unknown>> = {}): MailSizeOptions {
+  const bodyKb = Math.round(clamp(raw.bodyKb, MAX_BODY_KB, DEFAULT_SIZE_OPTIONS.bodyKb));
+  return {
+    bodyKb,
+    attachmentMb: Math.round(clamp(raw.attachmentMb, maxAttachmentMbFor(bodyKb), DEFAULT_SIZE_OPTIONS.attachmentMb)),
+    dailyCapGb: clamp(raw.dailyCapGb, MAX_DAILY_CAP_GB, DEFAULT_SIZE_OPTIONS.dailyCapGb),
+  };
+}
+
+async function bodyText(size: MailSizeOptions): Promise<string> {
+  return size.bodyKb > 0 ? fillerText(size.bodyKb * 1024) : generateText(bodyPrompt());
+}
+
+const formatMb = (bytes: number) => `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+
+/**
+ * Only ordinary mail (IPM.Note and its subclasses) accepts a reply or forward;
+ * meeting requests, delivery reports, and similar items fail with "Item type is
+ * invalid for creating a Reply". Items whose class Graph didn't return are kept.
+ */
+export function isReplyable(msg: MailRef): boolean {
+  if (!msg.messageClass) return true;
+  const cls = msg.messageClass.toLowerCase();
+  return cls === 'ipm.note' || cls.startsWith('ipm.note.');
+}
 
 /**
  * Pick an operation by weight. When `allowDeletions` is false the move-to-Deleted-Items
@@ -77,42 +190,62 @@ function pickCounterpart(actor: string, others: string[]): string {
   return others[Math.floor(Math.random() * others.length)];
 }
 
-async function runSend(actor: string, others: string[], fellBackFrom?: MailOp): Promise<MailResult> {
+async function runSend(actor: string, others: string[], size: MailSizeOptions, fellBackFrom?: MailOp): Promise<MailResult> {
   const to = pickCounterpart(actor, others);
   const subject = await generateText(subjectPrompt());
-  const content = await generateText(bodyPrompt());
-  await sendMail(actor, {
+  const content = await bodyText(size);
+  const message = {
     subject,
-    body: { contentType: 'Text', content },
+    body: { contentType: 'Text' as const, content },
     toRecipients: [{ emailAddress: { address: to } }],
-  });
-  const detail = fellBackFrom ? `no inbox messages; sent to ${to} instead` : `sent to ${to}`;
-  return { item: actor, op: 'send', ok: true, detail };
+  };
+  let attachmentBytes = 0;
+  if (size.attachmentMb > 0) {
+    const bytes = randomBytes(size.attachmentMb * 1024 * 1024);
+    const name = `${ATTACHMENT_NAMES[Math.floor(Math.random() * ATTACHMENT_NAMES.length)]}-${randomUUID().slice(0, 8)}.bin`;
+    await sendMailWithAttachment(actor, message, { name, contentType: 'application/octet-stream', bytes });
+    attachmentBytes = bytes.length;
+  } else {
+    await sendMail(actor, message);
+  }
+  const bytes = STORED_COPIES * (Buffer.byteLength(subject) + Buffer.byteLength(content) + attachmentBytes);
+  const base = fellBackFrom ? `no inbox messages; sent to ${to} instead` : `sent to ${to}`;
+  const detail = size.bodyKb > 0 || attachmentBytes > 0 ? `${base} (~${formatMb(bytes / STORED_COPIES)})` : base;
+  return { item: actor, op: 'send', ok: true, detail, bytes };
 }
 
-async function mutateOne(actor: string, others: string[], allowDeletions: boolean): Promise<MailResult> {
+async function mutateOne(actor: string, others: string[], allowDeletions: boolean, size: MailSizeOptions): Promise<MailResult> {
   const chosen = pickMailOp(allowDeletions);
   try {
     if (chosen !== 'send') {
-      const messages = await listInboxMessages(actor);
+      const inbox = await listInboxMessages(actor);
+      const messages = chosen === 'move' ? inbox : inbox.filter(isReplyable);
       if (messages.length === 0) {
         // Fall back to a doable operation rather than skip.
-        return await runSend(actor, others, chosen);
+        return await runSend(actor, others, size, chosen);
       }
       const msg = messages[Math.floor(Math.random() * messages.length)];
       if (chosen === 'reply') {
-        await replyToMail(actor, msg.id, await generateText(bodyPrompt()));
-        return { item: actor, op: 'reply', ok: true, detail: 'replied to an inbox message' };
+        const comment = await bodyText(size);
+        await replyToMail(actor, msg.id, comment);
+        // A reply quotes the original body but not its attachments; when the
+        // original has attachments its body size is unknown, so count the comment twice.
+        const quoted = msg.hasAttachments ? Buffer.byteLength(comment) : (msg.size ?? 0);
+        const bytes = STORED_COPIES * (Buffer.byteLength(comment) + quoted);
+        return { item: actor, op: 'reply', ok: true, detail: 'replied to an inbox message', bytes };
       }
       if (chosen === 'forward') {
         const to = pickCounterpart(actor, others);
         await forwardMail(actor, msg.id, [to]);
-        return { item: actor, op: 'forward', ok: true, detail: `forwarded to ${to}` };
+        // A forward carries the original's attachments, so it costs the full original size.
+        const bytes = STORED_COPIES * (msg.size ?? 0);
+        const detail = msg.size ? `forwarded to ${to} (~${formatMb(msg.size)})` : `forwarded to ${to}`;
+        return { item: actor, op: 'forward', ok: true, detail, bytes };
       }
       await moveMessage(actor, msg.id, DELETED_ITEMS);
-      return { item: actor, op: 'move', ok: true, detail: 'moved a message to Deleted Items' };
+      return { item: actor, op: 'move', ok: true, detail: 'moved a message to Deleted Items', bytes: 0 };
     }
-    return await runSend(actor, others);
+    return await runSend(actor, others, size);
   } catch (err) {
     const error = sanitizeUpstreamError(err);
     logger.warn(`[MAIL] ${chosen} failed for "${actor}": ${error}`);
@@ -122,37 +255,140 @@ async function mutateOne(actor: string, others: string[], allowDeletions: boolea
 
 /**
  * Perform `runs` passes; each pass runs one weighted-random mail operation per
- * selected user. All actions (runs × mailboxes) are scheduled through a single
- * bounded worker pool, so one failure does not abort the rest. Returns totals
- * plus a capped sample of individual results.
+ * selected user. All actions are scheduled through a single bounded worker
+ * pool, so one failure does not abort the rest. A continuous run repeats passes
+ * until stopped. When a daily cap is set, a finite run ends once today's
+ * estimated growth reaches it, and a continuous run pauses until the next local
+ * day. Either kind ends after MAX_CONSECUTIVE_FAILURES failures in a row.
+ * Returns totals plus a capped sample of individual results.
  */
-export async function mutateMail(items: string[], runs = 1, allowDeletions = false): Promise<MailRun> {
-  const passes = Math.min(MAX_RUNS, Math.max(1, Math.round(runs)));
-  logger.info(`[MAIL] Mutating ${items.length} mailbox(es) × ${passes} pass(es), deletions ${allowDeletions ? 'on' : 'off'}`);
+export async function mutateMail(
+  items: string[],
+  runs = 1,
+  allowDeletions = false,
+  sizeOptions: MailSizeOptions = DEFAULT_SIZE_OPTIONS,
+  hooks: MailRunHooks = {},
+  runOptions: MailRunOptions = {},
+): Promise<MailRun> {
+  const continuous = runOptions.continuous === true;
+  const passes = continuous ? 0 : Math.min(MAX_RUNS, Math.max(1, Math.round(runs)));
+  const planned = continuous ? Infinity : passes * items.length;
+  const size = normalizeSizeOptions({ ...sizeOptions });
+  const capBytes = Math.round(size.dailyCapGb * 1024 ** 3);
+  logger.info(
+    `[MAIL] Mutating ${items.length} mailbox(es) × ${continuous ? 'continuous' : `${passes} pass(es)`}, ` +
+    `deletions ${allowDeletions ? 'on' : 'off'}, ` +
+    `body ${size.bodyKb} KB, attachment ${size.attachmentMb} MB, daily cap ${size.dailyCapGb} GB`,
+  );
 
-  // Precompute each actor's counterparts once; flatten passes into one task list.
+  // Precompute each actor's counterparts once; action i acts as items[i % n].
   const othersByActor = new Map(items.map(a => [a, items.filter(i => i !== a)]));
-  const actors: string[] = [];
-  for (let p = 0; p < passes; p++) actors.push(...items);
 
-  const results: MailResult[] = new Array(actors.length);
-  let next = 0;
-  const workers = Array.from({ length: Math.min(MUTATE_CONCURRENCY, actors.length) }, async () => {
-    while (next < actors.length) {
-      const index = next++;
-      const actor = actors[index];
-      results[index] = await mutateOne(actor, othersByActor.get(actor) ?? [], allowDeletions);
+  const startedToday = bytesAddedToday();
+  let bytesToday = startedToday;
+  // Growth across day boundaries, for a continuous run that outlives a day.
+  let bytesEarlierDays = 0;
+  let dayBaseline = startedToday;
+  let day = today();
+  let reason: MailStopReason | null = null;
+  let consecutiveFailures = 0;
+  let pausedUntil: Date | null = null;
+
+  const capReached = () => capBytes > 0 && bytesToday >= capBytes;
+
+  const checkStop = () => {
+    if (!reason && hooks.shouldStop?.()) reason = 'stopped';
+    return reason !== null;
+  };
+
+  // Rolls today's counter over when the local date changes.
+  const rollDay = () => {
+    const now = today();
+    if (now !== day) {
+      bytesEarlierDays += bytesToday - dayBaseline;
+      day = now;
+      bytesToday = bytesAddedToday();
+      dayBaseline = bytesToday;
     }
-  });
-  await Promise.all(workers);
+  };
 
-  const ok = results.filter(r => r.ok).length;
+  // For a continuous run at the cap: wait (checking for a stop) until the next day.
+  const waitForNextDay = async () => {
+    if (!pausedUntil) {
+      pausedUntil = nextLocalMidnight();
+      logger.info(`[MAIL] Daily cap of ${size.dailyCapGb} GB reached; pausing until ${pausedUntil.toISOString()}`);
+      hooks.onPause?.(pausedUntil);
+    }
+    // Other workers may wait here too; each keeps its own copy of the deadline
+    // because the first one to wake clears the shared value.
+    const until = pausedUntil.getTime();
+    while (!checkStop() && Date.now() < until) {
+      await new Promise(r => setTimeout(r, PAUSE_POLL_MS));
+    }
+    if (pausedUntil && !reason) {
+      pausedUntil = null;
+      rollDay();
+      logger.info('[MAIL] New day; resuming continuous run');
+      hooks.onResume?.();
+    }
+  };
+
+  const sample: MailResult[] = [];
+  let finished = 0;
+  let ok = 0;
+  let next = 0;
+  const concurrency = size.attachmentMb > 0 ? ATTACHMENT_CONCURRENCY : MUTATE_CONCURRENCY;
+
+  const worker = async () => {
+    while (next < planned) {
+      if (checkStop()) return;
+      rollDay();
+      if (capReached()) {
+        if (!continuous) { reason = reason ?? 'cap'; return; }
+        await waitForNextDay();
+        continue;
+      }
+      const actor = items[next++ % items.length];
+      const result = await mutateOne(actor, othersByActor.get(actor) ?? [], allowDeletions, size);
+      // The action may have straddled midnight: close out the old day before its bytes land on the new one.
+      rollDay();
+      finished++;
+      if (result.ok) {
+        ok++;
+        consecutiveFailures = 0;
+        if (result.bytes) bytesToday = recordBytesAdded(result.bytes);
+      } else if (++consecutiveFailures >= MAX_CONSECUTIVE_FAILURES && !reason) {
+        reason = 'failures';
+        logger.warn(`[MAIL] ${MAX_CONSECUTIVE_FAILURES} failures in a row; ending the run. Last error: ${result.error}`);
+      }
+      if (sample.length < RESULT_SAMPLE_CAP) sample.push(result);
+      hooks.onResult?.(result, bytesToday);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(concurrency, Number.isFinite(planned) ? planned : concurrency) }, worker));
+
+  // `reason` is set inside the workers, so TypeScript can't see it change here.
+  const stopReason: MailStopReason = (reason as MailStopReason | null) ?? 'completed';
+  const skipped = continuous ? 0 : planned - next;
+  if (skipped > 0 && stopReason === 'stopped') logger.info(`[MAIL] Stopped on request; skipped ${skipped} action(s)`);
+  else if (skipped > 0 && stopReason === 'cap') logger.info(`[MAIL] Daily cap of ${size.dailyCapGb} GB reached; skipped ${skipped} action(s)`);
+  const bytesAdded = bytesEarlierDays + bytesToday - dayBaseline;
+  logger.info(
+    `[MAIL] Run finished (${stopReason}): ${ok} ok, ${finished - ok} failed, ${skipped} skipped, ` +
+    `~${formatMb(bytesAdded)} added (~${formatMb(bytesToday)} today)`,
+  );
   return {
     runs: passes,
-    totalActions: results.length,
+    continuous,
+    stopReason,
+    totalActions: finished,
     ok,
-    failed: results.length - ok,
-    results: results.slice(0, RESULT_SAMPLE_CAP),
-    truncated: results.length > RESULT_SAMPLE_CAP,
+    failed: finished - ok,
+    results: sample,
+    truncated: finished > sample.length,
+    skipped,
+    bytesAdded,
+    bytesToday,
+    capBytes,
   };
 }

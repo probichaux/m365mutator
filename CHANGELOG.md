@@ -2,6 +2,14 @@
 
 All notable changes to M365Mutator are documented in this file.
 
+## Unreleased
+
+- Add message sizing to the Mail tab: a body size in KB of locally generated text, a random-data attachment in MB on each new message (sent through a Graph upload session above 3 MB), and a daily growth cap in GB (default 1 GB, matching Microsoft's supported growth rate for auto-expanding archives).
+- Run mail mutations as background jobs: a run keeps going when you leave the Mail tab, the tab reconnects to it with live progress, and a Stop button ends it early.
+- Skip meeting requests, delivery reports, and other items that can't take a reply when picking a message to reply to or forward.
+- Add a continuous mode to the Mail tab: it runs until stopped, pauses at the daily cap until midnight, and ends on its own after 25 failures in a row.
+- Track throttling (429, 503, and 504 responses) from Graph and attachment uploads, retry up to 10 times, and show throttling on the Mail tab and in a status line written to the log every 10 minutes.
+
 ## 0.6.7 — 2026-08-03
 
 - Disable "Do it now" on every workload tab while the target list has unsaved edits (typed, loaded, or CSV-imported), with a warning explaining why. Previously a run would silently use the last saved list, not whatever was showing in the box, if you forgot to click Save targets.

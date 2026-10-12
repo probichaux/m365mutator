@@ -3,10 +3,22 @@ import { describe, it, expect, vi } from 'vitest';
 // Mock the Graph + text layers so mutateMail can run without a tenant.
 vi.mock('../graph/mail.js', () => ({
   sendMail: vi.fn().mockResolvedValue(undefined),
+  sendMailWithAttachment: vi.fn().mockResolvedValue(undefined),
   replyToMail: vi.fn().mockResolvedValue(undefined),
   forwardMail: vi.fn().mockResolvedValue(undefined),
   moveMessage: vi.fn().mockResolvedValue(undefined),
-  listInboxMessages: vi.fn().mockResolvedValue([{ id: 'm1' }]),
+  listInboxMessages: vi.fn().mockResolvedValue([{ id: 'm1', size: 1000, hasAttachments: false }]),
+}));
+// Keep daily usage in memory instead of the data directory. `day` is the
+// clock's date; `date` is the date the stored count belongs to, as in the file.
+const usage = vi.hoisted(() => ({ bytes: 0, date: '2026-09-22', day: '2026-09-22' }));
+vi.mock('./seed-usage.js', () => ({
+  bytesAddedToday: () => (usage.date === usage.day ? usage.bytes : 0),
+  recordBytesAdded: (b: number) => {
+    if (usage.date !== usage.day) { usage.date = usage.day; usage.bytes = 0; }
+    return (usage.bytes += b);
+  },
+  today: () => usage.day,
 }));
 vi.mock('./random-text.js', () => ({
   generateText: vi.fn().mockResolvedValue('text'),
@@ -14,7 +26,18 @@ vi.mock('./random-text.js', () => ({
   bodyPrompt: () => 'b',
 }));
 
-import { pickMailOp, mutateMail, MailOp } from './mail-mutate.js';
+import { beforeEach } from 'vitest';
+import {
+  pickMailOp, mutateMail, normalizeSizeOptions, maxAttachmentMbFor, isReplyable, MailOp, MAX_CONSECUTIVE_FAILURES,
+} from './mail-mutate.js';
+import { sendMail, sendMailWithAttachment, replyToMail, listInboxMessages } from '../graph/mail.js';
+
+beforeEach(() => {
+  usage.bytes = 0;
+  usage.date = usage.day = '2026-09-22';
+  vi.mocked(sendMail).mockReset().mockResolvedValue(undefined);
+  vi.mocked(sendMailWithAttachment).mockClear();
+});
 
 describe('pickMailOp (deletions allowed)', () => {
   const pick = (r: number) => pickMailOp(true, () => r);
@@ -90,5 +113,168 @@ describe('mutateMail runs', () => {
   it('never moves a message to Deleted Items when deletions are disabled', async () => {
     const run = await mutateMail(['a@x.com', 'b@x.com'], 50, false);
     expect(run.results.every(r => r.op !== 'move')).toBe(true);
+  });
+});
+
+const NO_CAP = { bodyKb: 0, attachmentMb: 0, dailyCapGb: 0 };
+
+describe('normalizeSizeOptions', () => {
+  it('clamps to the allowed ranges and falls back to defaults', () => {
+    expect(normalizeSizeOptions({})).toEqual({ bodyKb: 0, attachmentMb: 0, dailyCapGb: 1 });
+    expect(normalizeSizeOptions({ bodyKb: 0, attachmentMb: 500, dailyCapGb: 1000 }))
+      .toEqual({ bodyKb: 0, attachmentMb: 25, dailyCapGb: 100 });
+    expect(normalizeSizeOptions({ bodyKb: -5, attachmentMb: 'x', dailyCapGb: 0 }))
+      .toEqual({ bodyKb: 0, attachmentMb: 0, dailyCapGb: 0 });
+  });
+
+  it('shrinks the attachment so the encoded message stays under the 35 MB send limit', () => {
+    // 25 MB base64-encodes to about 33.3 MB; with a 2 MB body that would exceed the limit.
+    expect(normalizeSizeOptions({ bodyKb: 99999, attachmentMb: 500 })).toMatchObject({ bodyKb: 2048, attachmentMb: 24 });
+    expect(normalizeSizeOptions({ bodyKb: 2048, attachmentMb: 10 }).attachmentMb).toBe(10);
+  });
+});
+
+describe('maxAttachmentMbFor', () => {
+  it('keeps body plus base64 attachment plus headroom under 35 MB', () => {
+    expect(maxAttachmentMbFor(0)).toBe(25);
+    expect(maxAttachmentMbFor(2048)).toBe(24);
+    for (const bodyKb of [0, 512, 1024, 2048]) {
+      const encodedMb = maxAttachmentMbFor(bodyKb) * (4 / 3) + bodyKb / 1024;
+      expect(encodedMb).toBeLessThanOrEqual(34);
+    }
+  });
+});
+
+describe('mutateMail sizing', () => {
+  it('attaches a file of the requested size to new messages', async () => {
+    const run = await mutateMail(['a@x.com'], 20, false, { ...NO_CAP, attachmentMb: 1 });
+    const sends = run.results.filter(r => r.op === 'send');
+    expect(sends.length).toBeGreaterThan(0);
+    expect(vi.mocked(sendMail)).not.toHaveBeenCalled();
+    const [, , attachment] = vi.mocked(sendMailWithAttachment).mock.calls[0];
+    expect(attachment.bytes.length).toBe(1024 * 1024);
+    // Stored twice: Sent Items plus the Inbox.
+    expect(sends[0].bytes).toBeGreaterThan(2 * 1024 * 1024);
+  });
+
+  it('builds bodies of the requested size', async () => {
+    await mutateMail(['a@x.com'], 30, false, { ...NO_CAP, bodyKb: 64 });
+    const [, message] = vi.mocked(sendMail).mock.calls[0];
+    expect(message.body.content.length).toBe(64 * 1024);
+  });
+
+  it('stops scheduling actions once the daily cap is reached', async () => {
+    usage.bytes = 1024 ** 3; // already at 1 GB today
+    const run = await mutateMail(['a@x.com'], 10, false, { ...NO_CAP, dailyCapGb: 1 });
+    expect(run.totalActions).toBe(0);
+    expect(run.skipped).toBe(10);
+    expect(run.bytesAdded).toBe(0);
+  });
+
+  it('counts estimated bytes toward today', async () => {
+    const run = await mutateMail(['a@x.com'], 5, false, NO_CAP);
+    expect(run.bytesAdded).toBeGreaterThan(0);
+    expect(run.bytesToday).toBe(usage.bytes);
+    expect(run.skipped).toBe(0);
+  });
+
+  it('keeps the run total right when an action straddles midnight', async () => {
+    usage.bytes = 500; // some growth already recorded yesterday
+    vi.mocked(listInboxMessages).mockResolvedValue([]); // every action is a send
+    // The first send finishes after the date has changed.
+    vi.mocked(sendMail).mockImplementationOnce(async () => { usage.day = '2026-09-23'; });
+    const run = await mutateMail(['a@x.com'], 3, false, NO_CAP);
+    const fromResults = run.results.reduce((sum, r) => sum + (r.bytes ?? 0), 0);
+    expect(run.ok).toBe(3);
+    expect(run.bytesAdded).toBe(fromResults);
+    // Today's total is the new day's count only, with nothing carried over from yesterday.
+    expect(run.bytesToday).toBe(fromResults);
+    expect(usage.date).toBe('2026-09-23');
+    vi.mocked(listInboxMessages).mockResolvedValue([{ id: 'm1', size: 1000, hasAttachments: false }]);
+  });
+});
+
+describe('isReplyable', () => {
+  it('accepts ordinary mail and rejects meeting requests and reports', () => {
+    expect(isReplyable({ id: '1', messageClass: 'IPM.Note' })).toBe(true);
+    expect(isReplyable({ id: '2', messageClass: 'IPM.Note.SMIME' })).toBe(true);
+    expect(isReplyable({ id: '3' })).toBe(true); // class unknown: keep it
+    expect(isReplyable({ id: '4', messageClass: 'IPM.Schedule.Meeting.Request' })).toBe(false);
+    expect(isReplyable({ id: '5', messageClass: 'REPORT.IPM.Note.NDR' })).toBe(false);
+    expect(isReplyable({ id: '6', messageClass: 'IPM.NoteX' })).toBe(false);
+  });
+});
+
+describe('mutateMail hooks', () => {
+  it('never replies to or forwards an item that cannot take a reply', async () => {
+    vi.mocked(listInboxMessages).mockResolvedValue([{ id: 'meeting', messageClass: 'IPM.Schedule.Meeting.Request' }]);
+    vi.mocked(replyToMail).mockClear();
+    const run = await mutateMail(['a@x.com'], 30, false, NO_CAP);
+    expect(vi.mocked(replyToMail)).not.toHaveBeenCalled();
+    // With nothing replyable, every reply or forward falls back to a new message.
+    expect(run.results.every(r => r.op === 'send')).toBe(true);
+    vi.mocked(listInboxMessages).mockResolvedValue([{ id: 'm1', size: 1000, hasAttachments: false }]);
+  });
+
+  it('reports each finished action through onResult', async () => {
+    const seen: number[] = [];
+    await mutateMail(['a@x.com'], 7, false, NO_CAP, { onResult: (_r, today) => seen.push(today) });
+    expect(seen.length).toBe(7);
+    expect(seen.at(-1)).toBe(usage.bytes);
+  });
+
+  it('stops scheduling new actions once shouldStop returns true', async () => {
+    let finished = 0;
+    const run = await mutateMail(['a@x.com'], 50, false, NO_CAP, {
+      onResult: () => { finished++; },
+      shouldStop: () => finished >= 3,
+    });
+    // In-flight actions may finish after the stop, but no new ones start.
+    expect(run.totalActions).toBeLessThan(50);
+    expect(run.totalActions).toBeGreaterThanOrEqual(3);
+    expect(run.skipped).toBe(50 - run.totalActions);
+  });
+});
+
+describe('mutateMail continuous mode', () => {
+  it('keeps going past the pass limit until asked to stop', async () => {
+    let finished = 0;
+    const run = await mutateMail(['a@x.com'], 1, false, NO_CAP, {
+      onResult: () => { finished++; },
+      shouldStop: () => finished >= 1200, // more than MAX_RUNS × 1 mailbox
+    }, { continuous: true });
+    expect(run.continuous).toBe(true);
+    expect(run.stopReason).toBe('stopped');
+    expect(run.totalActions).toBeGreaterThanOrEqual(1200);
+    expect(run.skipped).toBe(0);
+  });
+
+  it('ends after too many failures in a row', async () => {
+    vi.mocked(sendMail).mockRejectedValue(Object.assign(new Error('MailboxFull'), { statusCode: 507 }));
+    vi.mocked(listInboxMessages).mockResolvedValue([]); // every action falls back to a send
+    const run = await mutateMail(['a@x.com'], 1, false, NO_CAP, {}, { continuous: true });
+    expect(run.stopReason).toBe('failures');
+    expect(run.failed).toBeGreaterThanOrEqual(MAX_CONSECUTIVE_FAILURES);
+    expect(run.ok).toBe(0);
+    vi.mocked(listInboxMessages).mockResolvedValue([{ id: 'm1', size: 1000, hasAttachments: false }]);
+  });
+
+  it('pauses at the daily cap instead of ending', async () => {
+    usage.bytes = 1024 ** 3;
+    let paused: Date | null = null;
+    const run = await mutateMail(['a@x.com'], 1, false, { ...NO_CAP, dailyCapGb: 1 }, {
+      onPause: at => { paused = at; },
+      shouldStop: () => paused !== null,
+    }, { continuous: true });
+    expect(paused).not.toBeNull();
+    expect(paused!.getTime()).toBeGreaterThan(Date.now());
+    expect(run.stopReason).toBe('stopped');
+    expect(run.totalActions).toBe(0);
+  });
+
+  it('reports why a finite run ended', async () => {
+    expect((await mutateMail(['a@x.com'], 3, false, NO_CAP)).stopReason).toBe('completed');
+    usage.bytes = 1024 ** 3;
+    expect((await mutateMail(['a@x.com'], 3, false, { ...NO_CAP, dailyCapGb: 1 })).stopReason).toBe('cap');
   });
 });

@@ -137,7 +137,7 @@ export function startMailJob(
     onResult: (result, bytesToday) => {
       job.completed++;
       if (result.ok) job.ok++; else job.failed++;
-      job.bytesAdded = earlierDays + bytesToday - dayBaseline;
+      job.bytesAdded += result.bytes ?? 0;
       job.bytesToday = bytesToday;
       job.recent.push(result);
       if (job.recent.length > RECENT_CAP) job.recent.shift();

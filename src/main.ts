@@ -9,6 +9,7 @@ import { GraphAuthManager } from './graph/graph-auth.js';
 import { logger } from './logger/logger.js';
 import { Scheduler } from './agent/scheduler.js';
 import { createScheduleRouter } from './agent/schedule-routes.js';
+import { startTelemetry, stopTelemetry } from './agent/telemetry.js';
 
 export type RunMode = 'interactive' | 'agent';
 
@@ -120,6 +121,8 @@ async function main() {
     console.warn('Warning: Graph API initialization failed. The server will start but Graph-dependent operations will not work until credentials are updated via the admin UI.');
   }
 
+  // Agent 365 observability is for agent mode only; interactive mode keeps plain logging.
+  if (mode === 'agent') startTelemetry();
   const scheduler = mode === 'agent' ? new Scheduler() : undefined;
   const app = createApp(scheduler);
   const port = process.env.PORT || 3700;
@@ -146,6 +149,7 @@ async function main() {
     logger.info('Shutting down...');
     // Let a running cycle finish (up to 60s) before exiting.
     await scheduler?.stop();
+    await stopTelemetry();
     server.close(() => process.exit(0));
   };
 

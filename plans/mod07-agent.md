@@ -298,6 +298,33 @@ Notes:
   spans. Record counts and sanitized error codes only (reuse
   `sanitizeUpstreamError`).
 
+As built (Phase 6, `@microsoft/opentelemetry` 1.5.0):
+
+- **No loader or `start:agent` script.** The `--import` loader only registers
+  hooks for automatic HTTP and library instrumentation, which would put URLs
+  in spans. Every span here is manual, so `startTelemetry()` runs from `main.ts`
+  in agent mode, with HTTP, Azure SDK and logger instrumentation off.
+- **One FMI implementation.** The exporter's async `tokenResolver` calls
+  `AgentIdentityCredential.getToken()` for the Observability scope. There's no
+  separate token service or MSAL dependency.
+- **Activity context.** Each cycle gets a `cycle-<uuid>` conversation and
+  session ID and the `scheduler` channel, in baggage, so every span carries
+  them. The blueprint sponsor (`AGENT365_SPONSOR_USER_*`) is the caller.
+- **Sampling.** The distro's default rate-limited sampler dropped the first
+  trace after a quiet spell (every hourly cycle), so sampling is set to 100%.
+- **Durable delivery** spools to `telemetry-spool` in the data dir instead of
+  `$TMPDIR`, which App Service clears on restart.
+- **SDKStats.** The distro sends its own usage metrics to Microsoft unless
+  `MICROSOFT_OTEL_SDKSTATS_DISABLED=true`; `.env.example` documents it.
+- **Validation (2026-10-30).** A live cycle exported 2 spans in 1 identity
+  group, with none skipped and an empty spool afterwards. `a365-code-validator`
+  reports `exporter-env-disabled` (the CLI-written `.env` sets
+  `ENABLE_A365_OBSERVABILITY_EXPORTER=false`, but the code flag takes
+  precedence) and `a365-generated-config-incomplete` (from the trimmed Phase 1
+  setup). The blueprint has no inheritable permissions by design: app roles are
+  assigned to the agent identity directly, and export is authorized by the
+  agent's registration.
+
 ### 6. Registration, packaging, publishing
 
 - Add `agent/` containing a template `a365.config.json` (no secrets), a

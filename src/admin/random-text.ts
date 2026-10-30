@@ -3,6 +3,7 @@
 import { randomUUID } from 'node:crypto';
 import { loadConfig } from './config-store.js';
 import { logger } from '../logger/logger.js';
+import { InferenceUsage, traceInference } from '../agent/telemetry.js';
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
@@ -30,6 +31,20 @@ export async function generateText(prompt: string): Promise<string> {
 }
 
 async function callOpenRouter(apiKey: string, model: string, prompt: string): Promise<string> {
+  return traceInference(model, record => requestCompletion(apiKey, model, prompt, record));
+}
+
+interface CompletionResponse {
+  choices?: { message?: { content?: string }; finish_reason?: string }[];
+  usage?: { prompt_tokens?: number; completion_tokens?: number };
+}
+
+async function requestCompletion(
+  apiKey: string,
+  model: string,
+  prompt: string,
+  record: (usage: InferenceUsage) => void,
+): Promise<string> {
   const res = await fetch(OPENROUTER_URL, {
     method: 'POST',
     headers: {
@@ -41,7 +56,13 @@ async function callOpenRouter(apiKey: string, model: string, prompt: string): Pr
   if (!res.ok) {
     throw new Error(`OpenRouter HTTP ${res.status}`);
   }
-  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+  const data = (await res.json()) as CompletionResponse;
+  // Usage counts only; the prompt and completion never reach a span.
+  record({
+    inputTokens: data.usage?.prompt_tokens,
+    outputTokens: data.usage?.completion_tokens,
+    finishReason: data.choices?.[0]?.finish_reason,
+  });
   const text = data.choices?.[0]?.message?.content?.trim();
   if (!text) {
     throw new Error('OpenRouter returned no content');

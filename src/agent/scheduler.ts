@@ -14,6 +14,7 @@ import {
   buildRequest, loadSchedule, LoadedSchedule, Schedule, scheduleFilePath, SCHEDULED_WORKLOADS,
 } from './schedule-store.js';
 import { appendRun, CycleSummary, loadRuns, WorkloadSummary } from './run-history.js';
+import { traceCycle, traceTool } from './telemetry.js';
 
 const MINUTE = 60_000;
 /** setTimeout's ceiling; longer waits re-arm when they fire early. */
@@ -68,6 +69,21 @@ function defaultCheckToken(): (credential: GraphCredential) => Promise<void> {
     const token = await credentials[kind].getToken(GRAPH_SCOPE);
     if (!token) throw new Error('No token returned');
   };
+}
+
+/** One line naming each enabled workload, for the cycle's span. Settings only, no targets. */
+function describeSchedule(s: Schedule): string {
+  const parts = SCHEDULED_WORKLOADS.filter(w => s.workloads[w].enabled).map(w => {
+    const runs = w === 'deletions' ? '' : ` x${s.workloads[w].runs}`;
+    return `${w}${runs} (${s.credentials[w]})`;
+  });
+  return `Scheduled cycle: ${parts.join(', ') || 'no workloads'}`;
+}
+
+function describeCycle(c: CycleSummary | null): string {
+  if (!c) return 'No cycle recorded';
+  const parts = c.workloads.map(w => `${w.workload} ${w.error ? 'error' : `${w.ok} ok/${w.failed} failed`}`);
+  return `${c.status}: ${parts.join(', ') || 'no workloads'}`;
 }
 
 /** ok/failed counts from any workload's run result. */
@@ -191,7 +207,12 @@ export class Scheduler {
     return this.lastCycle!;
   }
 
-  private async runCycle(): Promise<void> {
+  /** One cycle is one InvokeAgentScope, the root span of everything it does. */
+  private runCycle(): Promise<void> {
+    return traceCycle(describeSchedule(this.schedule), () => this.runCycleSteps(), () => describeCycle(this.lastCycle));
+  }
+
+  private async runCycleSteps(): Promise<void> {
     const startedAt = this.deps.now();
     const iso = (t: number) => new Date(t).toISOString();
 
@@ -240,7 +261,12 @@ export class Scheduler {
       }
       try {
         const req = buildRequest(workload, this.schedule, t0);
-        const result = await this.deps.runWorkload(req, { credential, directoryCredential: 'agent' });
+        const { workload: _name, ...args } = req;
+        const result = await traceTool(
+          workload, { ...args, credential },
+          () => this.deps.runWorkload(req, { credential, directoryCredential: 'agent' }),
+          r => counts(r),
+        );
         workloads.push({ workload, credential, ...counts(result), durationMs: this.deps.now() - t0 });
       } catch (err) {
         const error = sanitizeUpstreamError(err);

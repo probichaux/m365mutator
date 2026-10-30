@@ -6,16 +6,8 @@ import multer from 'multer';
 import { loadConfig, saveConfig, maskSecrets, applyConfig, getDataDir, sanitizeCertPath, AppConfig } from './config-store.js';
 import { loadTargets, saveTargets, saveTargetCategory, TARGET_CATEGORIES, TargetCategory } from './targets-store.js';
 import { checkTargets } from './target-check.js';
-import { loadCategory, resolveTargetItems } from './target-load.js';
-import { mutateIdentities } from './identity-mutate.js';
-import { mutateMail } from './mail-mutate.js';
-import { mutateCalendar } from './calendar-mutate.js';
-import { mutateOneDrive } from './onedrive-mutate.js';
-import { mutateSharePoint } from './sharepoint-mutate.js';
-import {
-  mutateDeletions, DELETION_WORKLOADS, DELETION_SCOPES,
-  DeletionWorkload, DeletionScope, isValidDate,
-} from './deletion-mutate.js';
+import { loadCategory } from './target-load.js';
+import { runWorkload, parseWorkloadRequest, Workload, WorkloadInputError } from './workload-runner.js';
 import { sanitizeUpstreamError } from './connectivity.js';
 import { MUTABLE_ATTRIBUTES } from '../graph/user-attributes.js';
 import { listAllSitesPaged } from '../graph/sites.js';
@@ -29,6 +21,21 @@ const rootDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const appVersion: string = JSON.parse(readFileSync(join(rootDir, 'package.json'), 'utf-8')).version;
 
 const router = Router();
+
+// Thin wrapper over the shared engine: bad input → 400, upstream failure → 502.
+function mutateRoute(workload: Workload) {
+  return async (req: Request, res: Response) => {
+    try {
+      res.json(await runWorkload(parseWorkloadRequest(workload, req.body)));
+    } catch (err: unknown) {
+      if (err instanceof WorkloadInputError) {
+        res.status(400).json({ error: err.message });
+        return;
+      }
+      res.status(502).json({ error: sanitizeUpstreamError(err) });
+    }
+  };
+}
 
 // This app has no login gate — anyone who can reach it can read/change Graph
 // config and drive the Graph-dependent operations. It's meant to run somewhere
@@ -179,172 +186,27 @@ router.get('/api/identities/attributes', (_req: Request, res: Response) => {
   res.json({ attributes: MUTABLE_ATTRIBUTES.map(a => a.name) });
 });
 
-router.post('/api/identities/mutate', async (_req: Request, res: Response) => {
-  const identities = loadTargets().identities;
-  try {
-    // Explicit → the saved list; random → a fresh random % of the tenant's users.
-    const resolved = await resolveTargetItems('identities', identities);
-    if (resolved.items.length === 0) {
-      const msg = resolved.runStyle === 'random'
-        ? 'No users were found in the tenant to sample'
-        : 'No identities are selected';
-      res.status(400).json({ error: msg });
-      return;
-    }
-    const run = await mutateIdentities(resolved.items);
-    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
-  } catch (err: unknown) {
-    res.status(502).json({ error: sanitizeUpstreamError(err) });
-  }
-});
+router.post('/api/identities/mutate', mutateRoute('identities'));
 
 // ── Mail: weighted random mailbox operations ────────────────────────
 
-router.post('/api/mail/mutate', async (req: Request, res: Response) => {
-  const mail = loadTargets().mail;
-  const { runs, allowDeletions } = req.body as { runs?: unknown; allowDeletions?: unknown };
-  const runCount = typeof runs === 'number' && Number.isFinite(runs) ? runs : 1;
-  const allowDel = allowDeletions === true;
-  try {
-    // Explicit → the saved list; random → a fresh random % of the tenant's mailboxes.
-    const resolved = await resolveTargetItems('mail', mail);
-    if (resolved.items.length === 0) {
-      const msg = resolved.runStyle === 'random'
-        ? 'No mailboxes were found in the tenant to sample'
-        : 'No mailboxes are selected';
-      res.status(400).json({ error: msg });
-      return;
-    }
-    const run = await mutateMail(resolved.items, runCount, allowDel);
-    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
-  } catch (err: unknown) {
-    res.status(502).json({ error: sanitizeUpstreamError(err) });
-  }
-});
+router.post('/api/mail/mutate', mutateRoute('mail'));
 
 // ── Calendar: 50/50 random meeting-or-appointment creation ──────────
 
-router.post('/api/calendar/mutate', async (req: Request, res: Response) => {
-  const calendar = loadTargets().calendar;
-  const { runs } = req.body as { runs?: unknown };
-  const runCount = typeof runs === 'number' && Number.isFinite(runs) ? runs : 1;
-  try {
-    // Explicit → the saved list; random → a fresh random % of the tenant's mailboxes.
-    const resolved = await resolveTargetItems('calendar', calendar);
-    if (resolved.items.length === 0) {
-      const msg = resolved.runStyle === 'random'
-        ? 'No mailboxes were found in the tenant to sample'
-        : 'No mailboxes are selected';
-      res.status(400).json({ error: msg });
-      return;
-    }
-    const run = await mutateCalendar(resolved.items, runCount);
-    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
-  } catch (err: unknown) {
-    res.status(502).json({ error: sanitizeUpstreamError(err) });
-  }
-});
+router.post('/api/calendar/mutate', mutateRoute('calendar'));
 
 // ── OneDrive: weighted random file/folder operations ────────────────
 
-router.post('/api/onedrive/mutate', async (req: Request, res: Response) => {
-  const onedrive = loadTargets().onedrive;
-  const { runs } = req.body as { runs?: unknown };
-  const runCount = typeof runs === 'number' && Number.isFinite(runs) ? runs : 1;
-  try {
-    // Explicit → the saved list; random → a fresh random % of the tenant's OneDrive users.
-    const resolved = await resolveTargetItems('onedrive', onedrive);
-    if (resolved.items.length === 0) {
-      const msg = resolved.runStyle === 'random'
-        ? 'No OneDrive users were found in the tenant to sample'
-        : 'No OneDrive users are selected';
-      res.status(400).json({ error: msg });
-      return;
-    }
-    const run = await mutateOneDrive(resolved.items, runCount);
-    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
-  } catch (err: unknown) {
-    res.status(502).json({ error: sanitizeUpstreamError(err) });
-  }
-});
+router.post('/api/onedrive/mutate', mutateRoute('onedrive'));
 
 // ── SharePoint: weighted random file/folder operations ──────────────
 
-router.post('/api/sharepoint/mutate', async (req: Request, res: Response) => {
-  const sharepoint = loadTargets().sharepoint;
-  const { runs } = req.body as { runs?: unknown };
-  const runCount = typeof runs === 'number' && Number.isFinite(runs) ? runs : 1;
-  try {
-    const resolved = await resolveTargetItems('sharepoint', sharepoint);
-    if (resolved.items.length === 0) {
-      const msg = resolved.runStyle === 'random'
-        ? 'No SharePoint sites were found in the tenant to sample'
-        : 'No SharePoint sites are selected';
-      res.status(400).json({ error: msg });
-      return;
-    }
-    const run = await mutateSharePoint(resolved.items, runCount);
-    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
-  } catch (err: unknown) {
-    res.status(502).json({ error: sanitizeUpstreamError(err) });
-  }
-});
+router.post('/api/sharepoint/mutate', mutateRoute('sharepoint'));
 
 // ── Deletions: date-scoped deletion across mail / calendar / OneDrive ──
 
-router.post('/api/deletions/mutate', async (req: Request, res: Response) => {
-  const { workloads, scope, after, before } = req.body as {
-    workloads?: unknown; scope?: unknown; after?: unknown; before?: unknown;
-  };
-
-  const selected = Array.isArray(workloads)
-    ? DELETION_WORKLOADS.filter(w => (workloads as unknown[]).includes(w))
-    : [];
-  if (selected.length === 0) {
-    res.status(400).json({ error: 'Select at least one workload' });
-    return;
-  }
-  if (!DELETION_SCOPES.includes(scope as DeletionScope)) {
-    res.status(400).json({ error: 'Invalid deletion scope' });
-    return;
-  }
-  const scopeVal = scope as DeletionScope;
-  const needsAfter = scopeVal === 'after' || scopeVal === 'between';
-  const needsBefore = scopeVal === 'before' || scopeVal === 'between';
-  if (needsAfter && !isValidDate(after)) {
-    res.status(400).json({ error: 'A valid start date is required' });
-    return;
-  }
-  if (needsBefore && !isValidDate(before)) {
-    res.status(400).json({ error: 'A valid end date is required' });
-    return;
-  }
-  if (scopeVal === 'between' && String(after) > String(before)) {
-    res.status(400).json({ error: 'The start date must not be after the end date' });
-    return;
-  }
-
-  try {
-    const resolved = await resolveTargetItems('deletions', loadTargets().deletions);
-    if (resolved.items.length === 0) {
-      const msg = resolved.runStyle === 'random'
-        ? 'No users were found in the tenant to sample'
-        : 'No users are selected';
-      res.status(400).json({ error: msg });
-      return;
-    }
-    const run = await mutateDeletions(
-      resolved.items,
-      selected as DeletionWorkload[],
-      scopeVal,
-      needsAfter ? String(after) : undefined,
-      needsBefore ? String(before) : undefined,
-    );
-    res.json({ ...run, runStyle: resolved.runStyle, pool: resolved.pool });
-  } catch (err: unknown) {
-    res.status(502).json({ error: sanitizeUpstreamError(err) });
-  }
-});
+router.post('/api/deletions/mutate', mutateRoute('deletions'));
 
 router.get('/api/status', (_req: Request, res: Response) => {
   res.json({

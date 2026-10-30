@@ -23,7 +23,7 @@ fi
 
 npm run build
 
-tsc --watch --preserveWatchOutput &
+npx tsc --watch --preserveWatchOutput &
 TSC_PID=$!
 
 SERVER_PID=""

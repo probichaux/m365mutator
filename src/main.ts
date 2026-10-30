@@ -8,6 +8,7 @@ import { graphConfig } from './helpers/graph-config.helper.js';
 import { GraphAuthManager } from './graph/graph-auth.js';
 import { logger } from './logger/logger.js';
 import { Scheduler } from './agent/scheduler.js';
+import { createScheduleRouter } from './agent/schedule-routes.js';
 
 export type RunMode = 'interactive' | 'agent';
 
@@ -83,6 +84,7 @@ export function createApp(scheduler?: Scheduler): express.Express {
   }
 
   app.use(express.json());
+  app.use(createScheduleRouter());
   app.use(adminRouter);
 
   return app;

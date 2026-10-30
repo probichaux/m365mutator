@@ -11,6 +11,7 @@ All notable changes to M365Mutator are documented in this file.
 - The agent identity resolves targets; each workload's writes use the credential set in the schedule. That's the app registration by default, because Exchange and SharePoint don't accept agent identity tokens yet.
 - Add Agent 365 agent identity settings to the Settings flyout, with a token test that lists the identity's Graph roles.
 - The last 50 cycle summaries (counts and sanitized errors only) are kept in `agent-runs.json`.
+- Add a **Schedule** page for authoring `schedule.json` in interactive mode: interval, jitter, active window, per-workload runs and credential, and recurring Deletions. Changes are validated as you edit, with a preview of the next five run times. **Export bundle** downloads a zip with `schedule.json`, `targets.json`, the equivalent App Service settings and a readme, and **Run one cycle now** runs the schedule once from this machine, exactly as the agent would.
 
 ## 0.6.5 — 2026-07-15
 

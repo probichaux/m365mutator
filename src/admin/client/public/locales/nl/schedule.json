@@ -1,0 +1,88 @@
+{
+  "loading": "Planning laden…",
+  "title": "Agentplanning",
+  "lede": "Wanneer M365Mutator als Agent 365-agent draait, heeft hij geen beheerinterface. Hij volgt dan deze planning en voert bij elk interval de ingeschakelde workloads na elkaar uit. Sla de planning op in de gegevensmap van deze computer, of exporteer een bundel om op de gehoste agent te implementeren.",
+  "envOverride": "De instelling M365MUTATOR_SCHEDULE_JSON is ingesteld op deze server. In agentmodus heeft die voorrang op de hier opgeslagen planning.",
+  "timing": {
+    "title": "Wanneer uitvoeren",
+    "subtitle": "Elke cyclus begint één interval nadat de vorige gepland was, willekeurig verschoven met maximaal de spreiding.",
+    "enabled": "Planning aan",
+    "disabled": "Planning uit: de agent voert niets uit",
+    "interval": "Interval (minuten)",
+    "intervalHint": "{{min}}–{{max}} minuten",
+    "jitter": "Spreiding (minuten)",
+    "jitterHint": "0–{{max}} minuten, beide kanten op",
+    "runOnStart": "Direct een cyclus uitvoeren wanneer de agent start"
+  },
+  "window": {
+    "toggle": "Alleen binnen een actief tijdvenster uitvoeren",
+    "days": "Actieve dagen",
+    "start": "Begin",
+    "end": "Einde",
+    "endHint": "Een einde vóór het begin loopt door na middernacht",
+    "timeZone": "Tijdzone"
+  },
+  "workloads": {
+    "title": "Wat uitvoeren",
+    "subtitle": "Elke ingeschakelde workload draait het opgegeven aantal keren per cyclus, met de gekozen identiteit.",
+    "colWorkload": "Workload",
+    "colRuns": "Uitvoeringen per cyclus",
+    "colCredential": "Schrijft als",
+    "credentialLabel": "Identiteit voor {{workload}}",
+    "runsLabel": "Uitvoeringen per cyclus voor {{workload}}",
+    "identitiesBlocked": "Identiteiten kunnen niet volgens planning draaien: agentidentiteiten kunnen User.ReadWrite.All niet krijgen.",
+    "agentWarningTitle": "Schrijven als agentidentiteit mislukt voorlopig",
+    "agentWarning": "Exchange Online en SharePoint weigeren momenteel tokens van agentidentiteiten (HTTP 401). Workloads die als agentidentiteit schrijven, mislukken totdat Microsoft dit ondersteunt. Gebruik voorlopig de app-registratie.",
+    "targetsNote": "De doelen komen van de pagina van elke workload. De geëxporteerde bundel bevat ze."
+  },
+  "credential": {
+    "app": "App-registratie",
+    "agent": "Agentidentiteit"
+  },
+  "deletions": {
+    "workloads": "Verwijderen uit",
+    "scope": "Bereik",
+    "dateHint": "JJJJ-MM-DD, of relatief aan elke uitvoering: -30d, -2w",
+    "acknowledge": "Ik begrijp dat de overeenkomende items elke cyclus definitief worden verwijderd, zonder verdere bevestiging."
+  },
+  "review": {
+    "title": "Controleren en implementeren",
+    "subtitle": "Wijzigingen worden gecontroleerd terwijl u ze maakt.",
+    "errorsTitle": "Los dit op voordat u opslaat",
+    "disabled": "De planning staat uit, dus de agent voert niets uit.",
+    "nextRuns": "Volgende uitvoeringen ({{timeZone}})",
+    "jitterNote": "Elke uitvoering kan tot {{jitter}} minuten beide kanten op verschuiven.",
+    "nothingEnabled": "Er zijn geen workloads ingeschakeld, dus cycli doen niets."
+  },
+  "actions": {
+    "save": "Opslaan",
+    "saved": "Opgeslagen",
+    "export": "Bundel exporteren",
+    "exportHint": "Een zip downloaden met schedule.json, targets.json en de overeenkomende App Service-instellingen",
+    "runOnce": "Nu één cyclus uitvoeren",
+    "runOnceHint": "Voert de workloads van deze planning één keer uit vanaf deze computer, zoals de agent zou doen. Dit wijzigt de tenant.",
+    "running": "Bezig…"
+  },
+  "cycle": {
+    "status": {
+      "ok": "Cyclus voltooid",
+      "partial": "Cyclus voltooid met fouten",
+      "failed": "Alle workloads zijn mislukt",
+      "blocked": "De agentidentiteit kreeg geen token, dus er is niets uitgevoerd"
+    },
+    "badge": {
+      "ok": "OK",
+      "partial": "Gedeeltelijk",
+      "failed": "Mislukt",
+      "blocked": "Geblokkeerd"
+    },
+    "line": "{{ok}} gelukt, {{failed}} mislukt in {{seconds}} s"
+  },
+  "toast": {
+    "loadFailed": "De planning kon niet worden geladen",
+    "saved": "Planning opgeslagen",
+    "saveFailed": "De planning kon niet worden opgeslagen",
+    "exportFailed": "De bundel kon niet worden geëxporteerd",
+    "runFailed": "De testcyclus is mislukt"
+  }
+}

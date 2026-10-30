@@ -1,0 +1,88 @@
+{
+  "loading": "Zeitplan wird geladen…",
+  "title": "Agent-Zeitplan",
+  "lede": "Wenn M365Mutator als Agent-365-Agent läuft, hat er keine Verwaltungsoberfläche. Stattdessen folgt er diesem Zeitplan und führt die aktivierten Workloads in jedem Intervall nacheinander aus. Speichern Sie ihn im Datenordner dieses Rechners, oder exportieren Sie ein Paket für den gehosteten Agenten.",
+  "envOverride": "Auf diesem Server ist die Einstellung M365MUTATOR_SCHEDULE_JSON gesetzt. Im Agent-Modus hat sie Vorrang vor dem hier gespeicherten Zeitplan.",
+  "timing": {
+    "title": "Wann ausführen",
+    "subtitle": "Jeder Zyklus beginnt ein Intervall nach dem vorherigen geplanten Zeitpunkt, zufällig verschoben um bis zur Streuung.",
+    "enabled": "Zeitplan an",
+    "disabled": "Zeitplan aus: Der Agent führt nichts aus",
+    "interval": "Intervall (Minuten)",
+    "intervalHint": "{{min}}–{{max}} Minuten",
+    "jitter": "Streuung (Minuten)",
+    "jitterHint": "0–{{max}} Minuten, in beide Richtungen",
+    "runOnStart": "Beim Start des Agenten sofort einen Zyklus ausführen"
+  },
+  "window": {
+    "toggle": "Nur in einem aktiven Zeitfenster ausführen",
+    "days": "Aktive Tage",
+    "start": "Beginn",
+    "end": "Ende",
+    "endHint": "Ein Ende vor dem Beginn reicht über Mitternacht hinaus",
+    "timeZone": "Zeitzone"
+  },
+  "workloads": {
+    "title": "Was ausführen",
+    "subtitle": "Jede aktivierte Workload läuft pro Zyklus so oft wie angegeben, mit der gewählten Identität.",
+    "colWorkload": "Workload",
+    "colRuns": "Läufe pro Zyklus",
+    "colCredential": "Schreibt als",
+    "credentialLabel": "Identität für {{workload}}",
+    "runsLabel": "Läufe pro Zyklus für {{workload}}",
+    "identitiesBlocked": "Identitäten können nicht nach Zeitplan laufen: Agent-Identitäten können User.ReadWrite.All nicht erhalten.",
+    "agentWarningTitle": "Schreibvorgänge als Agent-Identität schlagen derzeit fehl",
+    "agentWarning": "Exchange Online und SharePoint lehnen Token von Agent-Identitäten derzeit ab (HTTP 401). Workloads, die als Agent-Identität schreiben, schlagen fehl, bis Microsoft dies unterstützt. Verwenden Sie vorerst die App-Registrierung.",
+    "targetsNote": "Die Ziele stammen von der Seite der jeweiligen Workload. Das exportierte Paket enthält sie."
+  },
+  "credential": {
+    "app": "App-Registrierung",
+    "agent": "Agent-Identität"
+  },
+  "deletions": {
+    "workloads": "Löschen aus",
+    "scope": "Umfang",
+    "dateHint": "JJJJ-MM-TT oder relativ zu jedem Lauf: -30d, -2w",
+    "acknowledge": "Mir ist bewusst, dass in jedem Zyklus die passenden Elemente ohne weitere Bestätigung endgültig gelöscht werden."
+  },
+  "review": {
+    "title": "Prüfen und bereitstellen",
+    "subtitle": "Änderungen werden während der Bearbeitung geprüft.",
+    "errorsTitle": "Beheben Sie diese Punkte vor dem Speichern",
+    "disabled": "Der Zeitplan ist aus, der Agent führt also nichts aus.",
+    "nextRuns": "Nächste Läufe ({{timeZone}})",
+    "jitterNote": "Jeder Lauf kann sich um bis zu {{jitter}} Minuten in beide Richtungen verschieben.",
+    "nothingEnabled": "Keine Workloads sind aktiviert, die Zyklen tun also nichts."
+  },
+  "actions": {
+    "save": "Speichern",
+    "saved": "Gespeichert",
+    "export": "Paket exportieren",
+    "exportHint": "Eine ZIP-Datei mit schedule.json, targets.json und den entsprechenden App-Service-Einstellungen herunterladen",
+    "runOnce": "Jetzt einen Zyklus ausführen",
+    "runOnceHint": "Führt die Workloads dieses Zeitplans einmal von diesem Rechner aus, wie es der Agent täte. Dies ändert den Mandanten.",
+    "running": "Wird ausgeführt…"
+  },
+  "cycle": {
+    "status": {
+      "ok": "Zyklus abgeschlossen",
+      "partial": "Zyklus mit Fehlern abgeschlossen",
+      "failed": "Alle Workloads sind fehlgeschlagen",
+      "blocked": "Die Agent-Identität hat kein Token erhalten, daher wurde nichts ausgeführt"
+    },
+    "badge": {
+      "ok": "OK",
+      "partial": "Teilweise",
+      "failed": "Fehlgeschlagen",
+      "blocked": "Blockiert"
+    },
+    "line": "{{ok}} erfolgreich, {{failed}} fehlgeschlagen in {{seconds}} s"
+  },
+  "toast": {
+    "loadFailed": "Der Zeitplan konnte nicht geladen werden",
+    "saved": "Zeitplan gespeichert",
+    "saveFailed": "Der Zeitplan konnte nicht gespeichert werden",
+    "exportFailed": "Das Paket konnte nicht exportiert werden",
+    "runFailed": "Der Testzyklus ist fehlgeschlagen"
+  }
+}

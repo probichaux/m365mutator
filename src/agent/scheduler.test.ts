@@ -189,6 +189,22 @@ describe('Scheduler', () => {
     expect(scheduler.status().nextRunAt).toBe(new Date(T0 + 20 * MIN).toISOString());
   });
 
+  it('runs one cycle on demand without arming the timer', async () => {
+    make({ ...SCHEDULE, credentials: { mail: 'agent', onedrive: 'agent' } });
+    const summary = await scheduler.runNow();
+    expect(summary).toMatchObject({ status: 'ok', workloads: [{ workload: 'mail' }, { workload: 'onedrive' }] });
+    await vi.advanceTimersByTimeAsync(3 * 60 * MIN);
+    expect(deps.runWorkload).toHaveBeenCalledTimes(2);
+    expect(scheduler.status().nextRunAt).toBeNull();
+  });
+
+  it('does not arm a back-off retry for an on-demand cycle', async () => {
+    make(SCHEDULE, { checkToken: vi.fn().mockRejectedValue(new Error('down')) });
+    expect(await scheduler.runNow()).toMatchObject({ status: 'blocked', error: 'down' });
+    await vi.advanceTimersByTimeAsync(10 * MIN);
+    expect(deps.checkToken).toHaveBeenCalledTimes(1);
+  });
+
   it('waits for the running cycle on stop, then arms nothing', async () => {
     let release!: () => void;
     make({ ...SCHEDULE, workloads: { mail: { enabled: true } } }, {

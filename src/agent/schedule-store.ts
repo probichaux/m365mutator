@@ -4,11 +4,11 @@
 
 import { join } from 'node:path';
 import { getDataDir } from '../admin/config-store.js';
-import { safeReadJson } from '../helpers/file.helper.js';
+import { atomicWriteJson, safeReadJson } from '../helpers/file.helper.js';
 import { DELETION_SCOPES, DELETION_WORKLOADS, DeletionScope, DeletionWorkload } from '../admin/deletion-mutate.js';
 import { parseWorkloadRequest, WorkloadRequest } from '../admin/workload-runner.js';
 import { GraphCredential } from '../graph/graph-client.js';
-import { ActiveWindow, parseHhMm, WEEKDAYS, Weekday } from './next-run.js';
+import { ActiveWindow, computeNextRun, parseHhMm, WEEKDAYS, Weekday } from './next-run.js';
 
 /** Workloads in the order a cycle runs them. Identities is never run by the agent (Decision 1). */
 export const SCHEDULED_WORKLOADS = ['mail', 'calendar', 'onedrive', 'sharepoint', 'deletions'] as const;
@@ -195,7 +195,31 @@ export function loadSchedule(): LoadedSchedule {
     }
     return { ...sanitizeSchedule(raw), source: 'env' };
   }
+  return loadScheduleFile();
+}
+
+/** schedule.json in the data dir only, ignoring the app setting: what the Schedule page edits. */
+export function loadScheduleFile(): LoadedSchedule {
   const raw = safeReadJson<unknown>(scheduleFilePath(), null);
   if (raw === null) return { schedule: defaultSchedule(), errors: [], source: 'default' };
   return { ...sanitizeSchedule(raw), source: 'file' };
+}
+
+/** Sanitize and write schedule.json. A schedule with errors is not written. */
+export function saveSchedule(raw: unknown): { schedule: Schedule; errors: string[] } {
+  const result = sanitizeSchedule(raw);
+  if (result.errors.length === 0) atomicWriteJson(scheduleFilePath(), result.schedule);
+  return result;
+}
+
+/** The next `count` run times from `now`, without jitter (jitter centred at zero). */
+export function previewRuns(s: Schedule, now: number, count = 5): string[] {
+  const runs: string[] = [];
+  let at: number | null = now;
+  while (runs.length < count) {
+    at = computeNextRun(at, s, () => 0.5);
+    if (at === null) break;
+    runs.push(new Date(at).toISOString());
+  }
+  return runs;
 }

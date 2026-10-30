@@ -5,6 +5,7 @@
   "onedrive": "OneDrive",
   "sharepoint": "SharePoint",
   "deletions": "Deletions",
+  "schedule": "Schedule",
   "settings": "Settings",
   "help": "Help"
 }

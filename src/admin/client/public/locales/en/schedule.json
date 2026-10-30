@@ -1,0 +1,88 @@
+{
+  "loading": "Loading schedule…",
+  "title": "Agent schedule",
+  "lede": "When M365Mutator runs as an Agent 365 agent, it has no admin UI. It follows this schedule instead, running the enabled workloads one after another at each interval. Save it to this machine's data folder, or export a bundle to deploy to the hosted agent.",
+  "envOverride": "The M365MUTATOR_SCHEDULE_JSON setting is set on this server. In agent mode it takes precedence over the schedule saved here.",
+  "timing": {
+    "title": "When to run",
+    "subtitle": "Each cycle starts one interval after the previous one was due, moved randomly by up to the jitter.",
+    "enabled": "Schedule on",
+    "disabled": "Schedule off: the agent runs nothing",
+    "interval": "Interval (minutes)",
+    "intervalHint": "{{min}}–{{max}} minutes",
+    "jitter": "Jitter (minutes)",
+    "jitterHint": "0–{{max}} minutes, either way",
+    "runOnStart": "Run a cycle as soon as the agent starts"
+  },
+  "window": {
+    "toggle": "Only run during an active window",
+    "days": "Active days",
+    "start": "Start",
+    "end": "End",
+    "endHint": "An end earlier than the start runs past midnight",
+    "timeZone": "Time zone"
+  },
+  "workloads": {
+    "title": "What to run",
+    "subtitle": "Each enabled workload runs the given number of times per cycle, as the identity you choose.",
+    "colWorkload": "Workload",
+    "colRuns": "Runs per cycle",
+    "colCredential": "Writes as",
+    "credentialLabel": "Identity for {{workload}}",
+    "runsLabel": "Runs per cycle for {{workload}}",
+    "identitiesBlocked": "Identities can't run on a schedule: agent identities can't hold User.ReadWrite.All.",
+    "agentWarningTitle": "Agent identity writes will fail for now",
+    "agentWarning": "Exchange Online and SharePoint currently reject agent identity tokens (HTTP 401). Workloads set to write as the agent identity will fail until Microsoft supports this. Use the app registration for now.",
+    "targetsNote": "Targets come from each workload's page. The exported bundle includes them."
+  },
+  "credential": {
+    "app": "App registration",
+    "agent": "Agent identity"
+  },
+  "deletions": {
+    "workloads": "Delete from",
+    "scope": "Scope",
+    "dateHint": "YYYY-MM-DD, or relative to each run: -30d, -2w",
+    "acknowledge": "I understand this permanently deletes the matching items every cycle, with no further confirmation."
+  },
+  "review": {
+    "title": "Check and deploy",
+    "subtitle": "Changes are checked as you make them.",
+    "errorsTitle": "Fix these before saving",
+    "disabled": "The schedule is off, so the agent won't run anything.",
+    "nextRuns": "Next runs ({{timeZone}})",
+    "jitterNote": "Each run can move up to {{jitter}} minutes either way.",
+    "nothingEnabled": "No workloads are enabled, so cycles will do nothing."
+  },
+  "actions": {
+    "save": "Save",
+    "saved": "Saved",
+    "export": "Export bundle",
+    "exportHint": "Download a zip with schedule.json, targets.json and the equivalent App Service settings",
+    "runOnce": "Run one cycle now",
+    "runOnceHint": "Runs this schedule's workloads once from this machine, as the agent would. This changes the tenant.",
+    "running": "Running…"
+  },
+  "cycle": {
+    "status": {
+      "ok": "Cycle completed",
+      "partial": "Cycle completed with failures",
+      "failed": "Every workload failed",
+      "blocked": "The agent identity couldn't get a token, so nothing ran"
+    },
+    "badge": {
+      "ok": "OK",
+      "partial": "Partial",
+      "failed": "Failed",
+      "blocked": "Blocked"
+    },
+    "line": "{{ok}} ok, {{failed}} failed in {{seconds}} s"
+  },
+  "toast": {
+    "loadFailed": "Couldn't load the schedule",
+    "saved": "Schedule saved",
+    "saveFailed": "Couldn't save the schedule",
+    "exportFailed": "Couldn't export the bundle",
+    "runFailed": "The test cycle failed"
+  }
+}

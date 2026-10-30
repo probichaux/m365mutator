@@ -85,6 +85,8 @@ export class Scheduler {
   private nextRunAt: number | null = null;
   private running?: Promise<void>;
   private stopped = false;
+  /** Only a started scheduler arms timers; runNow() alone never schedules more cycles. */
+  private started = false;
   private backoffMs = 0;
   private tokenHealth: Partial<Record<GraphCredential, TokenHealth>> = {};
   private lastCycle: CycleSummary | null;
@@ -115,6 +117,7 @@ export class Scheduler {
 
   start(): void {
     this.stopped = false;
+    this.started = true;
     if (this.deps.watch && this.loaded.source !== 'env') {
       watchFile(scheduleFilePath(), { interval: 5000 }, () => this.reload());
     }
@@ -152,7 +155,7 @@ export class Scheduler {
   private arm(at: number | null): void {
     this.clearTimer();
     this.nextRunAt = at;
-    if (at === null || this.stopped) return;
+    if (at === null || this.stopped || !this.started) return;
     const delay = Math.min(Math.max(0, at - this.deps.now()), MAX_TIMEOUT);
     this.timer = setTimeout(() => this.fire(), delay);
   }
@@ -175,6 +178,17 @@ export class Scheduler {
       return;
     }
     this.running = this.runCycle().finally(() => { this.running = undefined; });
+  }
+
+  /**
+   * Run one cycle now, outside the timer, and return its summary. The Schedule
+   * page uses this to test a schedule exactly as the agent would run it.
+   */
+  async runNow(): Promise<CycleSummary> {
+    if (this.running) throw new Error('A cycle is already running');
+    this.running = this.runCycle().finally(() => { this.running = undefined; });
+    await this.running;
+    return this.lastCycle!;
   }
 
   private async runCycle(): Promise<void> {

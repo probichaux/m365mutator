@@ -1,0 +1,88 @@
+{
+  "loading": "Chargement de la planification…",
+  "title": "Planification de l'agent",
+  "lede": "Lorsque M365Mutator s'exécute en tant qu'agent Agent 365, il n'a pas d'interface d'administration. Il suit plutôt cette planification et exécute les charges de travail activées l'une après l'autre à chaque intervalle. Enregistrez-la dans le dossier de données de cette machine, ou exportez un paquet à déployer sur l'agent hébergé.",
+  "envOverride": "Le paramètre M365MUTATOR_SCHEDULE_JSON est défini sur ce serveur. En mode agent, il est prioritaire sur la planification enregistrée ici.",
+  "timing": {
+    "title": "Quand exécuter",
+    "subtitle": "Chaque cycle commence un intervalle après l'échéance du précédent, décalé au hasard dans la limite de la variation.",
+    "enabled": "Planification activée",
+    "disabled": "Planification désactivée : l'agent n'exécute rien",
+    "interval": "Intervalle (minutes)",
+    "intervalHint": "{{min}}–{{max}} minutes",
+    "jitter": "Variation (minutes)",
+    "jitterHint": "0–{{max}} minutes, dans les deux sens",
+    "runOnStart": "Exécuter un cycle dès le démarrage de l'agent"
+  },
+  "window": {
+    "toggle": "N'exécuter que pendant une plage active",
+    "days": "Jours actifs",
+    "start": "Début",
+    "end": "Fin",
+    "endHint": "Une fin antérieure au début se prolonge après minuit",
+    "timeZone": "Fuseau horaire"
+  },
+  "workloads": {
+    "title": "Quoi exécuter",
+    "subtitle": "Chaque charge de travail activée s'exécute le nombre de fois indiqué par cycle, avec l'identité choisie.",
+    "colWorkload": "Charge de travail",
+    "colRuns": "Exécutions par cycle",
+    "colCredential": "Écrit en tant que",
+    "credentialLabel": "Identité pour {{workload}}",
+    "runsLabel": "Exécutions par cycle pour {{workload}}",
+    "identitiesBlocked": "Les identités ne peuvent pas être planifiées : les identités d'agent ne peuvent pas détenir User.ReadWrite.All.",
+    "agentWarningTitle": "Les écritures avec l'identité de l'agent échouent pour l'instant",
+    "agentWarning": "Exchange Online et SharePoint rejettent actuellement les jetons d'identité d'agent (HTTP 401). Les charges de travail qui écrivent avec l'identité de l'agent échoueront jusqu'à ce que Microsoft le prenne en charge. Utilisez l'inscription d'application pour l'instant.",
+    "targetsNote": "Les cibles proviennent de la page de chaque charge de travail. Le paquet exporté les inclut."
+  },
+  "credential": {
+    "app": "Inscription d'application",
+    "agent": "Identité de l'agent"
+  },
+  "deletions": {
+    "workloads": "Supprimer dans",
+    "scope": "Portée",
+    "dateHint": "AAAA-MM-JJ, ou relatif à chaque exécution : -30d, -2w",
+    "acknowledge": "Je comprends que les éléments correspondants sont supprimés définitivement à chaque cycle, sans autre confirmation."
+  },
+  "review": {
+    "title": "Vérifier et déployer",
+    "subtitle": "Les modifications sont vérifiées au fur et à mesure.",
+    "errorsTitle": "Corrigez ces points avant d'enregistrer",
+    "disabled": "La planification est désactivée, l'agent n'exécutera donc rien.",
+    "nextRuns": "Prochaines exécutions ({{timeZone}})",
+    "jitterNote": "Chaque exécution peut se décaler de {{jitter}} minutes au plus, dans les deux sens.",
+    "nothingEnabled": "Aucune charge de travail n'est activée, les cycles ne feront donc rien."
+  },
+  "actions": {
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "export": "Exporter le paquet",
+    "exportHint": "Télécharger un zip contenant schedule.json, targets.json et les paramètres App Service équivalents",
+    "runOnce": "Exécuter un cycle maintenant",
+    "runOnceHint": "Exécute une fois les charges de travail de cette planification depuis cette machine, comme le ferait l'agent. Cela modifie le locataire.",
+    "running": "Exécution…"
+  },
+  "cycle": {
+    "status": {
+      "ok": "Cycle terminé",
+      "partial": "Cycle terminé avec des échecs",
+      "failed": "Toutes les charges de travail ont échoué",
+      "blocked": "L'identité de l'agent n'a pas obtenu de jeton, rien n'a donc été exécuté"
+    },
+    "badge": {
+      "ok": "OK",
+      "partial": "Partiel",
+      "failed": "Échec",
+      "blocked": "Bloqué"
+    },
+    "line": "{{ok}} réussies, {{failed}} en échec en {{seconds}} s"
+  },
+  "toast": {
+    "loadFailed": "Impossible de charger la planification",
+    "saved": "Planification enregistrée",
+    "saveFailed": "Impossible d'enregistrer la planification",
+    "exportFailed": "Impossible d'exporter le paquet",
+    "runFailed": "Le cycle de test a échoué"
+  }
+}

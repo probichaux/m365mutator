@@ -351,6 +351,15 @@ Notes:
 - **Localize every new string** in en, de, fr, nl, and uk: new `schedule.json`
   locale namespace files plus additions to `settings` and `nav`.
 
+As built (Phase 5): there is no separate **Validate** button; the page posts
+each edit to `POST /api/schedule/validate`, which returns the errors plus the
+next five run times. **Save** writes only an error-free schedule. **Export
+bundle** returns a zip of `schedule.json`, `targets.json`, `app-settings.json`
+(the App Service "Advanced edit" format, with `M365MUTATOR_MODE=agent`) and a
+readme. **Run one cycle now** drives `Scheduler.runNow()` with the unsaved
+schedule and doesn't write `agent-runs.json`. The hosted-agent status field is
+deferred.
+
 ### 8. Notifications (optional, Frontier-gated)
 
 Behind `AGENT365_ENABLE_NOTIFICATIONS=true`, and only for tenants in the

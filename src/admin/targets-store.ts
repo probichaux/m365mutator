@@ -4,6 +4,7 @@
 import { join } from 'node:path';
 import { getDataDir } from './config-store.js';
 import { atomicWriteJson, safeReadJson } from '../helpers/file.helper.js';
+import { logger } from '../logger/logger.js';
 
 export const TARGET_CATEGORIES = ['identities', 'mail', 'calendar', 'onedrive', 'sharepoint', 'deletions'] as const;
 export type TargetCategory = (typeof TARGET_CATEGORIES)[number];
@@ -63,7 +64,21 @@ function sanitizeTargets(raw: unknown): TargetsConfig {
   return result;
 }
 
+export function targetsFilePath(): string {
+  return getTargetsPath();
+}
+
+/** The M365MUTATOR_TARGETS_JSON app setting (agent deployments) wins over targets.json. */
 export function loadTargets(): TargetsConfig {
+  const fromEnv = process.env.M365MUTATOR_TARGETS_JSON;
+  if (fromEnv) {
+    try {
+      return sanitizeTargets(JSON.parse(fromEnv));
+    } catch {
+      logger.warn('[TARGETS] M365MUTATOR_TARGETS_JSON is not valid JSON; using no targets');
+      return emptyTargets();
+    }
+  }
   return sanitizeTargets(safeReadJson<unknown>(getTargetsPath(), {}));
 }
 

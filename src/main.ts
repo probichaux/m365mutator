@@ -7,6 +7,14 @@ import { loadConfig, applyConfig } from './admin/config-store.js';
 import { graphConfig } from './helpers/graph-config.helper.js';
 import { GraphAuthManager } from './graph/graph-auth.js';
 import { logger } from './logger/logger.js';
+import { Scheduler } from './agent/scheduler.js';
+
+export type RunMode = 'interactive' | 'agent';
+
+/** M365MUTATOR_MODE: 'agent' runs the scheduler with no admin UI (plan Decision 2). */
+export function getRunMode(): RunMode {
+  return process.env.M365MUTATOR_MODE?.trim().toLowerCase() === 'agent' ? 'agent' : 'interactive';
+}
 
 /**
  * Refuse to start in production if global TLS verification has been disabled.
@@ -38,7 +46,7 @@ export function validateRequiredEnvVars(): void {
   }
 }
 
-export function createApp(): express.Express {
+export function createApp(scheduler?: Scheduler): express.Express {
   const app = express();
 
   app.use(helmet({
@@ -62,12 +70,19 @@ export function createApp(): express.Express {
     crossOriginEmbedderPolicy: false,
   }));
 
-  app.use(express.json());
-
   app.get('/health', (_req: Request, res: Response) => {
     res.json({ status: 'ok' });
   });
 
+  // Agent mode serves only read-only status: no admin UI, no mutating routes.
+  if (scheduler) {
+    app.get('/api/agent/status', (_req: Request, res: Response) => {
+      res.json(scheduler.status());
+    });
+    return app;
+  }
+
+  app.use(express.json());
   app.use(adminRouter);
 
   return app;
@@ -85,7 +100,8 @@ async function main() {
   validateTlsConfig();
   validateRequiredEnvVars();
 
-  logger.info('Starting M365Mutator');
+  const mode = getRunMode();
+  logger.info(`Starting M365Mutator (mode: ${mode})`);
   logger.info(`GRAPH_TENANT_ID: ${graphConfig.graphTenantId || 'not set'}`);
   logger.info(`GRAPH_CLIENT_ID: ${graphConfig.graphClientId || 'not set'}`);
   logger.info(`GRAPH_CLIENT_SECRET: ${graphConfig.graphClientSecret ? '[REDACTED]' : 'not set'}`);
@@ -102,13 +118,16 @@ async function main() {
     console.warn('Warning: Graph API initialization failed. The server will start but Graph-dependent operations will not work until credentials are updated via the admin UI.');
   }
 
-  const app = createApp();
+  const scheduler = mode === 'agent' ? new Scheduler() : undefined;
+  const app = createApp(scheduler);
   const port = process.env.PORT || 3700;
 
   const server = app.listen(port, () => {
     logger.info(`M365Mutator listening on http://localhost:${port}`);
     console.log(`M365Mutator listening on http://localhost:${port}`);
   });
+
+  scheduler?.start();
 
   server.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
@@ -121,8 +140,10 @@ async function main() {
     process.exit(1);
   });
 
-  const shutdown = () => {
+  const shutdown = async () => {
     logger.info('Shutting down...');
+    // Let a running cycle finish (up to 60s) before exiting.
+    await scheduler?.stop();
     server.close(() => process.exit(0));
   };
 

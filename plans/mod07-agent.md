@@ -261,9 +261,11 @@ Notes:
   the rest.
 - **Run history:** the last 50 cycle summaries (start, end, per-workload
   ok/fail counts, sampled errors) go to `agent-runs.json` in the data dir.
-- **Hot reload:** a changed `schedule.json` or `targets.json` file (for example,
-  a redeployed bundle) re-arms the timer without a restart. App-setting changes
-  restart the App Service anyway.
+- **Hot reload:** a changed `schedule.json` (for example, a redeployed bundle)
+  re-arms the timer without a restart; it's polled every 5 seconds, which also
+  works on mounted storage. `targets.json` is read at the start of each
+  workload, so changes there need no re-arm. App-setting changes restart the
+  App Service anyway.
 - **Graceful shutdown:** on SIGTERM, stop arming new cycles, wait up to 60
   seconds for the current one, then flush telemetry.
 - `GET /api/agent/status` (read-only JSON) shows mode, enabled state, next run,
@@ -444,10 +446,16 @@ Administrator.
   the blueprint (`inheritableRoles: allAllowed`). It persisted for more than 10
   hours, and the target mailbox and OneDrive are licensed. Hence Decision 6, and
   a Microsoft support case.
-- **Not yet verified, because of the 401:** `Sites.Selected` per-site grants,
-  OneDrive writes, `/sites` enumeration under `Sites.Selected`, and S2S
-  observability appearing in the admin center. Recheck all of these when the
-  support case resolves.
+- **A `Sites.Selected` grant doesn't help (2026-10-30).** We granted the agent
+  identity `write` on one OneDrive (`POST /sites/{id}/permissions`, as an admin
+  with delegated `Sites.FullControl.All`). SharePoint records it under the
+  principal `i:0i.t|ms.sp.ext|<agent id>@<tenant>`, yet reads and writes on that
+  site still return the same 401 `unauthenticated`. SharePoint rejects the
+  token before it checks site permissions. Exchange was re-probed the same day
+  with the same 401.
+- **Not yet verified, because of the 401:** OneDrive writes, `/sites`
+  enumeration under `Sites.Selected`, and S2S observability appearing in the
+  admin center. Recheck all of these when the support case resolves.
 
 Version: 0.7.0 when Phase 4 lands (the first user-visible agent mode), with
 patch bumps per later phase and CHANGELOG entries for each.

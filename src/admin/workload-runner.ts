@@ -1,3 +1,4 @@
+import { withGraphCredential, GraphCredential } from '../graph/graph-client.js';
 import { loadTargets } from './targets-store.js';
 import { resolveTargetItems, ResolvedTargets } from './target-load.js';
 import { mutateIdentities, MutationRun as IdentityRun } from './identity-mutate.js';
@@ -31,6 +32,17 @@ export type WorkloadRequest =
 
 type Run = IdentityRun | MailRun | CalendarRun | OneDriveRun | SharePointRun | DeletionRun;
 export type WorkloadResult = Run & Pick<ResolvedTargets, 'runStyle' | 'pool'>;
+
+/**
+ * Which identity performs each half of a run (plan Decision 6). Both default
+ * to the app registration, which is what interactive mode always uses.
+ */
+export interface RunOptions {
+  /** Credential for the workload's own reads and writes. */
+  credential?: GraphCredential;
+  /** Credential for directory lookups while resolving targets. */
+  directoryCredential?: GraphCredential;
+}
 
 /** Bad caller input (maps to HTTP 400). Upstream Graph failures propagate as-is. */
 export class WorkloadInputError extends Error {
@@ -110,14 +122,15 @@ function parseDeletionRequest(b: Record<string, unknown>): WorkloadRequest {
  * Resolve the saved targets for the workload and run it.
  * Throws WorkloadInputError when there's nothing to act on.
  */
-export async function runWorkload(req: WorkloadRequest): Promise<WorkloadResult> {
+export async function runWorkload(req: WorkloadRequest, opts: RunOptions = {}): Promise<WorkloadResult> {
   // Explicit → the saved list; random → a fresh random % of the tenant's set.
-  const resolved = await resolveTargetItems(req.workload, loadTargets()[req.workload]);
+  const resolved = await withGraphCredential(opts.directoryCredential ?? 'app',
+    () => resolveTargetItems(req.workload, loadTargets()[req.workload]));
   if (resolved.items.length === 0) {
     const [randomMsg, explicitMsg] = EMPTY_TARGET_MESSAGES[req.workload];
     throw new WorkloadInputError(resolved.runStyle === 'random' ? randomMsg : explicitMsg);
   }
-  const run = await dispatch(req, resolved.items);
+  const run = await withGraphCredential(opts.credential ?? 'app', () => dispatch(req, resolved.items));
   return { ...run, runStyle: resolved.runStyle, pool: resolved.pool };
 }
 

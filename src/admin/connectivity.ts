@@ -1,6 +1,6 @@
 import { graphConfig } from '../helpers/graph-config.helper.js';
-import { GraphAuthManager } from '../graph/graph-auth.js';
-import { loadConfig, saveConfig, sanitizeCertPath } from './config-store.js';
+import { GraphAuthManager, createAgentIdentityCredential } from '../graph/graph-auth.js';
+import { loadConfig, saveConfig, sanitizeCertPath, isAgentCredentialType } from './config-store.js';
 import { logger } from '../logger/logger.js';
 
 export interface ConnectivityResult {
@@ -95,5 +95,69 @@ export async function testGraph(overrides?: GraphTestOverrides): Promise<Connect
     return { success: false, latencyMs, error: errorMsg };
   } finally {
     Object.assign(graphConfig, saved);
+  }
+}
+
+export interface AgentTokenResult {
+  success: boolean;
+  latencyMs: number;
+  /** Graph application roles in the agent identity's token. */
+  roles?: string[];
+  error?: string;
+}
+
+interface AgentTestOverrides {
+  graphTenantId?: string;
+  agentTenantId?: string;
+  agentBlueprintId?: string;
+  agentId?: string;
+  agentCredentialType?: string;
+  agentClientSecret?: string;
+  agentCertificatePath?: string;
+  agentManagedIdentityClientId?: string;
+}
+
+/**
+ * Acquire a Graph token as the agent identity (both hops) using the saved
+ * config overlaid with the form values. Nothing is persisted; Save does that.
+ * Only the token is tested: Exchange and SharePoint reject agent identity
+ * tokens today, so a successful token doesn't mean the workloads will work.
+ */
+export async function testAgentToken(overrides: AgentTestOverrides = {}): Promise<AgentTokenResult> {
+  const cfg = { ...graphConfig };
+  const str = (v: unknown): v is string => typeof v === 'string';
+  for (const key of ['graphTenantId', 'agentTenantId', 'agentBlueprintId', 'agentId', 'agentManagedIdentityClientId'] as const) {
+    if (str(overrides[key])) cfg[key] = overrides[key];
+  }
+  if (str(overrides.agentClientSecret) && overrides.agentClientSecret !== '' && overrides.agentClientSecret !== '********') {
+    cfg.agentClientSecret = overrides.agentClientSecret;
+  }
+  if (overrides.agentCredentialType !== undefined) {
+    if (!isAgentCredentialType(overrides.agentCredentialType)) {
+      return { success: false, latencyMs: 0, error: 'Invalid blueprint credential type' };
+    }
+    cfg.agentCredentialType = overrides.agentCredentialType;
+  }
+  if (str(overrides.agentCertificatePath) && overrides.agentCertificatePath !== '') {
+    try {
+      cfg.agentCertificatePath = sanitizeCertPath(overrides.agentCertificatePath);
+    } catch (e: unknown) {
+      return { success: false, latencyMs: 0, error: e instanceof Error ? e.message : String(e) };
+    }
+  }
+
+  const start = Date.now();
+  try {
+    const token = await createAgentIdentityCredential(cfg).getToken('https://graph.microsoft.com/.default');
+    const latencyMs = Date.now() - start;
+    const claims = JSON.parse(Buffer.from(token.token.split('.')[1] ?? '', 'base64url').toString('utf-8')) as { roles?: unknown };
+    const roles = Array.isArray(claims.roles) ? claims.roles.filter(str).sort() : [];
+    logger.info(`[CONNECTIVITY] Agent token acquired in ${latencyMs}ms (agentId=${cfg.agentId}, roles=${roles.join(',') || '(none)'})`);
+    return { success: true, latencyMs, roles };
+  } catch (err: unknown) {
+    const latencyMs = Date.now() - start;
+    const errorMsg = sanitizeUpstreamError(err);
+    logger.warn(`[CONNECTIVITY] Agent token test failed in ${latencyMs}ms: ${errorMsg}`);
+    return { success: false, latencyMs, error: errorMsg };
   }
 }

@@ -3,7 +3,9 @@ import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync, chmodSync } from 'node:fs';
 import multer from 'multer';
-import { loadConfig, saveConfig, maskSecrets, applyConfig, getDataDir, sanitizeCertPath, AppConfig } from './config-store.js';
+import {
+  loadConfig, saveConfig, maskSecrets, applyConfig, getDataDir, sanitizeCertPath, isAgentCredentialType, AppConfig,
+} from './config-store.js';
 import { loadTargets, saveTargets, saveTargetCategory, TARGET_CATEGORIES, TargetCategory } from './targets-store.js';
 import { checkTargets } from './target-check.js';
 import { loadCategory } from './target-load.js';
@@ -11,7 +13,7 @@ import { runWorkload, parseWorkloadRequest, Workload, WorkloadInputError } from 
 import { sanitizeUpstreamError } from './connectivity.js';
 import { MUTABLE_ATTRIBUTES } from '../graph/user-attributes.js';
 import { listAllSitesPaged } from '../graph/sites.js';
-import { testGraph } from './connectivity.js';
+import { testGraph, testAgentToken } from './connectivity.js';
 import { logger } from '../logger/logger.js';
 
 const certUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 1024 * 1024 } });
@@ -70,13 +72,16 @@ router.put('/api/config', (req: Request, res: Response) => {
       }
     }
 
-    if (merged.graphCertificatePath) {
-      try {
-        merged.graphCertificatePath = sanitizeCertPath(merged.graphCertificatePath);
-      } catch (e: any) {
-        res.status(400).json({ success: false, error: e.message });
-        return;
-      }
+    try {
+      if (merged.graphCertificatePath) merged.graphCertificatePath = sanitizeCertPath(merged.graphCertificatePath);
+      if (merged.agentCertificatePath) merged.agentCertificatePath = sanitizeCertPath(merged.agentCertificatePath);
+    } catch (e: any) {
+      res.status(400).json({ success: false, error: e.message });
+      return;
+    }
+    if (!isAgentCredentialType(merged.agentCredentialType)) {
+      res.status(400).json({ success: false, error: 'Invalid blueprint credential type' });
+      return;
     }
 
     saveConfig(merged);
@@ -93,6 +98,10 @@ router.post('/api/test-graph', async (req: Request, res: Response) => {
   if (result.success && result._apply) result._apply();
   const { _apply, ...response } = result;
   res.json(response);
+});
+
+router.post('/api/test-agent', async (req: Request, res: Response) => {
+  res.json(await testAgentToken(req.body ?? {}));
 });
 
 // ── Targets ─────────────────────────────────────────────────────────
@@ -242,13 +251,19 @@ router.post('/api/upload-certificate', (req: Request, res: Response) => {
     }
 
     try {
-      const certPath = join(getDataDir(), 'graph-cert.pem');
+      // ?target=agent stores the agent identity blueprint's certificate instead of the app's.
+      const forAgent = req.query.target === 'agent';
+      const certPath = join(getDataDir(), forAgent ? 'agent-cert.pem' : 'graph-cert.pem');
       writeFileSync(certPath, content, 'utf-8');
       chmodSync(certPath, 0o600);
 
       // Update config to point to the saved cert
       const config = loadConfig();
-      config.graphCertificatePath = certPath;
+      if (forAgent) {
+        config.agentCertificatePath = certPath;
+      } else {
+        config.graphCertificatePath = certPath;
+      }
       saveConfig(config);
       applyConfig(config);
 

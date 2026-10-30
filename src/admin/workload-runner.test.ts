@@ -22,6 +22,7 @@ import { mutateCalendar } from './calendar-mutate.js';
 import { mutateOneDrive } from './onedrive-mutate.js';
 import { mutateSharePoint } from './sharepoint-mutate.js';
 import { mutateDeletions } from './deletion-mutate.js';
+import { currentGraphCredential } from '../graph/graph-client.js';
 import { parseWorkloadRequest, runWorkload, WorkloadInputError, WORKLOADS } from './workload-runner.js';
 
 const RUN = { results: [], total: 1, succeeded: 1, failed: 0 } as never;
@@ -104,6 +105,27 @@ describe('runWorkload', () => {
     vi.mocked(resolveTargetItems).mockResolvedValue({ items: [], pool: 0, runStyle });
     await expect(runWorkload({ workload: 'sharepoint', runs: 1 })).rejects.toThrow(new WorkloadInputError(message));
     expect(mutateSharePoint).not.toHaveBeenCalled();
+  });
+
+  it('runs resolution and the workload under the app credential by default', async () => {
+    const seen: string[] = [];
+    vi.mocked(resolveTargetItems).mockImplementation(async () => {
+      seen.push(`resolve:${currentGraphCredential()}`);
+      return { items: ['a'], pool: 1, runStyle: 'explicit' };
+    });
+    vi.mocked(mutateCalendar).mockImplementation(async () => {
+      seen.push(`dispatch:${currentGraphCredential()}`);
+      return RUN;
+    });
+    await runWorkload({ workload: 'calendar', runs: 1 });
+    await runWorkload({ workload: 'calendar', runs: 1 }, { directoryCredential: 'agent' });
+    await runWorkload({ workload: 'calendar', runs: 1 }, { credential: 'agent', directoryCredential: 'agent' });
+    expect(seen).toEqual([
+      'resolve:app', 'dispatch:app',
+      'resolve:agent', 'dispatch:app',
+      'resolve:agent', 'dispatch:agent',
+    ]);
+    expect(currentGraphCredential()).toBe('app');
   });
 
   it('propagates upstream failures unchanged', async () => {

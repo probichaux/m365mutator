@@ -201,7 +201,8 @@ tests must still pass. The scheduler calls the same function.
 
 ### 3. Agent identity auth (`src/graph/agent-identity-credential.ts`)
 
-Add `GraphAuthMode = 'agent'` next to `certificate` and `client_secret`.
+The agent identity is a **second credential** next to the app registration,
+not a third `GraphAuthMode`: under Decision 6 both are configured at once.
 `AgentIdentityCredential implements TokenCredential` and does the two-hop flow
 from [Authenticate and acquire tokens for autonomous agents](https://learn.microsoft.com/entra/agent-id/autonomous-agent-authentication-authorization-flow):
 
@@ -220,8 +221,8 @@ Notes:
 - Cache by `(resource, agentId)` and refresh 5 minutes before expiry. The same
   credential serves Graph (`https://graph.microsoft.com/.default`) and
   Observability (`api://9b975845-388f-4429-889e-eab1ef63949c/.default`).
-- `GraphAuthManager` picks it when the auth mode is `agent`. `graph-client.ts`
-  doesn't change, because the credential plugs into `TokenCredentialAuthProvider`.
+- `createAgentIdentityCredential()` in `graph-auth.ts` builds it from the
+  runtime config, and it plugs into the existing `TokenCredentialAuthProvider`.
 - New config fields and env vars, named to match the Agent 365 samples:
   `AGENT365_TENANT_ID`, `AGENT365_BLUEPRINT_ID`, `AGENT365_AGENT_ID`,
   `AGENT365_CLIENT_SECRET` (dev only), `AGENT365_CERTIFICATE_PATH`,
@@ -232,14 +233,21 @@ Notes:
   acquisition fails. The scheduler treats that as a hard stop for the cycle,
   logs it, and backs off exponentially (capped at the interval). It doesn't
   run the cycle with the classic credential instead: a blocked agent stops all
-  writes, even the ones Decision 6 routes through the app registration.
+  writes, even the ones Decision 6 routes through the app registration. So
+  each cycle starts with an agent token preflight, even when every workload
+  uses `"app"`.
 - **Per-workload credential (Decision 6):** `schedule.json` gets
   `credentials: { mail, calendar, onedrive, sharepoint, deletions }`, each
   `"agent" | "app"`, defaulting to `"app"` while the
-  Exchange and SharePoint limitation stands. `GraphAuthManager` exposes one
-  Graph client per credential, and `workload-runner` takes the client for the
-  workload it runs. Directory lookups (`resolveTargetItems`, user attributes)
-  use the agent identity.
+  Exchange and SharePoint limitation stands. `graph-client.ts` caches one
+  Graph client per credential (`'app' | 'agent'`) and binds the current one
+  with `AsyncLocalStorage` (`withGraphCredential`), so the `src/graph/*`
+  helpers keep calling `getGraphClient()` unchanged. `runWorkload(req, opts)`
+  takes `credential` and `directoryCredential`, both defaulting to `'app'`
+  (interactive mode). In agent mode, target resolution uses the agent
+  identity. Directory reads made *inside* a workload (user attributes) run
+  under that workload's credential, which is the app registration today.
+  Phase 4 maps `schedule.json` onto these options.
 
 ### 4. Scheduler (`src/agent/scheduler.ts`)
 

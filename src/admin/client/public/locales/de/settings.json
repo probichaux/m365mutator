@@ -18,6 +18,24 @@
     "verifyConnection": "Graph-Verbindung überprüfen",
     "verifying": "Wird getestet..."
   },
+  "agent": {
+    "sectionTitle": "Agent 365-Agentidentität",
+    "description": "Optional. Die Entra Agent ID-Identität, die m365mutator als Agent 365-Agent für Registrierung, Verzeichnisabfragen und Telemetrie verwendet. Exchange und SharePoint akzeptieren noch keine Token von Agentidentitäten, daher laufen Änderungen an E-Mail, Kalender und Dateien weiterhin über die obige App-Registrierung.",
+    "blueprintId": "Blueprint-ID",
+    "agentId": "Agentidentitäts-ID",
+    "agentName": "Agentname",
+    "credentialType": "Blueprint-Anmeldeinformationen",
+    "credentialSecret": "Geheimer Clientschlüssel (nur Entwicklung)",
+    "credentialCert": "Zertifikat",
+    "credentialManagedIdentity": "Verwaltete Identität",
+    "clientSecret": "Geheimer Clientschlüssel des Blueprints",
+    "certificate": "Blueprint-Zertifikat (PEM)",
+    "certificateHint": "Eine PEM-Datei mit dem Zertifikat und seinem unverschlüsselten privaten Schlüssel.",
+    "managedIdentityClientId": "Client-ID der verwalteten Identität",
+    "managedIdentityClientIdHint": "Optional. Leer lassen, um die systemseitig zugewiesene Identität zu verwenden.",
+    "testToken": "Agenttoken testen",
+    "noRoles": "keine"
+  },
   "openRouter": {
     "sectionTitle": "OpenRouter",
     "description": "Optional. Wenn gesetzt, verwenden E-Mail-Mutationen OpenRouter, um zufällige Betreffzeilen und Nachrichtentexte zu generieren. Ohne Schlüssel wird stattdessen eine zufällige GUID verwendet.",
@@ -34,6 +52,8 @@
     "configurationSaved": "Konfiguration gespeichert",
     "saveFailed": "Speichern fehlgeschlagen",
     "certificateUploaded": "Zertifikat hochgeladen",
-    "uploadFailed": "Hochladen fehlgeschlagen"
+    "uploadFailed": "Hochladen fehlgeschlagen",
+    "agentTokenSuccess": "Agenttoken abgerufen ({{latencyMs}} ms). Rollen: {{roles}}",
+    "agentTokenFailed": "Agenttoken fehlgeschlagen: {{error}}"
   }
 }

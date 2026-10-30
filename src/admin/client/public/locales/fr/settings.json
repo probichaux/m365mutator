@@ -18,6 +18,24 @@
     "verifyConnection": "Vérifier la connexion Graph",
     "verifying": "Test en cours..."
   },
+  "agent": {
+    "sectionTitle": "Identité d'agent Agent 365",
+    "description": "Facultatif. L'identité Entra Agent ID utilisée par m365mutator lorsqu'il s'exécute en tant qu'agent Agent 365, pour l'inscription, les lectures d'annuaire et la télémétrie. Exchange et SharePoint n'acceptent pas encore les jetons d'identité d'agent ; les modifications de courrier, de calendrier et de fichiers passent donc toujours par l'inscription d'application ci-dessus.",
+    "blueprintId": "ID du blueprint",
+    "agentId": "ID de l'identité d'agent",
+    "agentName": "Nom de l'agent",
+    "credentialType": "Informations d'identification du blueprint",
+    "credentialSecret": "Secret client (développement uniquement)",
+    "credentialCert": "Certificat",
+    "credentialManagedIdentity": "Identité managée",
+    "clientSecret": "Secret client du blueprint",
+    "certificate": "Certificat du blueprint (PEM)",
+    "certificateHint": "Un fichier PEM contenant le certificat et sa clé privée non chiffrée.",
+    "managedIdentityClientId": "ID client de l'identité managée",
+    "managedIdentityClientIdHint": "Facultatif. Laissez vide pour utiliser l'identité affectée par le système.",
+    "testToken": "Tester le jeton d'agent",
+    "noRoles": "aucun"
+  },
   "openRouter": {
     "sectionTitle": "OpenRouter",
     "description": "Facultatif. Lorsqu'une clé est définie, les mutations de courrier utilisent OpenRouter pour générer des objets et des corps de message aléatoires. Sans clé, un GUID aléatoire est utilisé à la place.",
@@ -34,6 +52,8 @@
     "configurationSaved": "Configuration enregistrée",
     "saveFailed": "Échec de l'enregistrement",
     "certificateUploaded": "Certificat chargé",
-    "uploadFailed": "Échec du chargement"
+    "uploadFailed": "Échec du chargement",
+    "agentTokenSuccess": "Jeton d'agent obtenu ({{latencyMs}} ms). Rôles : {{roles}}",
+    "agentTokenFailed": "Échec du jeton d'agent : {{error}}"
   }
 }

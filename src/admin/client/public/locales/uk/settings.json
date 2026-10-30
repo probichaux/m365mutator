@@ -18,6 +18,24 @@
     "verifyConnection": "Перевірити з'єднання з Graph",
     "verifying": "Перевірка..."
   },
+  "agent": {
+    "sectionTitle": "Ідентичність агента Agent 365",
+    "description": "Необов'язково. Ідентичність Entra Agent ID, яку m365mutator використовує як агент Agent 365 для реєстрації, читання каталогу й телеметрії. Exchange і SharePoint поки не приймають токени ідентичностей агентів, тому зміни пошти, календаря й файлів і далі виконує реєстрація застосунку вище.",
+    "blueprintId": "ID шаблону (blueprint)",
+    "agentId": "ID ідентичності агента",
+    "agentName": "Назва агента",
+    "credentialType": "Облікові дані шаблону",
+    "credentialSecret": "Секрет клієнта (лише для розробки)",
+    "credentialCert": "Сертифікат",
+    "credentialManagedIdentity": "Керована ідентичність",
+    "clientSecret": "Секрет клієнта шаблону",
+    "certificate": "Сертифікат шаблону (PEM)",
+    "certificateHint": "Один PEM-файл із сертифікатом і його незашифрованим закритим ключем.",
+    "managedIdentityClientId": "ID клієнта керованої ідентичності",
+    "managedIdentityClientIdHint": "Необов'язково. Залиште порожнім, щоб використати системну ідентичність.",
+    "testToken": "Перевірити токен агента",
+    "noRoles": "немає"
+  },
   "openRouter": {
     "sectionTitle": "OpenRouter",
     "description": "Необовʼязково. Якщо вказано, поштові мутації використовують OpenRouter для генерації випадкових тем і текстів повідомлень. Без ключа замість цього використовується випадковий GUID.",
@@ -34,6 +52,8 @@
     "configurationSaved": "Конфігурацію збережено",
     "saveFailed": "Не вдалося зберегти",
     "certificateUploaded": "Сертифікат завантажено",
-    "uploadFailed": "Не вдалося завантажити"
+    "uploadFailed": "Не вдалося завантажити",
+    "agentTokenSuccess": "Токен агента отримано ({{latencyMs}} мс). Ролі: {{roles}}",
+    "agentTokenFailed": "Не вдалося отримати токен агента: {{error}}"
   }
 }

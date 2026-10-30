@@ -18,6 +18,24 @@
     "verifyConnection": "Verify Graph Connection",
     "verifying": "Testing..."
   },
+  "agent": {
+    "sectionTitle": "Agent 365 agent identity",
+    "description": "Optional. The Entra Agent ID identity m365mutator uses when it runs as an Agent 365 agent, for registration, directory reads and telemetry. Exchange and SharePoint don't accept agent identity tokens yet, so mail, calendar and file changes still go through the app registration above.",
+    "blueprintId": "Blueprint ID",
+    "agentId": "Agent identity ID",
+    "agentName": "Agent name",
+    "credentialType": "Blueprint credential",
+    "credentialSecret": "Client secret (development only)",
+    "credentialCert": "Certificate",
+    "credentialManagedIdentity": "Managed identity",
+    "clientSecret": "Blueprint client secret",
+    "certificate": "Blueprint certificate (PEM)",
+    "certificateHint": "One PEM file with the certificate and its unencrypted private key.",
+    "managedIdentityClientId": "Managed identity client ID",
+    "managedIdentityClientIdHint": "Optional. Leave blank to use the system-assigned identity.",
+    "testToken": "Test Agent Token",
+    "noRoles": "none"
+  },
   "openRouter": {
     "sectionTitle": "OpenRouter",
     "description": "Optional. When set, mail mutations use OpenRouter to generate random subject lines and message bodies. Without a key, a random GUID is used instead.",
@@ -34,6 +52,8 @@
     "configurationSaved": "Configuration saved",
     "saveFailed": "Save failed",
     "certificateUploaded": "Certificate uploaded",
-    "uploadFailed": "Upload failed"
+    "uploadFailed": "Upload failed",
+    "agentTokenSuccess": "Agent token acquired ({{latencyMs}}ms). Roles: {{roles}}",
+    "agentTokenFailed": "Agent token failed: {{error}}"
   }
 }

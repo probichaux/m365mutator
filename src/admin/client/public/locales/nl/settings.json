@@ -18,6 +18,24 @@
     "verifyConnection": "Graph-verbinding controleren",
     "verifying": "Bezig met testen..."
   },
+  "agent": {
+    "sectionTitle": "Agent 365-agentidentiteit",
+    "description": "Optioneel. De Entra Agent ID-identiteit die m365mutator gebruikt als Agent 365-agent, voor registratie, directory-opvragingen en telemetrie. Exchange en SharePoint accepteren nog geen tokens van agentidentiteiten, dus wijzigingen in e-mail, agenda en bestanden lopen nog steeds via de app-registratie hierboven.",
+    "blueprintId": "Blueprint-ID",
+    "agentId": "Agentidentiteit-ID",
+    "agentName": "Agentnaam",
+    "credentialType": "Blueprint-referentie",
+    "credentialSecret": "Clientgeheim (alleen ontwikkeling)",
+    "credentialCert": "Certificaat",
+    "credentialManagedIdentity": "Beheerde identiteit",
+    "clientSecret": "Clientgeheim van de blueprint",
+    "certificate": "Blueprint-certificaat (PEM)",
+    "certificateHint": "Eén PEM-bestand met het certificaat en de onversleutelde persoonlijke sleutel.",
+    "managedIdentityClientId": "Client-ID van beheerde identiteit",
+    "managedIdentityClientIdHint": "Optioneel. Laat leeg om de door het systeem toegewezen identiteit te gebruiken.",
+    "testToken": "Agenttoken testen",
+    "noRoles": "geen"
+  },
   "openRouter": {
     "sectionTitle": "OpenRouter",
     "description": "Optioneel. Indien ingesteld gebruiken e-mailmutaties OpenRouter om willekeurige onderwerpregels en berichtteksten te genereren. Zonder sleutel wordt in plaats daarvan een willekeurige GUID gebruikt.",
@@ -34,6 +52,8 @@
     "configurationSaved": "Configuratie opgeslagen",
     "saveFailed": "Opslaan mislukt",
     "certificateUploaded": "Certificaat geüpload",
-    "uploadFailed": "Uploaden mislukt"
+    "uploadFailed": "Uploaden mislukt",
+    "agentTokenSuccess": "Agenttoken opgehaald ({{latencyMs}} ms). Rollen: {{roles}}",
+    "agentTokenFailed": "Agenttoken mislukt: {{error}}"
   }
 }

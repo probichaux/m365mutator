@@ -1,7 +1,9 @@
 import { join, resolve, sep, basename } from 'node:path';
 import { mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { graphConfig } from '../helpers/graph-config.helper.js';
+import {
+  graphConfig, agentCredentialTypeFromEnv, AGENT_CREDENTIAL_TYPES, AgentCredentialType,
+} from '../helpers/graph-config.helper.js';
 import { atomicWriteJson, safeReadJson } from '../helpers/file.helper.js';
 import { resetGraphClient } from '../graph/graph-client.js';
 
@@ -12,6 +14,15 @@ export interface AppConfig {
   graphCertificatePath: string;
   graphCertificatePassword: string;
   graphSendCertificateChain: boolean;
+  /** Agent 365 agent identity; blank tenant falls back to graphTenantId. */
+  agentTenantId: string;
+  agentBlueprintId: string;
+  agentId: string;
+  agentName: string;
+  agentCredentialType: AgentCredentialType;
+  agentClientSecret: string;
+  agentCertificatePath: string;
+  agentManagedIdentityClientId: string;
   /** OpenRouter API key used to generate random mail text; blank falls back to GUIDs. */
   openRouterApiKey: string;
   /** OpenRouter model id used for that text generation. */
@@ -50,6 +61,14 @@ export function loadConfig(): AppConfig {
     graphCertificatePath: process.env.GRAPH_CERTIFICATE_PATH || '',
     graphCertificatePassword: process.env.GRAPH_CERTIFICATE_PASSWORD || '',
     graphSendCertificateChain: process.env.GRAPH_SEND_CERTIFICATE_CHAIN === 'true',
+    agentTenantId: process.env.AGENT365_TENANT_ID || '',
+    agentBlueprintId: process.env.AGENT365_BLUEPRINT_ID || '',
+    agentId: process.env.AGENT365_AGENT_ID || '',
+    agentName: process.env.AGENT365_AGENT_NAME || '',
+    agentCredentialType: agentCredentialTypeFromEnv(),
+    agentClientSecret: process.env.AGENT365_CLIENT_SECRET || '',
+    agentCertificatePath: process.env.AGENT365_CERTIFICATE_PATH || '',
+    agentManagedIdentityClientId: process.env.AGENT365_MANAGED_IDENTITY_CLIENT_ID || '',
     openRouterApiKey: process.env.OPENROUTER_API_KEY || '',
     openRouterModel: process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini',
     port: parseInt(process.env.PORT || '3700', 10),
@@ -80,7 +99,14 @@ export function loadConfig(): AppConfig {
     }
   }
 
+  if (!isAgentCredentialType(merged.agentCredentialType)) {
+    merged.agentCredentialType = defaults.agentCredentialType;
+  }
   return merged;
+}
+
+export function isAgentCredentialType(value: unknown): value is AgentCredentialType {
+  return AGENT_CREDENTIAL_TYPES.includes(value as AgentCredentialType);
 }
 
 export function saveConfig(config: AppConfig): void {
@@ -94,6 +120,8 @@ export function maskSecrets(config: AppConfig): AppConfig {
     graphCertificatePassword: config.graphCertificatePassword === '' ? '' : '********',
     openRouterApiKey: config.openRouterApiKey === '' ? '' : '********',
     graphCertificatePath: config.graphCertificatePath === '' ? '' : basename(config.graphCertificatePath),
+    agentClientSecret: config.agentClientSecret === '' ? '' : '********',
+    agentCertificatePath: config.agentCertificatePath === '' ? '' : basename(config.agentCertificatePath),
   };
 }
 
@@ -125,6 +153,14 @@ export function applyConfig(config: AppConfig): void {
   graphConfig.graphCertificatePath = config.graphCertificatePath;
   graphConfig.graphCertificatePassword = config.graphCertificatePassword;
   graphConfig.graphSendCertificateChain = config.graphSendCertificateChain;
+  graphConfig.agentTenantId = config.agentTenantId;
+  graphConfig.agentBlueprintId = config.agentBlueprintId;
+  graphConfig.agentId = config.agentId;
+  graphConfig.agentName = config.agentName;
+  graphConfig.agentCredentialType = config.agentCredentialType;
+  graphConfig.agentClientSecret = config.agentClientSecret;
+  graphConfig.agentCertificatePath = config.agentCertificatePath;
+  graphConfig.agentManagedIdentityClientId = config.agentManagedIdentityClientId;
   resetGraphClient();
 }
 

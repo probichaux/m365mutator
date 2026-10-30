@@ -1,9 +1,12 @@
 // Microsoft Graph authentication for M365Mutator.
-// Supports client secret and certificate-based (Entra ID app registration) authentication.
+// Supports client secret and certificate-based (Entra ID app registration) authentication,
+// plus the optional Agent 365 agent identity (see agent-identity-credential.ts).
 
 import { TokenCredential, ClientSecretCredential, ClientCertificateCredential } from '@azure/identity';
 import { AuthenticationProvider } from '@microsoft/microsoft-graph-client';
 import { logger } from '../logger/logger.js';
+import { graphConfig } from '../helpers/graph-config.helper.js';
+import { AgentIdentityCredential, BlueprintCredential } from './agent-identity-credential.js';
 import {
   getGraphClientId,
   getGraphTenantId,
@@ -95,4 +98,45 @@ export class GraphAuthManager {
   getAuthMode(): GraphAuthMode {
     return this.authMode;
   }
+}
+
+type AgentConfig = Pick<typeof graphConfig,
+  'graphTenantId' | 'agentTenantId' | 'agentBlueprintId' | 'agentId' | 'agentCredentialType'
+  | 'agentClientSecret' | 'agentCertificatePath' | 'agentManagedIdentityClientId'>;
+
+/** Why the agent identity can't be used, or null when it's fully configured. */
+export function agentIdentityConfigError(cfg: AgentConfig = graphConfig): string | null {
+  if (!(cfg.agentTenantId || cfg.graphTenantId)) return 'AGENT365_TENANT_ID (or GRAPH_TENANT_ID) is required';
+  if (!cfg.agentBlueprintId) return 'AGENT365_BLUEPRINT_ID is required';
+  if (!cfg.agentId) return 'AGENT365_AGENT_ID is required';
+  if (cfg.agentCredentialType === 'secret' && !cfg.agentClientSecret) {
+    return 'AGENT365_CLIENT_SECRET is required for the client secret blueprint credential';
+  }
+  if (cfg.agentCredentialType === 'certificate' && !cfg.agentCertificatePath) {
+    return 'AGENT365_CERTIFICATE_PATH is required for the certificate blueprint credential';
+  }
+  return null;
+}
+
+/** Build the agent identity credential from the runtime config. Throws when it's incomplete. */
+export function createAgentIdentityCredential(cfg: AgentConfig = graphConfig): AgentIdentityCredential {
+  const problem = agentIdentityConfigError(cfg);
+  if (problem) throw new Error(problem);
+  let blueprint: BlueprintCredential;
+  switch (cfg.agentCredentialType) {
+    case 'managedIdentity':
+      blueprint = { kind: 'managedIdentity', clientId: cfg.agentManagedIdentityClientId || undefined };
+      break;
+    case 'certificate':
+      blueprint = { kind: 'certificate', certificatePath: cfg.agentCertificatePath };
+      break;
+    default:
+      blueprint = { kind: 'secret', clientSecret: cfg.agentClientSecret };
+  }
+  return new AgentIdentityCredential({
+    tenantId: cfg.agentTenantId || cfg.graphTenantId,
+    blueprintId: cfg.agentBlueprintId,
+    agentId: cfg.agentId,
+    blueprint,
+  });
 }

@@ -22,7 +22,16 @@ interface ConfigData {
   graphCertificatePassword: string;
   openRouterApiKey: string;
   openRouterModel: string;
+  agentBlueprintId: string;
+  agentId: string;
+  agentName: string;
+  agentCredentialType: AgentCredentialType;
+  agentClientSecret: string;
+  agentCertificatePath: string;
+  agentManagedIdentityClientId: string;
 }
+
+type AgentCredentialType = 'secret' | 'certificate' | 'managedIdentity';
 
 export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
   const { t } = useTranslation('settings');
@@ -36,10 +45,19 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
   const [graphCertPassword, setGraphCertPassword] = useState('');
   const [openRouterApiKey, setOpenRouterApiKey] = useState('');
   const [openRouterModel, setOpenRouterModel] = useState('');
+  const [agentBlueprintId, setAgentBlueprintId] = useState('');
+  const [agentId, setAgentId] = useState('');
+  const [agentName, setAgentName] = useState('');
+  const [agentCredentialType, setAgentCredentialType] = useState<AgentCredentialType>('secret');
+  const [agentClientSecret, setAgentClientSecret] = useState('');
+  const [agentCertPath, setAgentCertPath] = useState('');
+  const [agentMiClientId, setAgentMiClientId] = useState('');
 
   const [testing, setTesting] = useState(false);
+  const [testingAgent, setTestingAgent] = useState(false);
   const [saving, setSaving] = useState(false);
   const certInputRef = useRef<HTMLInputElement>(null);
+  const agentCertInputRef = useRef<HTMLInputElement>(null);
 
   const loadSettings = useCallback(async () => {
     const result = await api<ConfigData>('GET', '/api/config');
@@ -54,6 +72,13 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
     if (c.graphCertificatePassword) setGraphCertPassword(c.graphCertificatePassword);
     if (c.openRouterApiKey) setOpenRouterApiKey(c.openRouterApiKey);
     if (c.openRouterModel) setOpenRouterModel(c.openRouterModel);
+    if (c.agentBlueprintId) setAgentBlueprintId(c.agentBlueprintId);
+    if (c.agentId) setAgentId(c.agentId);
+    if (c.agentName) setAgentName(c.agentName);
+    if (c.agentCredentialType) setAgentCredentialType(c.agentCredentialType);
+    if (c.agentClientSecret) setAgentClientSecret(c.agentClientSecret);
+    if (c.agentCertificatePath) setAgentCertPath(c.agentCertificatePath);
+    if (c.agentManagedIdentityClientId) setAgentMiClientId(c.agentManagedIdentityClientId);
   }, []);
 
   useEffect(() => {
@@ -78,6 +103,24 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
     }
   };
 
+  const testAgentToken = async () => {
+    setTestingAgent(true);
+    const result = await api<{ success: boolean; error?: string; latencyMs?: number; roles?: string[] }>(
+      'POST', '/api/test-agent', {
+        graphTenantId, agentBlueprintId, agentId, agentCredentialType,
+        agentClientSecret: agentClientSecret === '********' ? '' : agentClientSecret,
+        agentCertificatePath: agentCertPath, agentManagedIdentityClientId: agentMiClientId,
+      });
+    setTestingAgent(false);
+
+    if (result.data.success) {
+      const roles = result.data.roles?.length ? result.data.roles.join(', ') : t('agent.noRoles');
+      showToast(t('toast.agentTokenSuccess', { latencyMs: result.data.latencyMs || 0, roles }), 'success');
+    } else {
+      showToast(t('toast.agentTokenFailed', { error: result.data.error || 'Unknown error' }), 'error');
+    }
+  };
+
   const saveConfig = async () => {
     setSaving(true);
     const payload: Record<string, string> = {};
@@ -99,6 +142,13 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
     if (openRouterApiKey && openRouterApiKey !== '********') payload.openRouterApiKey = openRouterApiKey;
     if (openRouterModel) payload.openRouterModel = openRouterModel;
 
+    if (agentBlueprintId) payload.agentBlueprintId = agentBlueprintId;
+    if (agentId) payload.agentId = agentId;
+    if (agentName) payload.agentName = agentName;
+    payload.agentCredentialType = agentCredentialType;
+    if (agentClientSecret && agentClientSecret !== '********') payload.agentClientSecret = agentClientSecret;
+    if (agentMiClientId) payload.agentManagedIdentityClientId = agentMiClientId;
+
     const result = await api<{ success: boolean; error?: string }>('PUT', '/api/config', payload);
     setSaving(false);
 
@@ -109,13 +159,14 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
     }
   };
 
-  const uploadCert = async (file: File) => {
+  const uploadCert = async (file: File, target: 'graph' | 'agent' = 'graph') => {
     const form = new FormData();
     form.append('certificate', file);
-    const result = await fetch('/api/upload-certificate', { method: 'POST', body: form, credentials: 'same-origin' });
+    const url = target === 'agent' ? '/api/upload-certificate?target=agent' : '/api/upload-certificate';
+    const result = await fetch(url, { method: 'POST', body: form, credentials: 'same-origin' });
     const data = await result.json();
     if (data.success) {
-      setGraphCertPath(data.filename);
+      (target === 'agent' ? setAgentCertPath : setGraphCertPath)(data.filename);
       showToast(t('toast.certificateUploaded'), 'success');
     } else {
       showToast(data.error || t('toast.uploadFailed'), 'error');
@@ -205,6 +256,68 @@ export default function SettingsFlyout({ open, onClose }: SettingsFlyoutProps) {
             )}
             <Button appearance="outline" onClick={testConnection} disabled={testing}>
               {testing ? <><Spinner size="tiny" /> {t('graph.verifying')}</> : t('graph.verifyConnection')}
+            </Button>
+          </div>
+
+          {/* Agent 365 agent identity — optional; see plans/mod07-agent.md Decision 6 */}
+          <div style={sectionStyle}>
+            <Text weight="semibold" size={400} block style={{ marginBottom: 4 }}>{t('agent.sectionTitle')}</Text>
+            <Text size={200} block style={{ color: tokens.colorNeutralForeground3, marginBottom: 12 }}>
+              {t('agent.description')}
+            </Text>
+            <div style={fieldStyle}>
+              <Label size="small">{t('agent.blueprintId')}</Label>
+              <Input value={agentBlueprintId} onChange={(_, d) => setAgentBlueprintId(d.value)}
+                style={{ width: '100%', fontFamily: 'var(--fontFamilyMonospace)' }} />
+            </div>
+            <div style={fieldStyle}>
+              <Label size="small">{t('agent.agentId')}</Label>
+              <Input value={agentId} onChange={(_, d) => setAgentId(d.value)}
+                style={{ width: '100%', fontFamily: 'var(--fontFamilyMonospace)' }} />
+            </div>
+            <div style={fieldStyle}>
+              <Label size="small">{t('agent.agentName')}</Label>
+              <Input value={agentName} onChange={(_, d) => setAgentName(d.value)} style={{ width: '100%' }} />
+            </div>
+            <div style={fieldStyle}>
+              <Label size="small">{t('agent.credentialType')}</Label>
+              <RadioGroup value={agentCredentialType}
+                onChange={(_, d) => setAgentCredentialType(d.value as AgentCredentialType)}>
+                <Radio value="secret" label={t('agent.credentialSecret')} />
+                <Radio value="certificate" label={t('agent.credentialCert')} />
+                <Radio value="managedIdentity" label={t('agent.credentialManagedIdentity')} />
+              </RadioGroup>
+            </div>
+            {agentCredentialType === 'secret' && (
+              <div style={fieldStyle}>
+                <Label size="small">{t('agent.clientSecret')}</Label>
+                <Input type="password" value={agentClientSecret} onChange={(_, d) => setAgentClientSecret(d.value)}
+                  placeholder="********" style={{ width: '100%' }} />
+              </div>
+            )}
+            {agentCredentialType === 'certificate' && (
+              <div style={fieldStyle}>
+                <Label size="small">{t('agent.certificate')}</Label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <Input value={agentCertPath} readOnly placeholder={t('graph.certificateNotUploaded')}
+                    style={{ flex: 1, fontFamily: 'var(--fontFamilyMonospace)' }} />
+                  <Button appearance="outline" onClick={() => agentCertInputRef.current?.click()}>{t('graph.uploadPem')}</Button>
+                  <input ref={agentCertInputRef} type="file" accept=".pem" hidden
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) { uploadCert(f, 'agent'); e.target.value = ''; } }} />
+                </div>
+                <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>{t('agent.certificateHint')}</Text>
+              </div>
+            )}
+            {agentCredentialType === 'managedIdentity' && (
+              <div style={fieldStyle}>
+                <Label size="small">{t('agent.managedIdentityClientId')}</Label>
+                <Input value={agentMiClientId} onChange={(_, d) => setAgentMiClientId(d.value)}
+                  style={{ width: '100%', fontFamily: 'var(--fontFamilyMonospace)' }} />
+                <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>{t('agent.managedIdentityClientIdHint')}</Text>
+              </div>
+            )}
+            <Button appearance="outline" onClick={testAgentToken} disabled={testingAgent}>
+              {testingAgent ? <><Spinner size="tiny" /> {t('graph.verifying')}</> : t('agent.testToken')}
             </Button>
           </div>
 

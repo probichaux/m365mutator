@@ -44,3 +44,9 @@ junit.xml
 
 # Ignore local Claude Code session/runtime state
 .claude/
+
+# Agent 365 CLI / skills local state (generated config contains the blueprint client secret)
+a365.generated.config.json
+.a365-workspace-detection.local.json
+# Tenant-specific CLI config written by `a365 setup all`; the committed template lives in agent/
+/a365.config.json
